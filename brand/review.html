@@ -1,0 +1,947 @@
+<title>Mod Mark Directions</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Schibsted+Grotesk:wght@400;500;700;800&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: a long contact sheet. A smallest-first strip, then one sheet per direction, then the share card. */
+:root {
+  --bg: #F2F1EE;
+  --surface: #FFFFFF;
+  --fg: #28231F;
+  --muted: #6B645D;
+  --line: #DEDAD3;
+  --accent: #B65326;
+  --link: #9A4520;
+  --font-display: "Schibsted Grotesk", "Helvetica Neue", Arial, sans-serif;
+  --font-mono: "IBM Plex Mono", ui-monospace, Menlo, monospace;
+  /* specimen surfaces (fixed, not themed: they are the test surfaces) */
+  --s-paper: #FAF6EF;
+  --s-white: #FFFFFF;
+  --s-dark: #1E1B18;
+  --s-ink: #28231F;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #151413; --surface: #1F1D1B; --fg: #EDE8E1; --muted: #A59D94; --line: #34302C; --link: #E08A5F;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #151413; --surface: #1F1D1B; --fg: #EDE8E1; --muted: #A59D94; --line: #34302C; --link: #E08A5F;
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+body { background: var(--bg); color: var(--fg); font-family: var(--font-display); font-size: 16px; line-height: 1.5; padding-inline: 16px; padding-block: 40px 80px; }
+.wrap { max-width: 1120px; margin: 0 auto; display: grid; gap: 56px; }
+h1, h2, h3 { text-wrap: balance; margin: 0; line-height: 1.1; }
+h1 { font-size: clamp(2rem, 5vw, 3.25rem); font-weight: 800; letter-spacing: -0.02em; }
+h2 { font-size: 1.9rem; font-weight: 800; letter-spacing: -0.01em; }
+h3 { font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: var(--muted); }
+p { margin: 0; max-width: 65ch; }
+code, .mono { font-family: var(--font-mono); font-size: 0.88em; }
+a { color: var(--link); }
+.intro { display: grid; gap: 14px; }
+.eyebrow { font-family: var(--font-mono); font-size: 0.8rem; color: var(--accent); }
+.muted { color: var(--muted); }
+.sheet { background: var(--surface); border: 1px solid var(--line); border-radius: 6px; padding: clamp(16px, 3vw, 32px); display: grid; gap: 28px; min-width: 0; }
+.sheet-head { display: grid; gap: 8px; }
+.tag { font-family: var(--font-mono); font-size: 0.78rem; color: var(--muted); }
+.block { display: grid; gap: 12px; min-width: 0; }
+.row { display: flex; flex-wrap: wrap; gap: 12px; }
+.scroll { overflow-x: auto; }
+
+/* specimen tiles */
+.sizes { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 12px; }
+.sizebox { border-radius: 4px; padding: 18px 20px 12px; display: flex; align-items: flex-end; gap: 22px; }
+.sizebox figure { margin: 0; display: grid; justify-items: center; gap: 8px; }
+.sizebox figcaption { font-family: var(--font-mono); font-size: 0.7rem; opacity: 0.6; }
+.on-light { background: var(--s-paper); color: var(--s-ink); }
+.on-white { background: var(--s-white); color: var(--s-ink); box-shadow: inset 0 0 0 1px #E6E1D9; }
+.on-dark { background: var(--s-dark); color: #EDE8E1; }
+.variants { display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 10px; }
+.var { border-radius: 4px; display: grid; place-items: center; padding: 22px 8px 10px; gap: 10px; font-family: var(--font-mono); font-size: 0.68rem; text-align: center; }
+.var span { opacity: 0.65; }
+.big { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 12px; }
+.big > div { border-radius: 4px; padding: 24px; display: grid; place-items: center; }
+.big svg { width: 100%; max-width: 380px; height: auto; }
+details summary { cursor: pointer; font-family: var(--font-mono); font-size: 0.8rem; color: var(--link); }
+details summary:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
+.actual { margin-top: 12px; overflow-x: auto; background: var(--s-paper); border-radius: 4px; }
+.actual svg { display: block; }
+
+/* context: browser tabs */
+.ctx { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 12px; }
+.tabs { border-radius: 8px 8px 0 0; padding: 8px 8px 0; display: flex; gap: 2px; font-family: system-ui, -apple-system, "Segoe UI", sans-serif; font-size: 12px; overflow: hidden; }
+.tab { display: flex; align-items: center; gap: 8px; padding: 8px 12px; border-radius: 8px 8px 0 0; white-space: nowrap; min-width: 0; }
+.tab svg { flex: none; }
+.tabs.light { background: #DFE1E5; color: #3C4043; }
+.tabs.light .tab.active { background: #FFFFFF; color: #202124; }
+.tabs.dark { background: #1F2023; color: #9AA0A6; }
+.tabs.dark .tab.active { background: #35363A; color: #E8EAED; }
+.tab .ghost { width: 16px; height: 16px; border-radius: 3px; background: currentColor; opacity: 0.25; flex: none; }
+.urlbar { height: 34px; border-radius: 0 0 8px 8px; display: flex; align-items: center; padding: 0 12px; font: 12px system-ui, sans-serif; }
+.urlbar span { border-radius: 14px; padding: 4px 12px; width: 100%; }
+.light-bar { background: #FFFFFF; color: #5F6368; box-shadow: inset 0 -1px 0 #E3E3E3; }
+.light-bar span { background: #F1F3F4; }
+.dark-bar { background: #35363A; color: #BDC1C6; }
+.dark-bar span { background: #202124; }
+
+/* context: VitePress header */
+.vp { height: 64px; display: flex; align-items: center; gap: 8px; padding: 0 24px; font-family: Inter, system-ui, -apple-system, "Segoe UI", sans-serif; border-radius: 6px; overflow: hidden; }
+.vp .title { font-size: 16px; font-weight: 600; white-space: nowrap; }
+.vp .nav { margin-left: auto; display: flex; gap: 20px; font-size: 14px; font-weight: 500; white-space: nowrap; }
+.vp.light { background: #FFFFFF; color: #3C3C43; box-shadow: inset 0 -1px 0 #E2E2E3; }
+.vp.light .title { color: #3C3C43; }
+.vp.dark { background: #1B1B1F; color: #DFDFD6; box-shadow: inset 0 -1px 0 #2E2E32; }
+@media (max-width: 520px) { .vp .nav { display: none; } }
+
+/* context: GitHub README */
+.gh { border-radius: 6px; padding: 16px; display: grid; gap: 12px; font-family: -apple-system, "Segoe UI", system-ui, sans-serif; }
+.gh .file { font-size: 13px; font-weight: 600; }
+.gh.light { background: #FFFFFF; color: #1F2328; box-shadow: inset 0 0 0 1px #D1D9E0; }
+.gh.dark { background: #0D1117; color: #F0F6FC; box-shadow: inset 0 0 0 1px #3D444D; }
+.gh svg { width: 100%; height: auto; display: block; }
+.gh .h { font-size: 22px; font-weight: 600; padding-bottom: 6px; border-bottom: 1px solid currentColor; border-color: rgba(128,128,128,0.3); }
+.gh p { font-size: 14px; opacity: 0.85; }
+
+/* comparison strip */
+.compare { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 12px; }
+.compare .cell { border-radius: 4px; padding: 16px; display: grid; gap: 12px; }
+.compare .cell .row { align-items: flex-end; gap: 16px; }
+.compare .name { font-weight: 700; font-size: 0.95rem; }
+
+.notes { display: grid; gap: 6px; padding-left: 1.1em; margin: 0; max-width: 70ch; }
+.card-wrap { display: grid; gap: 16px; }
+.card-wrap svg { width: 100%; height: auto; display: block; border-radius: 4px; box-shadow: 0 0 0 1px var(--line); }
+.thumb { display: flex; flex-wrap: wrap; gap: 24px; align-items: flex-end; }
+.thumb figure { margin: 0; display: grid; gap: 6px; }
+.thumb figcaption { font-family: var(--font-mono); font-size: 0.72rem; color: var(--muted); }
+.li-card { width: 255px; max-width: 100%; border: 1px solid var(--line); border-radius: 6px; overflow: hidden; background: var(--surface); }
+.li-card svg { border-radius: 0; box-shadow: none; }
+.li-card div { padding: 8px 10px; font-size: 12px; font-family: system-ui, sans-serif; }
+footer { font-size: 0.85rem; color: var(--muted); }
+.replay { font: 500 0.85rem var(--font-display); color: var(--fg); background: var(--bg); border: 1px solid var(--line); border-radius: 4px; padding: 6px 14px; cursor: pointer; }
+.replay[aria-pressed="true"] { border-color: var(--accent); color: var(--accent); }
+.replay:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+#motion-card svg { width: 100%; height: auto; display: block; border-radius: 4px; box-shadow: 0 0 0 1px var(--line); }
+.piece-in { transform-box: fill-box; transform-origin: center; animation: piece-in 1.2s cubic-bezier(.22,.9,.25,1) both; }
+@keyframes piece-in { from { transform: translate(var(--dx), var(--dy)) scale(var(--s0, 1)); opacity: var(--o0, 1); } to { transform: none; opacity: 1; } }
+@media (prefers-reduced-motion: reduce) { .piece-in { animation: none; } }
+</style>
+
+<div class="wrap">
+  <header class="intro">
+    <div class="eyebrow">tey/mod · brand kit · step 1 of 2 · round 5</div>
+    <h1>Packed square</h1>
+    <p>A bento grid contained in a square, in warm tones. Every piece is a different size and fits exactly one way, like a real-world game of Tetris: irregular pieces packed perfectly, every one seated, with even gaps and flush edges. Tey orange marks one meaningful piece in each packing.</p>
+    <p class="muted">Three packings, each in two palettes: <strong>Clay</strong> (umber, clay and sand steps around the orange) and <strong>Ink</strong> (ink and paper tints with the orange as the only colour). The tones never carry the separation on their own; the gaps do, which is why mono and reversed still read. Each mark is generated at the size it’s shown, so every edge lands on a whole pixel at 16, 24 and 32&nbsp;px.</p>
+    <p class="muted"><strong>Corners:</strong> the square’s four outer corners take the shared radius (1/24 of the size). Inner corners where pieces meet take half that, so each piece still reads as a separate physical block while the gaps stay even where four pieces meet; the inside corner of an L stays sharp so its gap keeps its width. At 16&nbsp;px all of these round to nothing, which is fine.</p>
+  </header>
+
+  <section class="block" aria-labelledby="small5">
+    <h2 id="small5">Smallest first</h2>
+    <p class="muted">All six at 16 and 24&nbsp;px. Paper on the left, a dark tab on the right.</p>
+    <div class="compare" id="compare5" style="grid-template-columns:repeat(auto-fit,minmax(min(100%,300px),1fr))"></div>
+  </section>
+
+  <div id="sheets5" style="display:grid;gap:56px"></div>
+
+  <section class="sheet" aria-labelledby="motion">
+    <div class="sheet-head">
+      <span class="tag">optional extra · motion study · 1.2 s, plays once</span>
+      <h2 id="motion">The piece going in</h2>
+      <p>For the docs header and the share card only. On load, the orange piece drops into place once over 1.2&nbsp;s and then rests, seated. Shown with the clay palette. The static mark is always the seated state, and with reduced motion turned on there is no animation at all.</p>
+    </div>
+    <div class="block">
+      <div class="row"><button type="button" id="replay" class="replay">Replay</button></div>
+      <div id="motion-headers" style="display:grid;gap:12px"></div>
+    </div>
+    <div class="block">
+      <h3>Share card</h3>
+      <div class="row" id="motion-pick" role="group" aria-label="Mark on the share card"></div>
+      <div id="motion-card"></div>
+    </div>
+  </section>
+
+  <header class="intro" style="padding-top:24px;border-top:1px solid var(--line)">
+    <div class="eyebrow">round 4 · superseded before review, for reference</div>
+    <h2>Complete</h2>
+    <p>Every block seated, perfectly aligned, with even gaps, in a neat square. Nothing hovers, nothing is offset, and there are no ghost outlines. The orange block is simply the piece that completes the arrangement; its colour alone tells that story.</p>
+    <p class="muted">Each mark is generated at the size it’s shown, so every edge lands on a whole pixel at 16, 24 and 32&nbsp;px. The gap is 1&nbsp;px up to 31&nbsp;px and 1/16 of the size above that, and the corner radius is 1/24 of the size. Where a grid can’t divide evenly at a small size, the spare pixels go to matching cells on both sides so the symmetry holds.</p>
+  </header>
+
+  <section class="block" aria-labelledby="small4">
+    <h3 id="small4">Smallest first</h3>
+    <p class="muted">The four at 16 and 24&nbsp;px. Paper on the left, a dark tab on the right.</p>
+    <div class="compare" id="compare4"></div>
+  </section>
+
+  <div id="sheets4" style="display:grid;gap:56px"></div>
+
+
+  <header class="intro" style="padding-top:24px;border-top:1px solid var(--line)">
+    <div class="eyebrow">round 3 · for reference</div>
+    <h2>The last piece</h2>
+    <p>Keystone, refined into a neat square of modules with the orange piece as the last one going in. The square is already complete and tidy; the orange piece sits just above its gap or a hair out of place, about to drop in or click home. That’s the feeling the mark is after: irregular modules arranged into an organized whole.</p>
+    <p class="muted">Each mark is generated at the size it’s shown, so every edge lands on a whole pixel at 16, 24 and 32&nbsp;px (the centre-joint blur from round 2 is gone). The gap is 1&nbsp;px up to 31&nbsp;px and 1/16 of the size above that, the corner radius is 1/24 of the size, and the orange is on the last piece only. From 48&nbsp;px up a faint outline marks the gap it’s about to fill.</p>
+  </header>
+
+  <section class="block" aria-labelledby="small3">
+    <h3 id="small3">Smallest first</h3>
+    <p class="muted">The four at 16 and 24&nbsp;px, with round 2’s Keystone for comparison. Paper on the left, a dark tab on the right.</p>
+    <div class="compare" id="compare3" style="grid-template-columns:repeat(auto-fit,minmax(190px,1fr))"></div>
+  </section>
+
+  <div id="sheets3" style="display:grid;gap:56px"></div>
+
+  <header class="intro" style="padding-top:24px;border-top:1px solid var(--line)">
+    <div class="eyebrow">round 2 · for reference</div>
+    <h2>Lift, in masonry</h2>
+    <p>You picked Lift. Round 2 rebuilds it as masonry: blocks of different sizes, irregular but symmetrical, with the orange module lifted out. From 48&nbsp;px up a faint ghost outline marks the slot it came from, so the mark says “copied”, not “moved”. Below 48&nbsp;px the slot is simply empty.</p>
+    <p class="muted">Every variant uses the same rules: 4 to 6 blocks on a 48-unit grid, a 3-unit gap (1&nbsp;px at 16), a 2-unit corner radius, and Tey orange <code>#B65326</code> on the lifted block only. Round 1 is further down for reference. Wordmarks are live text for the review; the kit draws them as outlines.</p>
+  </header>
+
+  <section class="block" aria-labelledby="small2">
+    <h3 id="small2">Smallest first</h3>
+    <p class="muted">The four masonry variants at 16 and 24&nbsp;px, with round 1’s Lift for comparison. Paper on the left, a dark tab on the right.</p>
+    <div class="compare" id="compare2" style="grid-template-columns:repeat(auto-fit,minmax(190px,1fr))"></div>
+  </section>
+
+  <div id="sheets2" style="display:grid;gap:56px"></div>
+
+  <header class="intro" style="padding-top:24px;border-top:1px solid var(--line)">
+    <div class="eyebrow">round 1 · for reference</div>
+    <h2>Four marks for Mod</h2>
+    <p class="muted">The first four directions. Lift (A) was picked.</p>
+  </header>
+
+  <section class="block" aria-labelledby="small">
+    <h3 id="small">Smallest first</h3>
+    <div class="compare" id="compare"></div>
+  </section>
+
+  <div id="sheets" style="display:grid;gap:56px"></div>
+
+  <section class="sheet" aria-labelledby="share">
+    <div class="sheet-head">
+      <span class="tag">share card · sketch · 2400 × 1200 (2:1)</span>
+      <h2 id="share">The share card</h2>
+      <p>The mark and name large, over the real <code>app/Modules/</code> tree and the real <code>mod:*</code> commands from the README’s “Self-Contained Modules” section, faded to 0.52 so they stay visible. The <code>Agents/</code> module is the orange one: the folder you’d copy to the next project. Shown with the Lift mark; it takes whichever mark you pick.</p>
+    </div>
+    <div class="card-wrap">
+      <div id="card"></div>
+      <div class="thumb">
+        <figure><div class="li-card" id="thumb"></div><figcaption>255 px, the LinkedIn thumbnail</figcaption></figure>
+      </div>
+    </div>
+  </section>
+
+  <footer>The exploration that led to the Corner mark, kept for the record. The kit itself is generated by <code>brand/build.mjs</code>. Specimens are inline SVG on a 48-unit grid, so 16, 32 and 48&nbsp;px land on whole pixels.</footer>
+</div>
+
+<script>
+const ORANGE = '#B65326', INK = '#28231F', PAPER = '#FAF6EF';
+
+// Each mark is drawn on a 48-unit grid. `a` = the orange part, `b` = everything else.
+const MARKS = [
+  {
+    id: 'lift', name: 'Lift', seed: true,
+    idea: 'A grid of modules with one lifted out of its slot, on its way to the next project.',
+    notes: [
+      'The lead’s seed. Reads at 16 px as three ink squares and an orange one breaking the grid, which is the whole story.',
+      'Cut to a 2 × 2 grid on purpose: a 3 × 3 grid turned to texture at 16 px. The empty slot says “moved”; the kit could add a faint ghost outline at 48 px and up if you want it to say “copied”.',
+      'Mono and reversed still work, because the offset carries the idea, not the colour.'
+    ],
+    draw: (a, b) => `
+      <rect x="3" y="12" width="15" height="15" rx="2" fill="${b}"/>
+      <rect x="3" y="30" width="15" height="15" rx="2" fill="${b}"/>
+      <rect x="21" y="30" width="15" height="15" rx="2" fill="${b}"/>
+      <rect x="30" y="3" width="15" height="15" rx="2" fill="${a}"/>`
+  },
+  {
+    id: 'branch', name: 'Branch', seed: false,
+    idea: 'The <code>tree</code> output of a project: a root, a trunk, two modules hanging off it. The last module is orange.',
+    notes: [
+      'Speaks the product’s own vernacular: the ├── and └── of the folder listing you see in the docs and on the share card.',
+      'Says “your folder structure” more than “copy a module”. It’s the generators-and-layouts half of Mod.',
+      'At 16 px the connectors are 2 px lines, so it holds, but it’s busier than Lift.',
+      'The catch: the silhouette reads as a capital E, in the tab and the docs header most of all. A wrong letter beside “Mod” is a real cost.'
+    ],
+    draw: (a, b) => `
+      <rect x="3" y="3" width="24" height="9" rx="1.5" fill="${b}"/>
+      <rect x="6" y="12" width="6" height="30" fill="${b}"/>
+      <rect x="12" y="21" width="12" height="6" fill="${b}"/>
+      <rect x="12" y="36" width="12" height="6" fill="${b}"/>
+      <rect x="27" y="18" width="18" height="12" rx="1.5" fill="${b}"/>
+      <rect x="27" y="33" width="18" height="12" rx="1.5" fill="${a}"/>`
+  },
+  {
+    id: 'blockm', name: 'Block M', seed: false,
+    idea: 'An M built from nine modules on a 5 × 4 grid. The orange block is the vertex, the one the letter hangs from.',
+    notes: [
+      'The most literal name-mark: it says “M” and “made of blocks” at once, and it pairs with a wordmark naturally.',
+      'At 16 px the gaps close to half a pixel and it becomes a solid pixel-font M. Still legible, but the “modules” part only shows from 32 px up.',
+      'The orange vertex is small at favicon size; on the dark tab it’s the weakest orange of the four.'
+    ],
+    draw: (a, b) => {
+      const cells = [[0,0],[0,1],[0,2],[0,3],[4,0],[4,1],[4,2],[4,3],[1,1],[3,1]];
+      const r = (c, rw, f) => `<rect x="${1.5 + c * 9 + 0.75}" y="${6 + rw * 9 + 0.75}" width="7.5" height="7.5" rx="1" fill="${f}"/>`;
+      return cells.map(([c, rw]) => r(c, rw, b)).join('') + r(2, 2, a);
+    }
+  },
+  {
+    id: 'contained', name: 'Contained', seed: false,
+    idea: 'A module between brackets: one self-contained block, bounded, with everything it needs inside.',
+    notes: [
+      'The simplest and sturdiest at 16 px; the orange block is the biggest of the four, so it holds best on dark.',
+      'Brackets read as “code” immediately. That’s the strength and the risk: it’s the most generic shape here and least specific to Mod.',
+      'Says “self-contained” clearly; says nothing about moving or copying.'
+    ],
+    draw: (a, b) => `
+      <path d="M3 6h12v6H9v24h6v6H3z" fill="${b}"/>
+      <path d="M45 6H33v6h6v24h-6v6h12z" fill="${b}"/>
+      <rect x="15" y="15" width="18" height="18" rx="2" fill="${a}"/>`
+  }
+];
+
+const svg = (m, size, a, b, tile) => {
+  const bg = tile ? `<rect width="48" height="48" fill="${tile}"/>` : '';
+  const inner = tile ? `<g transform="translate(7.2 7.2) scale(0.7)">${m.draw(a, b, size * 0.7)}</g>` : m.draw(a, b, size);
+  return `<svg width="${size}" height="${size}" viewBox="0 0 48 48" role="img" aria-label="${m.name} mark">${bg}${inner}</svg>`;
+};
+const colourLight = (m, s) => svg(m, s, ORANGE, INK);
+const colourDark = (m, s) => svg(m, s, ORANGE, PAPER);
+
+const sizeStrip = (m, cls, fn, sizes = [16, 24, 32, 48]) =>
+  `<div class="sizebox ${cls}">${sizes.map(s => `<figure>${fn(m, s)}<figcaption>${s}</figcaption></figure>`).join('')}</div>`;
+
+// smallest-first comparison
+document.getElementById('compare').innerHTML = MARKS.map(m => `
+  <div class="cell on-white">
+    <div class="name">${m.name}${m.seed ? ' <span class="muted" style="font-weight:400">(seed)</span>' : ''}</div>
+    <div class="row">
+      <span>${colourLight(m, 16)}</span><span>${colourLight(m, 24)}</span>
+      <span style="background:#202124;padding:6px;border-radius:4px;display:flex;gap:10px;align-items:flex-end">${colourDark(m, 16)}${colourDark(m, 24)}</span>
+    </div>
+  </div>`).join('');
+
+const banner = (m, dark) => {
+  const bg = PAPER, fg = INK;
+  return `<svg viewBox="0 0 1200 320" role="img" aria-label="Mod README banner">
+    <rect width="1200" height="320" fill="${bg}"/>
+    <g transform="translate(96 64) scale(4)">${m.draw(ORANGE, fg, 192)}</g>
+    <text x="336" y="178" font-family="Schibsted Grotesk, Helvetica Neue, Arial, sans-serif" font-weight="800" font-size="124" letter-spacing="-4" fill="${fg}">Mod</text>
+    <text x="340" y="232" font-family="Schibsted Grotesk, Helvetica Neue, Arial, sans-serif" font-weight="500" font-size="34" fill="${fg}" opacity="0.75">Modular Development Toolkit for Laravel</text>
+  </svg>`;
+};
+
+const sheet = (m, i, label = 'direction ' + String.fromCharCode(65 + i)) => `
+  <section class="sheet" id="${m.id}" aria-labelledby="h-${m.id}">
+    <div class="sheet-head">
+      <span class="tag">${label}${m.seed ? ' · the lead’s seed' : ''}${m.symmetry ? ' · ' + m.symmetry : ''}</span>
+      <h2 id="h-${m.id}">${m.name}</h2>
+      <p>${m.idea}</p>
+      ${m.lifted ? `<p><strong>${m.pieceLabel || 'Lifted'}:</strong> ${m.lifted}</p>` : ''}
+      <ul class="notes muted">${m.notes.map(n => `<li>${n}</li>`).join('')}</ul>
+    </div>
+
+    <div class="block">
+      <h3>16 · 24 · 32 · 48 px</h3>
+      <div class="sizes">
+        ${sizeStrip(m, 'on-light', colourLight)}
+        ${sizeStrip(m, 'on-dark', colourDark)}
+      </div>
+    </div>
+
+    <div class="block">
+      <h3>Colour, mono, reversed · 64 px</h3>
+      <div class="variants">
+        <div class="var on-light">${svg(m, 64, ORANGE, INK)}<span>colour · light</span></div>
+        <div class="var on-dark">${svg(m, 64, ORANGE, PAPER)}<span>colour · dark</span></div>
+        <div class="var on-light">${svg(m, 64, INK, INK)}<span>mono · light</span></div>
+        <div class="var on-dark">${svg(m, 64, PAPER, PAPER)}<span>mono · dark</span></div>
+        <div class="var on-light">${svg(m, 64, PAPER, PAPER, INK)}<span>reversed · ink tile</span></div>
+        <div class="var on-dark">${svg(m, 64, PAPER, PAPER, ORANGE)}<span>reversed · orange tile</span></div>
+      </div>
+    </div>
+
+    <div class="block">
+      <h3>1024 px</h3>
+      <div class="big">
+        <div class="on-light">${colourLight(m, 1024).replace('width="1024" height="1024"', 'width="1024" height="1024" style="width:100%;height:auto;max-width:380px"')}</div>
+        <div class="on-dark">${colourDark(m, 1024).replace('width="1024" height="1024"', 'width="1024" height="1024" style="width:100%;height:auto;max-width:380px"')}</div>
+      </div>
+      <details>
+        <summary>Open at actual 1024 px</summary>
+        <div class="actual">${colourLight(m, 1024)}</div>
+      </details>
+    </div>
+
+    <div class="block">
+      <h3>In a browser tab</h3>
+      <div class="ctx">
+        <div>
+          <div class="tabs light"><div class="tab active">${colourLight(m, 16)}<span>Mod for Laravel</span></div><div class="tab"><span class="ghost"></span><span>Laravel - The PHP Framework</span></div></div>
+          <div class="urlbar light-bar"><span>mod.teylabs.com/guide/layouts</span></div>
+        </div>
+        <div>
+          <div class="tabs dark"><div class="tab active">${colourDark(m, 16)}<span>Mod for Laravel</span></div><div class="tab"><span class="ghost"></span><span>Laravel - The PHP Framework</span></div></div>
+          <div class="urlbar dark-bar"><span>mod.teylabs.com/guide/layouts</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="block">
+      <h3>In the docs header</h3>
+      <div style="display:grid;gap:12px">
+        <div class="vp light">${colourLight(m, 24)}<span class="title">Mod for Laravel</span><span class="nav"><span>Guide</span><span>Reference</span><span>GitHub</span></span></div>
+        <div class="vp dark">${colourDark(m, 24)}<span class="title">Mod for Laravel</span><span class="nav"><span>Guide</span><span>Reference</span><span>GitHub</span></span></div>
+      </div>
+    </div>
+
+    <div class="block">
+      <h3>As the GitHub README banner · 1200 × 320</h3>
+      <div class="ctx">
+        <div class="gh light"><span class="file">README.md</span>${banner(m)}<p>Laravel generators and auto-discovery that work in the folder structure you choose.</p></div>
+        <div class="gh dark"><span class="file">README.md</span>${banner(m)}<p>Laravel generators and auto-discovery that work in the folder structure you choose.</p></div>
+      </div>
+    </div>
+  </section>`;
+
+document.getElementById('sheets').innerHTML = MARKS.map((m, i) => sheet(m, i)).join('');
+
+// Round 2: Lift in masonry. Same 48-unit grid, 3-unit gaps, 2-unit radius.
+// `ghost` is the lifted block's empty slot, outlined faintly from 48 px up.
+const R = (x, y, w, h, f) => `<rect x="${x}" y="${y}" width="${w}" height="${h}" rx="2" fill="${f}"/>`;
+const ghost = ([x, y, w, h], a, size) => {
+  if (size < 48) return '';
+  const px = Math.max(1, size / 200);          // stroke in screen pixels
+  const u = px * 48 / size;                     // the same stroke in grid units
+  return `<rect x="${x + u / 2}" y="${y + u / 2}" width="${w - u}" height="${h - u}" rx="${2 - u / 2}" fill="none" stroke="${a}" stroke-width="${u}" opacity="0.45"/>`;
+};
+const masonry = (blocks, slot, lift) => (a, b, size) =>
+  blocks.map(r => R(...r, b)).join('') + ghost(slot, a, size) + R(...lift, a);
+
+const MASONRY = [
+  {
+    id: 'bento', name: 'Bento',
+    symmetry: 'mirror across the diagonal',
+    idea: 'One large square, one wide bar, one tall bar and one small square, filling a clean square. The small corner square is lifted out to the upper right.',
+    lifted: 'the small corner square. It is the only block that sits on the axis of symmetry, so lifting it along the diagonal keeps the mirror intact, and the smallest block reads as the portable one.',
+    notes: [
+      'The wide bar and the tall bar are reflections of each other across the diagonal from lower left to upper right; the large square and the corner square sit on that line.',
+      'Closest to round 1’s Lift at 16 px (same outer square, same corner exit), with more variety in the blocks once it’s bigger.',
+      'Four blocks, so it stays clean in the tab.'
+    ],
+    draw: masonry(
+      [[3, 12, 21, 9], [3, 24, 21, 21], [27, 24, 9, 21]],
+      [27, 12, 9, 9],
+      [36, 3, 9, 9])
+  },
+  {
+    id: 'pinwheel', name: 'Pinwheel',
+    symmetry: 'rotational, four-fold',
+    idea: 'Four equal bars turning around a centre square. The centre square is lifted out of the hub to the upper right.',
+    lifted: 'the centre square. It is the one block every other block turns around, and removing it is the only move that keeps the four-fold rotation of what stays behind.',
+    notes: [
+      'The most “designed” of the four: it’s the classic pinwheel tiling, so it reads as a pattern, not a stack.',
+      'The empty hub is easy to see from 32 px up; at 16 px it’s a 3 px hole and the mark reads as a whirl with a dot beside it.',
+      'Lifting from the centre to the corner is a longer jump than the others make, so it reads less like “lifted” and more like “taken out”.'
+    ],
+    draw: masonry(
+      [[3, 12, 21, 9], [27, 12, 9, 21], [15, 36, 21, 9], [3, 24, 9, 21]],
+      [15, 24, 9, 9],
+      [36, 3, 9, 9])
+  },
+  {
+    id: 'keystone', name: 'Keystone',
+    symmetry: 'mirror, left to right',
+    idea: 'Offset brick rows: a full bar, two bricks above it, and one brick across their joint on top. The top brick is pulled straight up, two-thirds out of its slot.',
+    lifted: 'the top brick. It is the only block on the vertical axis that can leave without disturbing the others, and lifting it straight up keeps the mark mirror-symmetric even mid-move.',
+    notes: [
+      'The stepped outline is the irregular part; the bricks and the offset joint make it read as building with modules.',
+      'Because the brick only lifts partway, the ghost slot shows under it from 48 px up, like a block being drawn out of a wall.',
+      'The joint between the two middle bricks is centred, so at 16 px it falls on a half pixel and softens. It shows at 32 and 48.'
+    ],
+    draw: masonry(
+      [[6, 24, 16.5, 9], [25.5, 24, 16.5, 9], [6, 36, 36, 9]],
+      [12, 12, 24, 9],
+      [12, 6, 24, 9])
+  },
+  {
+    id: 'drawer', name: 'Drawer',
+    symmetry: 'mirror, left to right',
+    idea: 'A tall centre block between two stacked pairs, on a wide base bar. The tall centre block is pulled up out of its slot like a drawer or a card from a file.',
+    lifted: 'the tall centre block. It sits on the axis, so pulling it straight up keeps the mirror, and the tallest block is the one that most looks like it can be slid out and carried off.',
+    notes: [
+      'Six blocks, the most on the page; still separates at 16 px because every gap lands on a whole pixel.',
+      'Reads as “taking a module out of the project” more literally than the others, since the block is caught mid-pull.',
+      'The silhouette (two stacks around a raised centre) can read as a tower or a castle at a glance.'
+    ],
+    draw: masonry(
+      [[6, 12, 9, 9], [6, 24, 9, 9], [33, 12, 9, 9], [33, 24, 9, 9], [6, 36, 36, 9]],
+      [18, 12, 12, 21],
+      [18, 3, 12, 21])
+  }
+];
+
+document.getElementById('compare2').innerHTML = [...MASONRY, MARKS[0]].map(m => `
+  <div class="cell on-white">
+    <div class="name">${m.name}${m === MARKS[0] ? ' <span class="muted" style="font-weight:400">(round 1)</span>' : ''}</div>
+    <div class="row">
+      <span>${colourLight(m, 16)}</span><span>${colourLight(m, 24)}</span>
+      <span style="background:#202124;padding:6px;border-radius:4px;display:flex;gap:10px;align-items:flex-end">${colourDark(m, 16)}${colourDark(m, 24)}</span>
+    </div>
+  </div>`).join('');
+document.getElementById('sheets2').innerHTML = MASONRY.map((m, i) => sheet(m, i, 'masonry ' + (i + 1))).join('');
+
+// Round 3: the last piece. Each mark is generated at its target pixel size N,
+// so every edge is a whole pixel, then scaled back into the 48-unit viewBox.
+const gapFor = N => Math.max(1, Math.floor(N / 16));
+const marginFor = N => Math.floor(N / 32);
+const rows3 = T => { const b = Math.floor(T / 3), r = T - 3 * b; return r === 0 ? [b, b, b] : r === 1 ? [b, b + 1, b] : [b + 1, b, b + 1]; };
+// Brick rows: 'B' = half, full, half (the centre full brick is the keystone slot in the first B row); 'A' = two fulls; 'K' = headroom.
+// Widths: full F = (W - g) / 2, half H = (F - g) / 2, so W must be ≡ 3g (mod 4).
+const brickOk = (W, g) => W > 4 * g && (W - 3 * g) % 4 === 0;
+const brickRows = (x0, y0, W, g, types, heights) => {
+  const F = (W - g) / 2, H = (F - g) / 2; let y = y0, slot = null; const blocks = [];
+  types.forEach((t, i) => {
+    const h = heights[i];
+    if (t === 'B') {
+      const key = [x0 + H + g, y, F, h];
+      blocks.push([x0, y, H, h], [x0 + H + g + F + g, y, H, h]);
+      if (!slot) slot = key; else blocks.push(key);
+    } else if (t === 'A') blocks.push([x0, y, F, h], [x0 + F + g, y, F, h]);
+    y += h + g;
+  });
+  return { blocks, slot, F, H };
+};
+const LAYOUTS = {
+  // (a) the piece hovers one gap above its slot, about to drop in
+  hover(N) {
+    const g = gapFor(N), m = marginFor(N);
+    for (let S = N - 2 * m; S > 0; S--) {
+      if (!brickOk(S, g)) continue;
+      const hs = rows3(S - 2 * g), total = S + g + hs[0];
+      if (total > N - 2 * m) continue;
+      const x0 = Math.floor((N - S) / 2), top = Math.floor((N - total) / 2), y0 = top + hs[0] + g;
+      const { blocks, slot } = brickRows(x0, y0, S, g, ['B', 'A', 'B'], hs);
+      return { blocks, slot, piece: [slot[0], top, slot[2], slot[3]] };
+    }
+  },
+  // (b) a square frame with a row of headroom; the piece waits in the headroom
+  frame(N) {
+    const g = gapFor(N), m = marginFor(N);
+    for (let Sf = N - 2 * m; Sf > 0; Sf--) {
+      const I = Sf - 4 * g; if (!brickOk(I, g)) continue;
+      const hs = rows3(I - 2 * g), fx = Math.floor((N - Sf) / 2), ix = fx + 2 * g;
+      const { blocks, slot } = brickRows(ix, ix + hs[0] + g, I, g, ['B', 'A'], [hs[1], hs[2]]);
+      return { blocks, slot, piece: [slot[0], ix, slot[2], hs[0]], frame: [fx, fx, Sf, g] };
+    }
+  },
+  // (c) the piece is in its slot but a hair high, about to click home
+  click(N) {
+    const g = gapFor(N), m = marginFor(N);
+    for (let S = N - 2 * m; S > 0; S--) {
+      if (!brickOk(S, g) || S + g > N - 2 * m) continue;
+      const hs = rows3(S - 2 * g), x0 = Math.floor((N - S) / 2), y0 = Math.floor((N - S - g) / 2) + g;
+      const { blocks, slot } = brickRows(x0, y0, S, g, ['B', 'A', 'B'], hs);
+      return { blocks, slot, piece: [slot[0], slot[1] - g, slot[2], slot[3]] };
+    }
+  },
+  // (d) an irregular packing on a 5 × 5 cell grid, mirrored across the lower-left to upper-right diagonal
+  pack(N) {
+    const g = gapFor(N), m = marginFor(N);
+    const c = Math.floor((N - 2 * m - 5 * g) / 5), S = 5 * c + 4 * g;
+    const x0 = Math.floor((N - S - g) / 2), y0 = x0 + g;
+    const cell = (r, col, rs, cs) => [x0 + col * (c + g), y0 + r * (c + g), cs * c + (cs - 1) * g, rs * c + (rs - 1) * g];
+    const slot = cell(0, 3, 2, 2);
+    return {
+      blocks: [cell(2, 0, 3, 3), cell(0, 0, 2, 2), cell(3, 3, 2, 2), cell(0, 2, 2, 1), cell(2, 3, 1, 2)],
+      slot, piece: [slot[0] + g, slot[1] - g, slot[2], slot[3]]
+    };
+  }
+};
+const lastPiece = kind => (a, b, size) => {
+  const N = Math.max(8, Math.round(size)), L = LAYOUTS[kind](N), rx = N / 24;
+  const rr = ([x, y, w, h], f) => `<rect x="${x}" y="${y}" width="${w}" height="${h}" rx="${Math.min(rx, w / 3, h / 3)}" fill="${f}"/>`;
+  let out = L.blocks.map(r => rr(r, b)).join('');
+  if (L.frame) { const [x, y, s, sw] = L.frame; out += `<rect x="${x + sw / 2}" y="${y + sw / 2}" width="${s - sw}" height="${s - sw}" rx="${rx}" fill="none" stroke="${b}" stroke-width="${sw}"/>`; }
+  if (N >= 48) {
+    const sw = Math.max(1, Math.round(N / 200)), [x, y, w, h] = L.slot;
+    out += `<rect x="${x + sw / 2}" y="${y + sw / 2}" width="${w - sw}" height="${h - sw}" rx="${Math.max(0, Math.min(rx, w / 3, h / 3) - sw / 2)}" fill="none" stroke="${a}" stroke-width="${sw}" opacity="0.45"/>`;
+  }
+  out += rr(L.piece, a);
+  return `<g transform="scale(${48 / N})">${out}</g>`;
+};
+
+const LAST = [
+  {
+    id: 'hover', pieceLabel: 'Last piece', name: 'Hover', symmetry: 'mirror, left to right',
+    idea: 'An exact square of offset bricks with half-bricks at the row ends, so every row squares off. The orange keystone hovers one gap above its slot, about to drop in.',
+    lifted: 'the keystone, the centre brick of the top row. It sits on the axis, so dropping straight down keeps the mirror, and it is the piece that locks the top row together.',
+    notes: [
+      'The clearest “about to drop in” of the four: you see the gap and the piece above it.',
+      'The square has to shrink to leave room above it (11 px of 16 at favicon size), so it’s the smallest square on the page.',
+      'Until the piece lands, the top row has a notch in it. The square still reads as complete because its corners and the other two rows are intact.'
+    ],
+    draw: lastPiece('hover')
+  },
+  {
+    id: 'frame', pieceLabel: 'Last piece', name: 'Box', symmetry: 'mirror, left to right',
+    idea: 'A square box holding two rows of bricks and one row of headroom. The orange keystone waits in the headroom, right above its gap, inside the box.',
+    lifted: 'the keystone, for the same reason as Hover. The box means the piece never leaves the square: it’s the last piece of a well-packed box.',
+    notes: [
+      'The most literal “packed box”, and the only one whose outline is a perfect square at every moment.',
+      'The frame costs room: at 16 px the bricks are 3 px tall and the half-bricks 2 px wide. It holds, but it’s the busiest favicon here.',
+      'The frame also reads as a container or a UI window at a glance, which suits “modules in a project”.'
+    ],
+    draw: lastPiece('frame')
+  },
+  {
+    id: 'click', pieceLabel: 'Last piece', name: 'Click', symmetry: 'mirror, left to right',
+    idea: 'The same exact square of bricks, with the orange keystone already in its slot but sitting one gap too high, about to click home.',
+    lifted: 'the keystone. It’s raised by exactly one gap (1 px at 16), the smallest offset that still shows, so the square reads as finished with one piece not yet seated.',
+    notes: [
+      'The biggest square of the brick options (15 of 16 px), so it’s the strongest in the tab.',
+      'The offset is subtle by design: at 16 px it’s a single pixel, which some people won’t notice. From 32 px up it reads clearly.',
+      'The quietest of the four; the satisfaction is in the near-miss rather than in the motion.'
+    ],
+    draw: lastPiece('click')
+  },
+  {
+    id: 'pack', pieceLabel: 'Last piece', name: 'Packed', symmetry: 'mirror across the lower-left to upper-right diagonal',
+    idea: 'A truly irregular packing on a 5 × 5 grid: one large square, three small squares and two bars, with even gaps, filling a perfect square. The orange square in the top-right corner is a hair out, sliding home.',
+    lifted: 'the top-right square. It sits on the axis of symmetry, so it settles in along the diagonal without breaking the mirror, and a corner is where the last piece of a packed box always goes.',
+    notes: [
+      'Six blocks in three sizes (3 × 3, 2 × 2 and 1 × 2 cells). The two bars and the two lower squares mirror each other across the diagonal.',
+      'Least like a brick wall and most like “irregular modules arranged into an organized whole”.',
+      'At 16 px the bars are 2 px thick and the orange square is 5 px, offset by 1 px. Readable as packed blocks; the bar shapes only really show from 24 px up.'
+    ],
+    draw: lastPiece('pack')
+  }
+];
+const KEYSTONE2 = MASONRY.find(m => m.id === 'keystone');
+document.getElementById('compare3').innerHTML = [...LAST, KEYSTONE2].map(m => `
+  <div class="cell on-white">
+    <div class="name">${m.name}${m === KEYSTONE2 ? ' <span class="muted" style="font-weight:400">(round 2)</span>' : ''}</div>
+    <div class="row">
+      <span>${colourLight(m, 16)}</span><span>${colourLight(m, 24)}</span>
+      <span style="background:#202124;padding:6px;border-radius:4px;display:flex;gap:10px;align-items:flex-end">${colourDark(m, 16)}${colourDark(m, 24)}</span>
+    </div>
+  </div>`).join('');
+document.getElementById('sheets3').innerHTML = LAST.map((m, i) => sheet(m, i, 'option ' + 'abcd'[i])).join('');
+
+// Round 4: complete. Every block seated. A layout is a list of cells on an n × n grid;
+// cell sizes in pixels come from `spread`, which keeps the grid symmetric at every size.
+const spread = (T, n) => {
+  const base = Math.floor(T / n); let rem = T - base * n; const w = Array(n).fill(base);
+  if (n % 2 === 1 && rem % 2 === 1) { w[(n - 1) / 2]++; rem--; }
+  if (rem % 2 === 1) return null;
+  for (let i = 0; rem > 0; i++, rem -= 2) { w[i]++; w[n - 1 - i]++; }
+  return w;
+};
+const gridLayout = (N, n, cells, orange) => {
+  const g = gapFor(N), m = marginFor(N);
+  for (let S = N - 2 * m; S > 0; S--) {
+    const w = spread(S - (n - 1) * g, n); if (!w) continue;
+    const o = Math.floor((N - S) / 2), pos = [o]; w.forEach((v, i) => pos.push(pos[i] + v + g));
+    const rect = ([r, c, rs, cs]) => [pos[c], pos[r], pos[c + cs] - pos[c] - g, pos[r + rs] - pos[r] - g];
+    return { blocks: cells.filter((_, i) => i !== orange).map(rect), piece: rect(cells[orange]) };
+  }
+};
+const SEATED = {
+  packed: N => gridLayout(N, 5, [[2, 0, 3, 3], [0, 0, 2, 2], [3, 3, 2, 2], [0, 2, 2, 1], [2, 3, 1, 2], [0, 3, 2, 2]], 5),
+  keystone: N => {
+    const g = gapFor(N), m = marginFor(N);
+    for (let S = N - 2 * m; S > 0; S--) {
+      if (!brickOk(S, g)) continue;
+      const o = Math.floor((N - S) / 2), { blocks, slot } = brickRows(o, o, S, g, ['B', 'A', 'B'], rows3(S - 2 * g));
+      return { blocks, piece: slot };
+    }
+  },
+  heart: N => gridLayout(N, 6, [[0, 0, 3, 3], [0, 3, 3, 3], [3, 0, 3, 2], [3, 4, 3, 2], [5, 2, 1, 2], [3, 2, 2, 2]], 5),
+  lid: N => gridLayout(N, 4, [[1, 0, 3, 1], [1, 3, 3, 1], [1, 1, 2, 2], [3, 1, 1, 2], [0, 0, 1, 4]], 4)
+};
+// How the piece arrives in the motion study, in pixels of the generated size N.
+const ARRIVE = {
+  packed: N => ({ dx: N * 0.18, dy: -N * 0.18 }),
+  keystone: N => ({ dx: 0, dy: -N * 0.25 }),
+  heart: () => ({ dx: 0, dy: 0, s0: 1.35, o0: 0 }),
+  lid: N => ({ dx: 0, dy: -N * 0.25 })
+};
+const seated = kind => (a, b, size, motion) => {
+  const N = Math.max(8, Math.round(size)), L = SEATED[kind](N), rx = N / 24;
+  const rr = ([x, y, w, h], f, extra = '') => `<rect x="${x}" y="${y}" width="${w}" height="${h}" rx="${Math.min(rx, w / 3, h / 3)}" fill="${f}"${extra}/>`;
+  let extra = '';
+  if (motion) {
+    const v = ARRIVE[kind](N);
+    extra = ` class="piece-in" style="--dx:${v.dx}px;--dy:${v.dy}px;--s0:${v.s0 || 1};--o0:${v.o0 ?? 1}"`;
+  }
+  return `<g transform="scale(${48 / N})">${L.blocks.map(r => rr(r, b)).join('')}${rr(L.piece, a, extra)}</g>`;
+};
+
+const DONE = [
+  {
+    id: 'packed4', name: 'Packed', symmetry: 'mirror across the lower-left to upper-right diagonal', pieceLabel: 'Orange',
+    idea: 'Round 3’s irregular packing, fully seated: six blocks in three sizes (one 3 × 3, three 2 × 2, two 1 × 2 bars) on a 5 × 5 grid, filling a perfect square with even gaps.',
+    lifted: 'the top-right corner. It’s the corner that completes the square, the one place that sits on the axis of symmetry and finishes the outline. Pack a box from the bottom left and the top right is the last space left.',
+    notes: [
+      'The two bars and the two lower 2 × 2 squares mirror each other across the diagonal; the big square and the orange square sit on it.',
+      'The orange block is the same size as two of its neighbours, so the colour does all the work, which is what the user asked for.',
+      'At 16 px the bars are 2 px thick. It reads as a packed square of blocks; the bars become distinct from 24 px up.'
+    ],
+    draw: seated('packed')
+  },
+  {
+    id: 'keystone4', name: 'Keystone', symmetry: 'mirror, left to right', pieceLabel: 'Orange',
+    idea: 'The squared brick wall, fully seated: three offset rows with half-bricks at the row ends, flush on all four edges.',
+    lifted: 'the keystone, the centre brick of the top row. It bridges the joint below it and locks the top row together, and it sits on the axis of symmetry.',
+    notes: [
+      'Eight blocks, but only three shapes (full brick, half-brick, and the slightly taller middle row at some sizes), so it stays orderly.',
+      'The most regular of the four. It reads as “organized” more than “irregular pieces fitted together”.',
+      'At 16 px the half-bricks are 3 px wide; every joint is crisp.'
+    ],
+    draw: seated('keystone')
+  },
+  {
+    id: 'heart', name: 'Heart', symmetry: 'mirror, left to right', pieceLabel: 'Orange',
+    idea: 'Six blocks in four sizes on a 6 × 6 grid: two big squares on top, two tall blocks at the sides, a short bar at the bottom centre, and a square in the middle.',
+    lifted: 'the centre square. It’s the only block enclosed on all four sides, the hole the rest of the arrangement is built around, and it sits across the joint between the two big squares like a keystone.',
+    notes: [
+      'Sizes: 3 × 3, 3 × 2, 2 × 2 and 1 × 2 cells, so it’s the most varied packing here.',
+      'The orange is held in the middle of the mark, which reads well as a favicon: a dark square with a warm centre.',
+      'Six cells across costs pixels at 16 px: the square is 15 px, the orange 3 × 4 px. Clear from 24 px up.'
+    ],
+    draw: seated('heart')
+  },
+  {
+    id: 'lid', name: 'Lid', symmetry: 'mirror, left to right', pieceLabel: 'Orange',
+    idea: 'Five blocks in four sizes on a 4 × 4 grid: two tall sides, a square and a short bar packed between them, and a full-width bar across the top.',
+    lifted: 'the top bar. It’s the lid, the last piece of a well-packed box, the one you put on once everything inside fits.',
+    notes: [
+      'Sizes: 1 × 4, 3 × 1, 2 × 2 and 1 × 2 cells. The fewest blocks of the four, so it’s the sturdiest at 16 px.',
+      'The orange is the biggest single shape at small sizes (a 15 × 3 px bar at 16 px), so it shows best on the dark tab.',
+      'With the lid on top it can read as a box or a little building; the story is “closed and complete” rather than “one piece among many”.'
+    ],
+    draw: seated('lid')
+  }
+];
+document.getElementById('compare4').innerHTML = DONE.map(m => `
+  <div class="cell on-white">
+    <div class="name">${m.name}</div>
+    <div class="row">
+      <span>${colourLight(m, 16)}</span><span>${colourLight(m, 24)}</span>
+      <span style="background:#202124;padding:6px;border-radius:4px;display:flex;gap:10px;align-items:flex-end">${colourDark(m, 16)}${colourDark(m, 24)}</span>
+    </div>
+  </div>`).join('');
+document.getElementById('sheets4').innerHTML = DONE.map((m, i) => sheet(m, i, (i + 1) + ' of 4')).join('');
+
+// Round 5: packed square. Pieces are clockwise polygons on an n × n grid (x = column line, y = row line).
+// Grid lines become pixels per size; a piece's right and bottom edges stop one gap short of the next line.
+const rectV = (x, y, w, h) => [[x, y], [x + w, y], [x + w, y + h], [x, y + h]];
+const piecePath = (V, pos, g, n, R, r) => {
+  const L = V.length;
+  const pts = V.map((v, i) => {
+    const pv = V[(i - 1 + L) % L], nx = V[(i + 1) % L];
+    const e1 = [v[0] - pv[0], v[1] - pv[1]], e2 = [nx[0] - v[0], nx[1] - v[1]];
+    const vert = e1[0] === 0 ? e1 : e2, hor = e1[1] === 0 ? e1 : e2;
+    const x = vert[1] > 0 ? pos[v[0]] - g : pos[v[0]];
+    const y = hor[0] > 0 ? pos[v[1]] : pos[v[1]] - g;
+    const convex = e1[0] * e2[1] - e1[1] * e2[0] > 0;
+    const outer = (v[0] === 0 || v[0] === n) && (v[1] === 0 || v[1] === n);
+    return { x, y, rad: convex ? (outer ? R : r) : 0, d1: [Math.sign(e1[0]), Math.sign(e1[1])], d2: [Math.sign(e2[0]), Math.sign(e2[1])] };
+  });
+  pts.forEach((p, i) => {   // keep a radius within half of each adjacent edge
+    const a = pts[(i - 1 + L) % L], b = pts[(i + 1) % L];
+    p.rad = Math.min(p.rad, Math.abs(p.x - a.x + p.y - a.y) / 2, Math.abs(b.x - p.x + b.y - p.y) / 2);
+  });
+  const f = v => +v.toFixed(3);
+  const inP = p => `${f(p.x - p.d1[0] * p.rad)} ${f(p.y - p.d1[1] * p.rad)}`;
+  const outP = p => `${f(p.x + p.d2[0] * p.rad)} ${f(p.y + p.d2[1] * p.rad)}`;
+  let d = `M${outP(pts[0])}`;
+  for (let k = 1; k <= L; k++) {
+    const p = pts[k % L];
+    d += `L${inP(p)}`;
+    if (p.rad > 0) d += `A${f(p.rad)} ${f(p.rad)} 0 0 1 ${outP(p)}`;
+  }
+  return d + 'Z';
+};
+const gridPos = (N, n) => {
+  const g = gapFor(N), m = marginFor(N);
+  for (let S = N - 2 * m; S > 0; S--) {
+    const w = spread(S - (n - 1) * g, n); if (!w) continue;
+    const pos = [Math.floor((N - S) / 2)]; w.forEach((v, i) => pos.push(pos[i] + v + g));
+    return { pos, g };
+  }
+};
+const PALETTES = {
+  clay: { name: 'Clay', light: ['#3E2D24', '#7A4B30', '#A8794F', '#D2B07F'], dark: ['#F4E9D8', '#DCC3A0', '#B88C62', '#8F6446'] },
+  ink:  { name: 'Ink',  light: ['#28231F', '#534B44', '#82786F', '#B0A69B'], dark: ['#FAF6EF', '#D8D0C5', '#A99F94', '#7F766D'] }
+};
+// Pieces: [vertices, tone] where tone is a ramp index (0 darkest on light) or 'o' for Tey orange.
+const PACKINGS = {
+  corner: { n: 5, pieces: [
+    [rectV(0, 0, 3, 3), 0], [rectV(3, 0, 2, 3), 2], [rectV(0, 3, 2, 2), 1],
+    [rectV(2, 3, 3, 1), 3], [rectV(2, 4, 2, 1), 0], [rectV(4, 4, 1, 1), 'o']] },
+  hook: { n: 5, pieces: [
+    [rectV(0, 0, 3, 2), 1], [[[3, 0], [5, 0], [5, 4], [4, 4], [4, 1], [3, 1]], 'o'],
+    [rectV(3, 1, 1, 3), 3], [rectV(0, 2, 3, 3), 0], [rectV(3, 4, 2, 1), 2]] },
+  bento: { n: 4, pieces: [
+    [rectV(0, 0, 3, 2), 'o'], [rectV(3, 0, 1, 3), 2], [rectV(0, 2, 2, 2), 0],
+    [rectV(2, 2, 1, 2), 3], [rectV(3, 3, 1, 1), 1]] }
+};
+const packed = (kind, pal) => (a, b, size, motion) => {
+  const N = Math.max(8, Math.round(size)), P = PACKINGS[kind], { pos, g } = gridPos(N, P.n);
+  const R = N / 24, r = R / 2;
+  const ramp = a === b ? null : (b === PAPER ? PALETTES[pal].dark : PALETTES[pal].light);
+  const fill = t => !ramp ? b : t === 'o' ? ORANGE : ramp[t];
+  const anim = motion ? ` class="piece-in" style="--dx:0px;--dy:${-N * 0.3}px;--s0:1;--o0:0"` : '';
+  const paths = P.pieces.map(([v, t]) => `<path d="${piecePath(v, pos, g, P.n, R, r)}" fill="${fill(t)}"${t === 'o' ? anim : ''}/>`);
+  const o = P.pieces.findIndex(([, t]) => t === 'o');   // draw the orange piece last, so it lands on top
+  return `<g transform="scale(${48 / N})">${paths.filter((_, i) => i !== o).join('')}${paths[o]}</g>`;
+};
+
+const PACK_INFO = {
+  corner: {
+    name: 'Corner',
+    idea: 'Six rectangles on a 5 × 5 grid, every one a different size: 3 × 3, 3 × 2, 2 × 2, 1 × 3, 1 × 2 and 1 × 1 cells (areas 9, 6, 4, 3, 2 and 1).',
+    why: 'the 1 × 1 in the bottom-right corner. Each piece is smaller than the last, so the smallest one goes in last, and it is the piece that closes the square’s final corner.',
+    notes: [
+      'The clearest “every piece a different size”: the sizes step down from 9 cells to 1.',
+      'The orange is the smallest piece, a 3 × 3 px square at 16 px. You can see it in the tab, but it’s the quietest orange of the three.',
+      'All rectangles, so it reads more as bento than as Tetris.'
+    ] },
+  hook: {
+    name: 'Hook',
+    idea: 'Five pieces on a 5 × 5 grid, all different sizes: a 3 × 3, a 2 × 3, a J-shaped piece of five cells, a 1 × 3 bar and a 1 × 2 bar.',
+    why: 'the J. It is the one Tetris-shaped piece, the irregular one that only fits one way, and it wraps the top-right corner, hooking over the bar beside it to lock the right side together.',
+    notes: [
+      'Reads most like Tetris without getting busy: one polyomino, four plain rectangles.',
+      'The J’s arm and hook are 3 px thick at 16 px, so the orange shape survives in the tab.',
+      'The J and the bar it hooks over make two tall strips side by side; in mono they separate only by the 1 px gap at 16 px, and still do.'
+    ] },
+  bento: {
+    name: 'Bento',
+    idea: 'Five rectangles on a 4 × 4 grid, all different sizes: 2 × 3, 2 × 2, 3 × 1, 2 × 1 and 1 × 1 cells.',
+    why: 'the large 2 × 3 piece at the top left. Every bento layout has one hero cell, the one your eye lands on first; here it’s the featured module and the rest pack around it.',
+    notes: [
+      'The fewest cells, so it’s the sturdiest at 16 px: the orange is an 11 × 7 px block.',
+      'The orange is the biggest piece, so the mark reads as “orange plus a packed corner” at a glance, more than as a square of equals.',
+      'A 4 × 4 grid leaves less room for variety; it’s bento rather than Tetris.'
+    ] }
+};
+const BENTO = [];
+for (const kind of ['hook', 'corner', 'bento']) for (const pal of ['clay', 'ink']) {
+  const info = PACK_INFO[kind];
+  BENTO.push({
+    id: `${kind}-${pal}`, name: `${info.name} · ${PALETTES[pal].name}`, pieceLabel: 'Orange',
+    symmetry: pal === 'clay' ? 'clay palette' : 'ink palette',
+    idea: info.idea, lifted: info.why,
+    notes: pal === 'clay' ? info.notes : [`Same packing as ${info.name} · Clay, in ink and paper tints: the orange is the only colour, so it stands out more; the mark looks cooler and more typographic.`, 'Ink tones on light, paper tones on dark, so the ramp flips with the surface while the orange stays put.'],
+    draw: packed(kind, pal)
+  });
+}
+document.getElementById('compare5').innerHTML = BENTO.map(m => `
+  <div class="cell on-white">
+    <div class="name">${m.name}</div>
+    <div class="row">
+      <span>${colourLight(m, 16)}</span><span>${colourLight(m, 24)}</span>
+      <span style="background:#202124;padding:6px;border-radius:4px;display:flex;gap:10px;align-items:flex-end">${colourDark(m, 16)}${colourDark(m, 24)}</span>
+    </div>
+  </div>`).join('');
+document.getElementById('sheets5').innerHTML = BENTO.map((m, i) => sheet(m, i, `packing ${Math.floor(i / 2) + 1} of 3`)).join('');
+const MOTION = BENTO.filter(m => m.id.endsWith('-clay'));
+
+// Motion study
+const motionSvg = (m, size, a, b) => `<svg width="${size}" height="${size}" viewBox="0 0 48 48" role="img" aria-label="${m.name} mark">${m.draw(a, b, size, true)}</svg>`;
+let cardMark = MOTION[0];
+const motionCard = m => card().replace(/<g transform="translate\(120 150\) scale\(7.5\)">[\s\S]*?<\/g>\s*<text x="520"/, `<g transform="translate(120 150) scale(7.5)">${m.draw(ORANGE, INK, 360, true)}</g>\n    <text x="520"`);
+const renderMotion = () => {
+  document.getElementById('motion-headers').innerHTML = MOTION.map(m => `
+    <div class="vp light">${motionSvg(m, 24, ORANGE, INK)}<span class="title">Mod for Laravel</span><span class="nav"><span>Guide</span><span>Reference</span><span>GitHub</span></span></div>
+    <div class="vp dark">${motionSvg(m, 24, ORANGE, PAPER)}<span class="title">Mod for Laravel</span><span class="nav"><span>Guide</span><span>Reference</span><span>GitHub</span></span></div>`).join('');
+  document.getElementById('motion-card').innerHTML = motionCard(cardMark);
+  document.querySelectorAll('#motion-pick button').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.id === cardMark.id)));
+};
+document.getElementById('motion-pick').innerHTML = MOTION.map(m => `<button type="button" class="replay" data-id="${m.id}">${m.name}</button>`).join('');
+document.getElementById('motion-pick').addEventListener('click', e => {
+  const b = e.target.closest('button'); if (!b) return;
+  cardMark = MOTION.find(m => m.id === b.dataset.id); renderMotion();
+
+
+});
+document.getElementById('replay').addEventListener('click', renderMotion);
+renderMotion();
+
+
+
+// share card sketch: 2400 x 1200
+const TREE = [
+  'app/Modules/',
+  '├── Agents/',
+  '│   ├── Actions/',
+  '│   │   └── AnswerQuestion.php',
+  '│   ├── Database/',
+  '│   │   └── Migrations/',
+  '│   │       └── 2026_10_08_120001_create_conversations_table.php',
+  '│   ├── Jobs/',
+  '│   │   └── GenerateReply.php',
+  '│   ├── Models/',
+  '│   │   └── Conversation.php',
+  '│   └── ValueObjects/',
+  '│       └── TokenUsage.php',
+  '└── Knowledge/',
+  '    ├── Actions/',
+  '    │   └── IndexDocument.php',
+  '    ├── Controllers/',
+  '    │   └── DocumentController.php',
+  '    ├── Database/',
+  '    │   ├── Factories/',
+  '    │   │   └── DocumentFactory.php',
+  '    │   └── Migrations/',
+  '    │       └── 2026_10_08_120000_create_documents_table.php',
+  '    ├── Events/',
+  '    │   └── DocumentUploaded.php',
+  '    ├── Listeners/',
+  '    │   └── GenerateEmbeddings.php',
+  '    ├── Models/',
+  '    │   └── Document.php',
+  '    ├── Requests/',
+  '    │   ├── StoreDocumentRequest.php',
+  '    │   └── UpdateDocumentRequest.php',
+  '    └── ViewModels/',
+  '        └── ShowDocument.php'
+];
+const CMDS = [
+  'php artisan mod:model Knowledge:Document -mf --controller --resource --requests',
+  'php artisan mod:action Knowledge:IndexDocument',
+  'php artisan mod:event Knowledge:DocumentUploaded',
+  'php artisan mod:listener Knowledge:GenerateEmbeddings --event=DocumentUploaded',
+  'php artisan mod:view-model Knowledge:ShowDocument',
+  'php artisan mod:model Agents:Conversation -m',
+  'php artisan mod:action Agents:AnswerQuestion',
+  'php artisan mod:value Agents:TokenUsage',
+  'php artisan mod:job Agents:GenerateReply'
+];
+const esc = s => s.replace(/&/g, '&amp;').replace(/</g, '&lt;');
+const card = () => {
+  const m = MARKS[0];
+  const treeLines = TREE.map((l, i) => {
+    const agents = i >= 1 && i <= 12;
+    return `<text x="1440" y="${72 + i * 31}" fill="${agents ? ORANGE : INK}" opacity="${agents ? 0.85 : 0.52}">${esc(l)}</text>`;
+  }).join('');
+  const cmdLines = CMDS.map((c, i) => `<text x="120" y="${846 + i * 34}" fill="${INK}" opacity="0.52"><tspan fill="${ORANGE}" opacity="0.9">$</tspan> ${esc(c)}</text>`).join('');
+  return `<svg viewBox="0 0 2400 1200" role="img" aria-label="Mod share card sketch">
+    <rect width="2400" height="1200" fill="${PAPER}"/>
+    <g font-family="IBM Plex Mono, Menlo, monospace" font-size="25" xml:space="preserve">${treeLines}${cmdLines}</g>
+    <g transform="translate(120 150) scale(7.5)">${m.draw(ORANGE, INK, 360)}</g>
+    <text x="520" y="487" font-family="Schibsted Grotesk, Helvetica Neue, Arial, sans-serif" font-weight="800" font-size="300" letter-spacing="-10" fill="${INK}">Mod</text>
+    <text x="126" y="620" font-family="Schibsted Grotesk, Helvetica Neue, Arial, sans-serif" font-weight="500" font-size="64" fill="${INK}">Modular Development Toolkit for Laravel</text>
+    <text x="126" y="700" font-family="IBM Plex Mono, Menlo, monospace" font-size="40" fill="${ORANGE}">composer require tey/mod</text>
+    <text x="2280" y="1140" text-anchor="end" font-family="Schibsted Grotesk, Helvetica Neue, Arial, sans-serif" font-weight="700" font-size="36" fill="${INK}" opacity="0.7">mod.teylabs.com</text>
+  </svg>`;
+};
+document.getElementById('card').innerHTML = card();
+document.getElementById('thumb').innerHTML = card() + '<div><strong>Mod for Laravel</strong><br><span style="opacity:.7">mod.teylabs.com</span></div>';
+</script>

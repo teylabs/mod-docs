@@ -96,12 +96,32 @@ export default defineConfig({
     },
   },
 
+  // Brand files come from brand/build.mjs. Bump ?v= whenever one changes:
+  // the CDN caches icons and images for hours.
   head: [
+    // The .ico (16, 32 and 48 px inside) for older browsers; sizes="32x32" keeps
+    // modern ones on the SVG, which follows the tab's light or dark scheme.
+    ['link', { rel: 'icon', href: '/favicon.ico?v=1', sizes: '32x32' }],
+    ['link', { rel: 'icon', href: '/favicon.svg?v=1', type: 'image/svg+xml' }],
+    ['link', { rel: 'apple-touch-icon', href: '/apple-touch-icon.png?v=1' }],
     ['meta', { name: 'author', content: 'Jasper Tey' }],
     ['meta', { property: 'og:site_name', content: 'Mod for Laravel' }],
+    ['meta', { property: 'og:type', content: 'website' }],
+    ['meta', { property: 'og:url', content: 'https://mod.teylabs.com/' }],
+    ['meta', { property: 'og:title', content: 'Mod for Laravel' }],
+    ['meta', { property: 'og:description', content: 'Modular development toolkit for Laravel. Pick or extend a common layout like DDD or a modular monolith, or create your own.' }],
+    ['meta', { property: 'og:image', content: 'https://mod.teylabs.com/og-image.jpg?v=1' }],
+    ['meta', { property: 'og:image:width', content: '2400' }],
+    ['meta', { property: 'og:image:height', content: '1200' }],
+    ['meta', { property: 'og:image:type', content: 'image/jpeg' }],
+    ['meta', { property: 'og:image:alt', content: 'Mod: Modular Development Toolkit for Laravel. The Mod mark, a square of six packed blocks with the last one in orange, beside an app/Modules folder tree and the mod commands that build it.' }],
+    ['meta', { name: 'twitter:card', content: 'summary_large_image' }],
+    ['meta', { name: 'twitter:image', content: 'https://mod.teylabs.com/og-image.jpg?v=1' }],
   ],
 
   themeConfig: {
+    logo: { light: '/logo-light.svg?v=1', dark: '/logo-dark.svg?v=1', alt: 'Mod' },
+
     nav: [
       { text: 'Guide', link: '/guide/introduction', activeMatch: '^/(guide|basics|going-further)/' },
       { text: 'Reference', link: '/reference/commands', activeMatch: '^/reference/' },
