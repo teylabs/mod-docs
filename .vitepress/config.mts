@@ -1,4 +1,5 @@
 import { defineConfig } from 'vitepress'
+import { creditLine } from './credit.mjs'
 
 // https://vitepress.dev/reference/site-config
 export default defineConfig({
@@ -164,8 +165,8 @@ export default defineConfig({
     outline: [2, 3],
 
     footer: {
-      message: 'Released under the MIT License.',
-      copyright: 'Created by <a href="https://github.com/jaspertey">Jasper Tey</a>',
+      message: 'Released under the MIT License. Created by <a href="https://github.com/jaspertey">Jasper Tey</a>.',
+      copyright: creditLine,
     },
   },
 })

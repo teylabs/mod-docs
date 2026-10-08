@@ -4,7 +4,8 @@
   "type": "module",
   "scripts": {
     "dev": "vitepress dev",
-    "build": "vitepress build"
+    "build": "node --test scripts/credit-line.test.mjs && vitepress build",
+    "test": "node --test scripts/credit-line.test.mjs"
   },
   "devDependencies": {
     "vitepress": "^2.0.0-alpha.19"
