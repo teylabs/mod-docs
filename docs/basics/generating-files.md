@@ -36,7 +36,7 @@ class GenerateEmbeddings
 
 ### Listing the Commands
 
-The commands depend on your layout: `modules` has `mod:action`, `slices` has `mod:handler`, and `ddd` has `mod:dto`. List the ones your layout has:
+The commands depend on your layout: `modules` has `mod:dto` and `mod:view-model`, `slices` has `mod:handler`, and `laravel` has neither. List the ones your layout has:
 
 ```bash
 php artisan list mod

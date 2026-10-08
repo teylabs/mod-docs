@@ -29,8 +29,7 @@ Each command runs the Laravel command in the second column and takes that comman
 | `mod:command` | `make:command` | all | `--command`, `--test`, `--pest`, `--phpunit`, `--force` |
 | `mod:config` | `make:config` | `laravel`, `type-first` | `--force` |
 | `mod:controller` | `make:controller` | all | `--api`, `--type`, `--invokable`, `--model`, `--parent`, `--resource`, `--requests`, `--singleton`, `--creatable`, `--test`, `--pest`, `--phpunit`, `--force` |
-| `mod:data` | none | `modules` | `--force` |
-| `mod:dto` | none | `ddd` | `--force` |
+| `mod:dto` | none | `modules`, `ddd` | `--force` |
 | `mod:enum` | `make:enum` | all | `--string`, `--int`, `--force` |
 | `mod:event` | `make:event` | all | `--force` |
 | `mod:exception` | `make:exception` | all | `--render`, `--report`, `--force` |
@@ -58,19 +57,20 @@ Each command runs the Laravel command in the second column and takes that comman
 | `mod:test` | `make:test` | all | `--unit`, `--pest`, `--phpunit`, `--force` |
 | `mod:trait` | `make:trait` | all | `--force` |
 | `mod:validator` | none | `features`, `slices` | `--force` |
-| `mod:value` | none | `ddd` | `--force` |
-| `mod:view-model` | none | `ddd` | `--force` |
+| `mod:value` | none | `modules`, `ddd` | `--force` |
+| `mod:view-model` | none | `modules`, `ddd` | `--force` |
 
 - `mod:migration` places migrations from the layout, so it exits with an error for `--path` and `--realpath`. Use `--in` instead.
+- `mod:dto`, `mod:view-model`, `mod:value` and `mod:action` start from [starter stubs](/going-further/stubs#starter-stubs), and the first `mod:dto` or `mod:view-model` writes its [base class](/going-further/stubs#generated-base-classes).
 - `mod:model`'s related-file options (`--factory`, `--migration`, `--seed`, `--policy`, `--controller`, `--requests`, `--all`) write each file in the same group.
 
 ### Aliases
 
 | Command | Aliases |
 | --- | --- |
-| `mod:dto` | `mod:data`, `mod:data-transfer-object`, `mod:datatransferobject` |
-| `mod:value` | `mod:value-object`, `mod:valueobject` |
-| `mod:view-model` | `mod:viewmodel` |
+| `mod:dto` | `mod:data` in `modules` and `ddd`; `mod:data-transfer-object` and `mod:datatransferobject` in `ddd` |
+| `mod:value` | `mod:value-object`, `mod:valueobject` in `ddd` |
+| `mod:view-model` | `mod:viewmodel` in `ddd` |
 
 ### Commands for Your Own File Types
 
@@ -95,8 +95,7 @@ Folders below each layout's group folder:
 | `mod:class`, `mod:interface`, `mod:trait` | the group folder | the group folder | the group folder | the group folder |
 | `mod:command` | `Console` | `Console/Commands` | `Console/Commands` | `Commands` |
 | `mod:controller` | `Controllers` | `Http/Controllers` | `Http/Controllers` | `app/Modules/<Domain>/Controllers` |
-| `mod:data` | `Data` | | | |
-| `mod:dto` | | | | `Data` |
+| `mod:dto` | `Data` | | | `Data` |
 | `mod:enum` | `Enums` | `Enums` | `Enums` | `Enums` |
 | `mod:event` | `Events` | `Events` | `Events` | `Events` |
 | `mod:exception` | `Exceptions` | `Exceptions` | `Exceptions` | `Exceptions` |
@@ -122,14 +121,31 @@ Folders below each layout's group folder:
 | `mod:seeder` | `Database/Seeders` | `Database/Seeders` | `Database/Seeders` | `Database/Seeders` |
 | `mod:test` | `tests/Feature/Modules/<Module>` | `tests/Feature/<Feature>` | `tests/Feature/<Feature>/<Slice>` | `tests/Feature/<Domain>` |
 | `mod:validator` | | `Validation` | `<Slice>/Validator.php` | |
-| `mod:value` | | | | `ValueObjects` |
-| `mod:view-model` | | | | `ViewModels` |
+| `mod:value` | `ValueObjects` | | | `ValueObjects` |
+| `mod:view-model` | `ViewModels` | | | `ViewModels` |
 
 - The `laravel` layout writes every file where the matching `make:*` command does. `type-first` uses the same folders with an optional sub-folder for the feature, such as `app/Models/Knowledge` or `database/factories/Knowledge`, and adds `mod:query`, which writes to `app/Queries/<Feature>`.
 - A slice's classes have fixed names: `mod:handler Handler --in=Knowledge/IndexDocument` writes `app/Knowledge/IndexDocument/Handler.php`. In `slices`, `mod:test` takes the slice as an optional second value.
 - `mod:test --unit` writes to `tests/Unit` instead of `tests/Feature`.
 - In `features` and `slices`, `mod:command` without a feature writes to `app/Console/Commands`.
 - Class names take the file type's suffix: `Controller`, `Request`, `Policy`, `Factory`, `Seeder`, and `ServiceProvider` for providers in every layout but `ddd`.
+
+## Writing Base Classes
+
+| Command | Does |
+| --- | --- |
+| `mod:bases` | Writes every [generated base class](/going-further/stubs#generated-base-classes) the layout's file types extend that is missing. It never overwrites one, and takes no options |
+
+```bash
+php artisan mod:bases
+```
+
+```text
+   INFO  Created base class App\Support\Data\DataTransferObject [app/Support/Data/DataTransferObject.php].
+   INFO  Created base class App\Support\ViewModels\ViewModel [app/Support/ViewModels/ViewModel.php].
+```
+
+When every base exists, it prints `Every base class already exists.` In a layout whose file types extend no generated base, such as `laravel`, it prints `No kind in this layout extends a generated base class.` A configured base or an installed package means there is no base to write. It is registered with the `mod:*` commands.
 
 ## Discovery Commands
 

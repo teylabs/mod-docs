@@ -203,7 +203,7 @@ php artisan mod:action Knowledge:IndexDocument
 
 A domain can be nested: `Knowledge.Search` (or `Knowledge/Search`) writes to `src/Domain/Knowledge/Search`.
 
-`mod:dto`, `mod:value`, `mod:view-model` and `mod:action` start from DDD-flavoured stubs, and use spatie/laravel-data, spatie/laravel-view-models or lorisleiva/laravel-actions when they're installed. [Stubs](/going-further/stubs#starter-stubs-in-the-ddd-layout) covers each one.
+`mod:dto`, `mod:value`, `mod:view-model` and `mod:action` start from starter stubs, and use spatie/laravel-data, spatie/laravel-view-models or lorisleiva/laravel-actions when they're installed. Their base classes go in `src/Domain/Shared`, where laravel-ddd puts them. [Stubs](/going-further/stubs#starter-stubs) covers each one.
 
 ### laravel-ddd Command Names
 
@@ -214,6 +214,8 @@ The DDD commands also answer to laravel-ddd's names:
 | `mod:dto` | `mod:data`, `mod:data-transfer-object`, `mod:datatransferobject` |
 | `mod:value` | `mod:value-object`, `mod:valueobject` |
 | `mod:view-model` | `mod:viewmodel` |
+
+In the `modules` layout, `mod:dto` answers to `mod:data` as well.
 
 ## Extending a Layout
 

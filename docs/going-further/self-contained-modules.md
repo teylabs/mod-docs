@@ -2,27 +2,14 @@
 
 With the `modules` layout, everything a feature needs can live in one folder that you copy to the next project. Its migrations, listeners and factories come with it.
 
-## Adding the File Types You Use
-
-The `modules` layout already keeps models, migrations, factories, actions, events, listeners and jobs inside each module. Add the file types you use most:
-
-```php memo="app/Providers/AppServiceProvider.php" at="boot()"
-use Tey\Mod\Facades\Mod;
-
-Mod::layout('modules')
-    ->kind('view-model', in: 'Modules/{module}/ViewModels', label: 'View model')
-    ->kind('value-object', in: 'Modules/{module}/ValueObjects', command: 'mod:value', label: 'Value object');
-```
-
-`command:` names the command, and `label:` is the noun its output uses.
-
 ## Building Two Modules
 
-Build a `Knowledge` module that stores documents, and an `Agents` module that answers questions about them:
+The `modules` layout keeps models, migrations, factories, actions, DTOs, view models, value objects, events, listeners and jobs inside each module. Build a `Knowledge` module that stores documents, and an `Agents` module that answers questions about them:
 
 ```bash
 php artisan mod:model Knowledge:Document -mf --controller --resource --requests
 php artisan mod:action Knowledge:IndexDocument
+php artisan mod:dto Knowledge:DocumentData
 php artisan mod:event Knowledge:DocumentUploaded
 php artisan mod:listener Knowledge:GenerateEmbeddings --event=DocumentUploaded
 php artisan mod:view-model Knowledge:ShowDocument
@@ -52,6 +39,8 @@ app/Modules/
     │   └── IndexDocument.php
     ├── Controllers/
     │   └── DocumentController.php
+    ├── Data/
+    │   └── DocumentData.php
     ├── Database/
     │   ├── Factories/
     │   │   └── DocumentFactory.php
@@ -70,9 +59,29 @@ app/Modules/
         └── ShowDocument.php
 ```
 
+The DTO and the view model extend base classes that every module shares. The first `mod:dto` and `mod:view-model` write them, once, outside the modules:
+
+```text
+   INFO  Created base class App\Support\Data\DataTransferObject [app/Support/Data/DataTransferObject.php].
+   INFO  DTO [app/Modules/Knowledge/Data/DocumentData.php] created successfully.
+```
+
+[Generated Base Classes](/going-further/stubs#generated-base-classes) covers where they go and how to change them.
+
 ## Copying a Module to Another Project
 
-Each module is one folder. Copy either into another project that uses the same layout, including the same `Mod::layout('modules')` lines, and its migrations, listeners and factories come with it:
+Each module is one folder. Copy it into another project that uses the `modules` layout, then run `mod:bases` once to write the base classes its DTOs and view models extend:
+
+```bash
+php artisan mod:bases
+```
+
+```text
+   INFO  Created base class App\Support\Data\DataTransferObject [app/Support/Data/DataTransferObject.php].
+   INFO  Created base class App\Support\ViewModels\ViewModel [app/Support/ViewModels/ViewModel.php].
+```
+
+The module's migrations, listeners and factories come with it:
 
 ```bash
 php artisan migrate --pretend
@@ -83,4 +92,4 @@ php artisan event:list --event=DocumentUploaded
 # ->   ⇂ App\Modules\Knowledge\Listeners\GenerateEmbeddings@handle
 ```
 
-`Document::factory()` finds the module's factory, as in the first project.
+`Document::factory()` finds the module's factory, as in the first project. `mod:bases` never overwrites a base that exists, so running it again writes nothing.

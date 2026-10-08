@@ -71,7 +71,7 @@ use Tey\Mod\Generation\Stub;
 
 Mod::stubs()->for('dto', Stub::file(__DIR__.'/../stubs/dto.stub')
     ->whenInstalled('spatie/laravel-data', base: 'Spatie\\LaravelData\\Data')
-    ->whenClass('App\\Support\\Data', stub: __DIR__.'/../stubs/dto.app.stub'));
+    ->whenClass('App\\Support\\BaseData', stub: __DIR__.'/../stubs/dto.app.stub'));
 ```
 
 ```bash
@@ -81,11 +81,11 @@ php artisan mod:dto Knowledge:DocumentData
 
 `stubs/dto.stub` uses `{{ baseImport }}` and `{{ extends }}`, so one file serves every variant, as in [Using the Base in Your Stub](/going-further/stubs#using-the-base-in-your-stub).
 
-An explicit base wins over every variant. The app sets one in `config/mod.php`; a plugin can read its own config key and give a default with `->base(config: 'knowledge.base_dto', class: 'App\\Support\\Data')`.
+An explicit base wins over every variant. The app sets one in `config/mod.php`; a plugin can read its own config key and give a default with `->base(config: 'knowledge.base_dto', class: 'App\\Support\\BaseData')`.
 
 ### Generating a Base Class
 
-When no variant applies, a stub can write a base class into the app the first time it is used:
+When no variant applies, a stub can write a base class into the app the first time it is used. The base goes in the app's bases folder, `app/Support` by default:
 
 ```php memo="src/KnowledgeToolsServiceProvider.php" at="boot()"
 use Tey\Mod\Facades\Mod;
@@ -94,18 +94,19 @@ use Tey\Mod\Generation\Stub;
 
 Mod::stubs()->for('dto', Stub::file(__DIR__.'/../stubs/dto.stub')
     ->whenInstalled('spatie/laravel-data', base: 'Spatie\\LaravelData\\Data')
-    ->generatesBase(GeneratedBase::named('DataTransferObject', in: 'Shared/Data', stub: __DIR__.'/../stubs/bases/data-transfer-object.stub')));
+    ->generatesBase(GeneratedBase::named('DataTransferObject', in: 'Data', stub: __DIR__.'/../stubs/bases/data-transfer-object.stub')));
 ```
 
 ```bash
 php artisan mod:dto Knowledge:DocumentData
-# ->  INFO  Created base class Domain\Shared\Data\DataTransferObject [src/Domain/Shared/Data/DataTransferObject.php].
-# ->  INFO  DTO [src/Domain/Knowledge/Data/DocumentData.php] created successfully.
+# ->  INFO  Created base class App\Support\Data\DataTransferObject [app/Support/Data/DataTransferObject.php].
+# ->  INFO  DTO [app/Modules/Knowledge/Data/DocumentData.php] created successfully.
 ```
 
-- `in:` is a folder below the file type's root, so the base above lands in `src/Domain/Shared/Data`.
+- `in:` is a folder below the bases folder, which the app sets with [`bases_path`](/reference/configuration#bases-path).
+- To place the base below the file type's own root instead, add `->inKindRoot()`. In the `ddd` layout, `GeneratedBase::named('DataTransferObject', in: 'Shared/Data', stub: ...)->inKindRoot()` writes `src/Domain/Shared/Data/DataTransferObject.php`.
 - The base stub fills `{{ namespace }}` and `{{ class }}`. The app can replace it with `stubs/mod.base.data-transfer-object.stub` (the base's name in kebab-case).
-- Once the file exists, the app owns it: mod never overwrites it, even with `--force`.
+- Once the file exists, the app owns it: mod never overwrites it, even with `--force`. `mod:bases` writes it when it is missing.
 - Stubs must not use mod's own classes, so the generated code runs without mod installed.
 
 ## Swapping a Generator
@@ -164,7 +165,7 @@ class DddServiceProvider extends ServiceProvider
             ->for('dto', Stub::file(__DIR__.'/../stubs/dto.stub')
                 ->base(config: 'ddd.base_dto')
                 ->whenInstalled('spatie/laravel-data', base: 'Spatie\\LaravelData\\Data')
-                ->generatesBase(GeneratedBase::named('DataTransferObject', in: 'Shared/Data', stub: __DIR__.'/../stubs/bases/data-transfer-object.stub')))
+                ->generatesBase(GeneratedBase::named('DataTransferObject', in: 'Shared/Data', stub: __DIR__.'/../stubs/bases/data-transfer-object.stub')->inKindRoot()))
             ->for('view-model', Stub::file(__DIR__.'/../stubs/view-model.stub')
                 ->base(config: 'ddd.base_view_model')
                 ->whenInstalled('spatie/laravel-view-models', base: 'Spatie\\ViewModels\\ViewModel'));

@@ -12,7 +12,8 @@ php artisan vendor:publish --tag=mod-config
 | [`layout`](#layout) | `'laravel'` | The active layout |
 | [`commands`](#commands) | `true` | Register the `mod:*` commands |
 | [`generators`](#generators) | `[]` | Replace the command behind a file type |
-| [`layouts.ddd.bases`](#layouts) | `null` for each | The class DTOs, view models and actions extend |
+| [`bases`](#bases) | `null` for each | The class DTOs, view models, value objects and actions extend |
+| [`bases_path`](#bases-path) | `'app/Support'` | Where generated base classes go |
 | [`discovery.enabled`](#discovery) | `true` | Turn discovery on or off |
 | [`discovery.kinds`](#discovery-kinds) | `[]` | Discover more file types, or stop discovering one |
 | [`discovery.cache`](#discovery-cache) | `'bootstrap/cache/mod-discovery.php'` | Where the discovery cache is written |
@@ -46,23 +47,33 @@ The command class behind a file type, keyed by file type id. It replaces the bui
 
 [Swapping Generators](/reference/layout-api#swapping-generators) says which class to extend.
 
-## layouts
+## bases
 
-Settings per layout. `bases` names the class a file type's generated classes extend, by file type id:
+The class a file type's generated classes extend, by file type id:
 
 ```php memo="config/mod.php"
-'layouts' => [
-    'ddd' => [
-        'bases' => [
-            'dto' => App\Support\Data::class,
-            'view-model' => null,
-            'action' => null,
-        ],
-    ],
+'bases' => [
+    'dto' => App\Support\BaseData::class,
+    'view-model' => null,
+    'value-object' => null,
+    'action' => null,
 ],
 ```
 
-`null` lets mod decide: a supported package when it is installed, else a base class mod writes into your app on first use. A configured base wins over an installed package. [Stubs](/going-further/stubs#starter-stubs-in-the-ddd-layout) lists each file type's options.
+`null` lets mod decide: a supported package when it is installed, else a base class mod writes into your app on first use. A configured base wins over an installed package, and `mod:bases` writes nothing for it. [Stubs](/going-further/stubs#starter-stubs) lists each file type's options.
+
+## bases_path
+
+The folder generated base classes go in, relative to the app. Its namespace comes from the layout's roots, so the default writes `App\Support\Data\DataTransferObject` and `App\Support\ViewModels\ViewModel`:
+
+```php memo="config/mod.php"
+'bases_path' => 'app/UI',
+// -> App\UI\ViewModels\ViewModel in app/UI/ViewModels/ViewModel.php
+```
+
+A folder outside `app/` and every root of the layout has no namespace, so generating a class that needs a base exits with an error saying so.
+
+The folders bases go in are left out of placement and discovery, so a base is never taken for a module or for one of a file type's classes. The `ddd` layout keeps its bases in `src/Domain/Shared` whatever this is set to.
 
 ## discovery
 

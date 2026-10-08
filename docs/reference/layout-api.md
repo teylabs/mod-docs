@@ -47,15 +47,15 @@ kind(string $id, ?string $in = null, ...)
 | `nested:` | `true` | accepts names like `Archived/Document`, as `make:model Archived/Document` does |
 | `command:` | `'mod:repo'` | the command name, `mod:<id>` by default; `false` for none |
 | `aliases:` | `['mod:repository']` | more command names. Aliases add up across calls |
-| `label:` | `'DTO'` | the noun the command prints: "DTO [...] created successfully." Without one, the id in title case |
+| `label:` | `'DTO'` | the noun the command prints: "DTO [...] created successfully." Without one, the stub's [`label()`](#stub), else the id in title case |
 | `fallback:` | `'Console/Commands'` | the folder used when the group is left out |
 | `discoverAnywhere:` | `true` | discovered in every PHP file below the group folder, not only its own folder. `false` is not accepted: leave it out instead |
 | `except:` | `['Tests']` | with `discoverAnywhere:`, folders below the group folder discovery skips |
-| `stub:` | `Stub::file(...)` | the [stub](#stub) its classes start from |
+| `stub:` | `Stub::file(...)`, `Starters::dto()` | the [stub](#stub) its classes start from, or a [starter](#starters) |
 | `priority:` | `-10` | breaks ties when two file types could own the same class; higher wins |
 | `using:` | `fn (Kind $kind) => $kind->file()` | a closure receiving the [`Kind`](#kind-methods), for what the arguments don't cover |
 
-A file type with an id Laravel has a generator for (`model`, `controller`, `listener` and the others in [Commands](/reference/commands#generator-commands)) uses that generator. Any other id starts as an empty class.
+A file type with an id Laravel has a generator for (`model`, `controller`, `listener` and the others in [Commands](/reference/commands#generator-commands)) uses that generator. A file type with a [starter's](#starters) id starts from that starter. Any other id starts as an empty class.
 
 ### Kind Methods
 
@@ -102,8 +102,9 @@ Placeholders are ordered by first appearance across the layout. That is the orde
 | `whenClass(string $class, ?string $base = null, ?string $stub = null)` | When the class exists, extend `$base`, use `$stub`, or both |
 | `base(?string $class = null, ?string $config = null)` | Always extend this base: a class, or the config key that holds one, with `$class` as its default |
 | `generatesBase(GeneratedBase $base)` | When nothing else gives a base, write this one into the app on first use and extend it |
+| `label(string $label)` | The noun a command prints for file types generated from this stub, unless the file type has its own `label:` |
 
-Variants are tried in the order they were added, and the first that applies wins. An explicit base (the app's `layouts.<layout>.bases.<type>` key, or `base()`) wins over every variant.
+Variants are tried in the order they were added, and the first that applies wins. An explicit base (the app's [`bases.<type>`](/reference/configuration#bases) key, or `base()`) wins over every variant.
 
 ### GeneratedBase
 
@@ -112,10 +113,14 @@ Variants are tried in the order they were added, and the first that applies wins
 | Argument | Example | Effect |
 | --- | --- | --- |
 | `$name` | `'DataTransferObject'` | the base class's name |
-| `$in` | `'Shared/Data'` | its folder below the file type's root |
+| `$in` | `'Data'` | its folder below the app's bases folder ([`bases_path`](/reference/configuration#bases-path), `app/Support` by default) |
 | `$stub` | a path | the stub of its body, filled with `{{ namespace }}` and `{{ class }}`. The app replaces it with `stubs/mod.base.<name-in-kebab-case>.stub` |
 
-A generated base is never overwritten, even with `--force`.
+| Method | Does |
+| --- | --- |
+| `inKindRoot()` | Places the base below the file type's own root instead of the bases folder: `in: 'Shared/Data'` in the `ddd` layout writes `src/Domain/Shared/Data` |
+
+A generated base is never overwritten, even with `--force`. [`mod:bases`](/reference/commands#writing-base-classes) writes any that are missing.
 
 ### Stub Placeholders
 
@@ -133,7 +138,21 @@ The stub a class starts from is the first that exists:
 1. the app's `stubs/mod.<type>.stub`;
 2. the stub registered with `Mod::stubs()->for()` (the last registration wins);
 3. the stub the layout declares (`kind(..., stub: ...)`);
-4. the Laravel generator's stub, or mod's empty class.
+4. the [starter](#starters) for the file type's id;
+5. the Laravel generator's stub, or mod's empty class.
+
+## Starters
+
+`Tey\Mod\Layout\BuiltIn\Starters` returns the starter stubs. A file type whose id is in the second column gets the starter in any layout; another file type uses one with `stub:`.
+
+| Method | File type ids | Starts as |
+| --- | --- | --- |
+| `Starters::dto()` | `dto`, `data`, `data-transfer-object` | extends spatie/laravel-data's `Data` when installed, else a generated `DataTransferObject` base in `Data`. Label "DTO" |
+| `Starters::viewModel()` | `view-model`, `viewmodel` | extends spatie/laravel-view-models' `ViewModel` when installed, else a generated `ViewModel` base in `ViewModels`. Label "View model" |
+| `Starters::valueObject()` | `value-object`, `value` | a plain class with a constructor. Label "Value object" |
+| `Starters::action()` | `action` | a class with `handle()`, or `use AsAction;` when lorisleiva/laravel-actions is installed. Label "Action" |
+
+`Starters::dto()` and `Starters::viewModel()` take an optional folder below the file type's root, such as `Starters::dto('Shared/Data')`, which places the base there as `inKindRoot()` does. The `ddd` layout uses it to keep its bases in `src/Domain/Shared`.
 
 ## Registering Stubs
 
