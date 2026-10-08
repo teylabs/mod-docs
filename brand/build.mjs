@@ -199,7 +199,7 @@ function lockupSvg(mode) {
 
 // ─── Banner, 1200 × 320, drawn at 2× ───────────────────────────────────────
 
-function bannerSvg(mode) {
+function bannerSvg(mode, { transparent = false } = {}) {
   const W = 2400, Hh = 640
   const bg = mode === 'dark' ? DARK : PAPER
   const fg = mode === 'dark' ? PAPER : INK
@@ -211,7 +211,7 @@ function bannerSvg(mode) {
   const name = wordmark(nameSize, { x: mx + M + 112, y: my + nameCap + 18 })
   const tag = textPath(TEXT, 'Modular Development Toolkit for Laravel', 68, { x: mx + M + 120, y: my + M - 30 })
   return `<svg xmlns="http://www.w3.org/2000/svg" width="${W}" height="${Hh}" viewBox="0 0 ${W} ${Hh}">`
-    + `<rect width="${W}" height="${Hh}" fill="${bg}"/>`
+    + (transparent ? '' : `<rect width="${W}" height="${Hh}" fill="${bg}"/>`)
     + markPaths(M, mode, { dx: mx, dy: my })
     + `<path d="${name.d}" fill="${fg}"/><path d="${tag.d}" fill="${muted}"/></svg>\n`
 }
@@ -384,6 +384,12 @@ async function build() {
   // README banners and the share card
   out('banner-light@2x.png', await png(bannerSvg('light')))
   out('banner-dark@2x.png', await png(bannerSvg('dark')))
+  // Transparent banners for READMEs: no background box on GitHub's white or
+  // dark page, trimmed to the artwork. 'light' is for light pages, 'dark' for dark.
+  for (const mode of ['light', 'dark']) {
+    out(`banner-${mode}-transparent@2x.png`, await sharp(await png(bannerSvg(mode, { transparent: true })))
+      .trim({ threshold: 0 }).png().toBuffer())
+  }
   out('og-image.jpg', await sharp(Buffer.from(cardSvg())).flatten({ background: PAPER })
     .jpeg({ quality: 72, mozjpeg: true, chromaSubsampling: '4:4:4' }).toBuffer())
 

@@ -100,7 +100,8 @@ All in [`kit/`](kit/).
 | `favicon.ico` | 16, 32, 48 | real PNGs at each size (also `favicon-16/32/48.png`) |
 | `apple-touch-icon.png` | 180 × 180 | opaque paper tile |
 | `avatar-512.png`, `avatar-1000.png` | 512, 1000 | GitHub and social avatar: full-bleed paper, no baked corner radius |
-| `banner-light@2x.png`, `banner-dark@2x.png` | 1200 × 320 at 2× | README banner (deployed as `banner-light.png` / `banner-dark.png`; mod's README links them with `?v=N`) |
+| `banner-light@2x.png`, `banner-dark@2x.png` | 1200 × 320 at 2× | Banner on its own background, for places that need a solid image |
+| `banner-light-transparent@2x.png`, `banner-dark-transparent@2x.png` | trimmed to the artwork | README banner, no background (deployed as `banner-light-transparent.png` / `banner-dark-transparent.png`; mod's README switches them with `<picture>` and links them with `?v=N`) |
 | `og-image.jpg` | 2400 × 1200, ~127 KB | share card (`og:image`) |
 | `favicon-check.png` | | the favicon at 16 and 32 px on light and dark tabs, at 8×: the full mark (top) and the fallback cut (bottom) |
 
