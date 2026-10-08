@@ -248,7 +248,7 @@ const MARKS = [
     id: 'lift', name: 'Lift', seed: true,
     idea: 'A grid of modules with one lifted out of its slot, on its way to the next project.',
     notes: [
-      'The lead’s seed. Reads at 16 px as three ink squares and an orange one breaking the grid, which is the whole story.',
+      'The starting idea. Reads at 16 px as three ink squares and an orange one breaking the grid, which is the whole story.',
       'Cut to a 2 × 2 grid on purpose: a 3 × 3 grid turned to texture at 16 px. The empty slot says “moved”; the kit could add a faint ghost outline at 48 px and up if you want it to say “copied”.',
       'Mono and reversed still work, because the offset carries the idea, not the colour.'
     ],
@@ -338,7 +338,7 @@ const banner = (m, dark) => {
 const sheet = (m, i, label = 'direction ' + String.fromCharCode(65 + i)) => `
   <section class="sheet" id="${m.id}" aria-labelledby="h-${m.id}">
     <div class="sheet-head">
-      <span class="tag">${label}${m.seed ? ' · the lead’s seed' : ''}${m.symmetry ? ' · ' + m.symmetry : ''}</span>
+      <span class="tag">${label}${m.seed ? ' · the starting idea' : ''}${m.symmetry ? ' · ' + m.symmetry : ''}</span>
       <h2 id="h-${m.id}">${m.name}</h2>
       <p>${m.idea}</p>
       ${m.lifted ? `<p><strong>${m.pieceLabel || 'Lifted'}:</strong> ${m.lifted}</p>` : ''}
@@ -688,7 +688,7 @@ const DONE = [
     lifted: 'the top-right corner. It’s the corner that completes the square, the one place that sits on the axis of symmetry and finishes the outline. Pack a box from the bottom left and the top right is the last space left.',
     notes: [
       'The two bars and the two lower 2 × 2 squares mirror each other across the diagonal; the big square and the orange square sit on it.',
-      'The orange block is the same size as two of its neighbours, so the colour does all the work, which is what the user asked for.',
+      'The orange block is the same size as two of its neighbours, so the colour does all the work, which was the brief.',
       'At 16 px the bars are 2 px thick. It reads as a packed square of blocks; the bars become distinct from 24 px up.'
     ],
     draw: seated('packed')
