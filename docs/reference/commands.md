@@ -94,7 +94,7 @@ php artisan mod:handler Knowledge:Thing
 ```text
    ERROR  mod:handler is not a command of the modules layout. The slices layout has it.
 
-  To add it, declare the file type in a service provider: Mod::layout('modules')->kind('handler', in: '...'). Or switch layouts in config/mod.php.
+  To add it, declare the file type in a service provider: Mod::layout('modules')->kind('handler', in: '<folder>'). Or switch layouts in config/mod.php.
 ```
 
 [Extending a Built-In Layout](/going-further/custom-layouts#extending-a-built-in-layout) shows the `kind()` line.
