@@ -215,7 +215,7 @@ The DDD commands also answer to laravel-ddd's names:
 | `mod:value-object` | `mod:value`, `mod:valueobject` |
 | `mod:view-model` | `mod:viewmodel` |
 
-The names without dashes come from a rule every layout follows: a command with a dash also answers to its name without them. In the `modules` layout, `mod:dto` answers to `mod:data` and `mod:value-object` to `mod:value` as well.
+Every hyphenated command also works without the dash, in every layout. In the `modules` layout, `mod:dto` answers to `mod:data` and `mod:value-object` to `mod:value` as well.
 
 ## Extending a Layout
 

@@ -42,7 +42,7 @@ The commands depend on your layout: `modules` has `mod:dto` and `mod:view-model`
 php artisan list mod
 ```
 
-A command with a dash also answers to its name without the dash: `mod:view-model` and `mod:viewmodel` are the same command.
+Every hyphenated command also works without the dash: `mod:viewmodel`, `mod:valueobject`, `mod:jobmiddleware`. This applies to your own file types too, unless the name is already taken.
 
 [Commands](/reference/commands) lists every command, its options and the layouts that have it.
 
@@ -130,28 +130,51 @@ In `features` and `slices`, `mod:command` without a feature writes to `app/Conso
 
 ### New and Misspelled Modules
 
-When a command creates a module's folder, it says so and lists the modules that exist, so a typo shows up straight away:
+A command compares the module you give with the modules that exist: folders that hold the layout's files for a module. A new name creates the module's folder and says so, listing the existing modules:
 
 ```bash
-php artisan mod:model Knowledg:Document
+php artisan mod:model Billing:Invoice
 ```
 
 ```text
-   INFO  Created new module Knowledg (existing: Knowledge).
-   INFO  Model [app/Modules/Knowledg/Models/Document.php] created successfully.
+   INFO  Created new module Billing (existing: Knowledge).
+   INFO  Model [app/Modules/Billing/Models/Invoice.php] created successfully.
 ```
 
-A value that matches an existing module in all but case exits with an error, and nothing is written:
+A name that differs from an existing module only by case uses that module and says so:
 
 ```bash
 php artisan mod:model knowledge:Note
 ```
 
 ```text
-   ERROR  Module [knowledge] doesn't exist; did you mean [Knowledge]?
+   INFO  Using existing module Knowledge (you typed knowledge).
+   INFO  Model [app/Modules/Knowledge/Models/Note.php] created successfully.
 ```
 
-Module names are used as given, never changed to another case. Other layouts word both messages with their own dimension: `feature`, `slice` or `domain`.
+A near miss such as `Knowledg` asks whether you meant an existing module or a new one, with the closest module selected:
+
+```text
+ ┌ Module [Knowledg] doesn't exist. Did you mean an existing one? ─┐
+ │ › ● Knowledge                                                   │
+ │   ○ Create new module Knowledg                                  │
+ └─────────────────────────────────────────────────────────────────┘
+```
+
+Without a terminal to ask in, such as with `--no-interaction` or in CI, it starts the new module and says so:
+
+```bash
+php artisan mod:model Knowledg:Note --no-interaction
+```
+
+```text
+   INFO  Created new module Knowledg (existing: Knowledge).
+   INFO  Model [app/Modules/Knowledg/Models/Note.php] created successfully.
+```
+
+A near miss is one or two letters away from an existing module, ignoring case, and one letter for names shorter than six, so `Agent` is close to `Agents`. On a case-sensitive disk with both `Knowledge` and `KNOWLEDGE`, `knowledge` asks which one you meant, or exits with an error naming both without a terminal.
+
+Each message prints once per command, and other layouts word it with their own dimension: `Created new feature Knowledge.`, `Created new slice IndexDocument.` In `slices`, Laravel's own `app/Http` and `app/Models` don't count as features.
 
 ## When a File Already Exists
 

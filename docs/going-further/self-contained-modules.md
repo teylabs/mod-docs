@@ -78,7 +78,7 @@ The DTO and the view model extend base classes that every module shares. The fir
 
 ## Adding Routes
 
-Routes are not discovered. A module keeps its own routes file and loads it from its service provider, which is discovered like any provider in the module's `Providers` folder:
+Mod doesn't discover route files. Load a module's routes from a provider in the module, which discovery registers:
 
 ```php memo="app/Modules/Knowledge/routes/web.php"
 <?php
@@ -95,7 +95,7 @@ Route::middleware('web')->group(function () {
 $this->loadRoutesFrom(__DIR__.'/../routes/web.php');
 ```
 
-`loadRoutesFrom()` adds no middleware group, so the file applies `web` itself. The routes are registered without anything in `routes/web.php`:
+`loadRoutesFrom()` adds no middleware group, so the file applies `web` itself. `php artisan route:list` shows the module's routes, and `route:cache` includes them:
 
 ```bash
 php artisan route:list --path=documents
@@ -105,11 +105,9 @@ php artisan route:list --path=documents
 # -> Showing [7] routes
 ```
 
-The provider loads views, translations and config for the module the same way, with `loadViewsFrom()`, `loadTranslationsFrom()` and `mergeConfigFrom()`.
-
 ## Copying a Module to Another Project
 
-Each module is one folder. The other project needs mod [installed](/guide/installation) with the same layout, `'layout' => 'modules'`. Copy the folder into its `app/Modules`, then run `mod:bases` once to write the base classes its DTOs and view models extend:
+Each module is one folder, and its routes, migrations, listeners, factories and policies come with it. The other project needs mod [installed](/guide/installation) with `'layout' => 'modules'` in `config/mod.php`. Copy the folder into its `app/Modules`, then run `mod:bases` once to write the base classes its DTOs and view models extend:
 
 ```bash
 php artisan mod:bases
@@ -120,7 +118,7 @@ php artisan mod:bases
    INFO  Created base class App\Support\ViewModels\ViewModel [app/Support/ViewModels/ViewModel.php].
 ```
 
-The module's migrations, listeners, routes, factory and policy come with it:
+In the other project, they work as they did in the first:
 
 ```bash
 php artisan migrate --pretend

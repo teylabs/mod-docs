@@ -31,7 +31,7 @@ php artisan mod:query-builder Knowledge:Chunk
 # -> src/Domain/Knowledge/Builders/ChunkBuilder.php
 ```
 
-`mod:query-builder` also answers to `mod:querybuilder`: every command or alias with a dash gets its name without the dashes, unless another command already has it.
+A hyphenated command or alias also gets a dash-free alias, so `mod:query-builder` works as `mod:querybuilder`. When that name is already a command or alias, the existing one keeps it.
 
 - Repeating an existing file type changes only the arguments you pass. Aliases add up: `->kind('dto', aliases: ['mod:payload'])` keeps `mod:data` and the DTO's other aliases.
 - Without `label:`, the output names the type's id in title case (`Builder`). File types with a Laravel generator keep Laravel's wording.

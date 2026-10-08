@@ -48,7 +48,7 @@ kind(string $id, ?string $in = null, ...)
 | `timestamped:` | `true` | a timestamped file name, as for migrations; `false` keeps the name as given |
 | `nested:` | `true` | accepts names like `Archived/Document`, as `make:model Archived/Document` does |
 | `command:` | `'mod:repo'` | the command name, `mod:<id>` by default; `false` for none |
-| `aliases:` | `['mod:repository']` | more command names. Aliases add up across calls. A command or alias with a dash also answers to its name without the dashes, unless another command or alias has that name |
+| `aliases:` | `['mod:repository']` | more command names. Aliases add up across calls. A hyphenated command or alias also gets a dash-free alias; when that name is already a command or alias, the existing one keeps it |
 | `label:` | `'DTO'` | the noun the command prints: "DTO [...] created successfully." Without one, the stub's [`label()`](#stub), else the id in title case |
 | `ungrouped:` | `'Console/Commands'` | the folder used when the group is left out |
 | `discover:` | `'anywhere'` | where discovery looks: `'folder'` (the default), the file type's own folder; `'anywhere'`, every PHP file below the group folder |

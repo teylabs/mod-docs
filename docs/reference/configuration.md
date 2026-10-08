@@ -107,4 +107,4 @@ The cache file `mod:cache` writes, relative to the app.
 
 ### discovery.factories and discovery.policies
 
-`true` lets `Model::factory()` and `Gate::getPolicyFor()` find a model's factory and policy through the layout, with no `newFactory()` method or `Gate::policy()` call needed. `false` turns each off. `mod:model` still writes `newFactory()`, so a generated model finds its factory either way.
+`true` lets `Model::factory()` and `Gate::getPolicyFor()` find a model's factory and policy through the layout, with no `newFactory()` method or `Gate::policy()` call needed. `false` turns each off. `mod:model -f` still writes `newFactory()`, so the model keeps working without mod.

@@ -14,7 +14,7 @@ Every generator takes these, in addition to its own options:
 
 The `laravel` layout takes no placement. A placeholder option is left out when the Laravel command already has an option of that name; see [When an Option Name Is Already Taken](/going-further/custom-layouts#when-an-option-name-is-already-taken).
 
-A value that matches an existing group folder in all but case, such as `knowledge` for `Knowledge`, exits with an error naming the folder. A value with no folder yet creates one and says so; see [New and Misspelled Modules](/basics/generating-files#new-and-misspelled-modules).
+A value that differs from an existing group only by case, such as `knowledge` for `Knowledge`, uses that group and says so. A near miss, such as `Knowledg`, asks which you meant in a terminal; with `--no-interaction` it creates the new group. A new value creates its folder and says so. [New and Misspelled Modules](/basics/generating-files#new-and-misspelled-modules) shows the output.
 
 Before writing, a generator checks every file it is about to write, related files included. When one exists, it prints an error and writes nothing. `--force` overwrites, on the commands that list it below.
 
@@ -73,7 +73,7 @@ Each command runs the Laravel command in the second column and takes that comman
 | `mod:dto` | `mod:data` in `modules` and `ddd`; `mod:data-transfer-object` in `ddd` |
 | `mod:value-object` | `mod:value` |
 
-Every command or alias with a dash also answers to its name without the dashes: `mod:viewmodel`, `mod:valueobject`, `mod:jobmiddleware`, `mod:datatransferobject`. When that name already belongs to another command or alias, it stays with that one. `php artisan list mod` shows each command's aliases in brackets:
+Every hyphenated command or alias also works without the dash: `mod:viewmodel`, `mod:valueobject`, `mod:jobmiddleware`, `mod:datatransferobject`. When that name is already a command or alias, the existing one keeps it. `php artisan list mod` shows each command's aliases in brackets:
 
 ```text
   mod:value-object    [mod:value|mod:valueobject] Create a new value object class
@@ -81,7 +81,7 @@ Every command or alias with a dash also answers to its name without the dashes: 
 
 ### Commands for Your Own File Types
 
-A file type you add with `kind()` gets `mod:<id>`, or the name given in `command:`, plus any `aliases:` and their names without dashes: `kind('api-resource', ...)` answers to `mod:api-resource` and `mod:apiresource`. Without a Laravel generator, it takes `--force` and the placement options.
+A file type you add with `kind()` gets `mod:<id>`, or the name given in `command:`, plus any `aliases:`, each also without the dash: `kind('api-resource', ...)` answers to `mod:api-resource` and `mod:apiresource`. Without a Laravel generator, it takes `--force` and the placement options.
 
 ### Commands From Another Layout
 
@@ -187,6 +187,6 @@ php artisan mod:cache
   Rejected files were found but not registered: 6 placed by no file type (helpers and plain classes; nothing to do). Run with -v to list them.
 ```
 
-Rejected files are PHP files the scan found but didn't register. The second line groups them by reason and says whether each needs anything from you; `-v` lists every file with its reason. [What Is Discovered](/basics/auto-discovery#what-is-discovered) explains the reasons.
+The second line counts the files it found but didn't register, grouped by reason. `php artisan mod:cache -v` lists each rejected file with its reason; [Caching Discovery in Production](/basics/auto-discovery#caching-discovery-in-production) explains each reason.
 
 Both are registered only while the `mod:*` commands and discovery are both on. [Caching Discovery in Production](/basics/auto-discovery#caching-discovery-in-production) covers when the cache is used.

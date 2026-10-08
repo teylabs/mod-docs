@@ -29,7 +29,7 @@ A listener is registered for the events its `handle()` method accepts. It is nev
 
 Discovery looks in each file type's own folder, such as `app/Modules/Knowledge/Listeners`, and runs after every provider has booted. Only classes that really are providers, commands, listeners or subscribers are registered; anything else in those folders is skipped.
 
-Routes and views are not discovered. A module's [service provider](/going-further/self-contained-modules#adding-routes) loads its routes, and is discovered itself.
+Route files, views and translations aren't discovered. A module loads its routes from a provider of its own, which is discovered; [Adding Routes](/going-further/self-contained-modules#adding-routes) shows how.
 
 ## Running Module Migrations
 
@@ -49,7 +49,7 @@ Laravel's own `database/migrations` is left to Laravel.
 
 ## Finding Factories and Policies
 
-A model the layout places finds its factory and policy through the layout. Discovery needs no `newFactory()` method on the model and no `Gate::policy()` call:
+A model the layout places finds its factory and policy through the layout. Discovery doesn't need a `newFactory()` method on the model or a `Gate::policy()` call:
 
 ```php
 use App\Modules\Knowledge\Models\Document;
@@ -59,7 +59,7 @@ Document::factory();                 // App\Modules\Knowledge\Database\Factories
 Gate::getPolicyFor(Document::class); // App\Modules\Knowledge\Policies\DocumentPolicy
 ```
 
-`mod:model` still writes a `newFactory()` method, so the model finds its factory even in an app without mod. A model written by hand, with only `use HasFactory;`, finds it through discovery.
+`mod:model -f` still writes `newFactory()`, so the model keeps working without mod.
 
 A policy your app registers with `Gate::policy()` is kept. A factory resolver your app sets after mod (`Factory::guessFactoryNamesUsing()`) replaces mod's, as it would replace any earlier one. Factory and policy lookup are part of discovery, so `'discovery.enabled' => false` turns them off too.
 
@@ -142,16 +142,16 @@ php artisan mod:clear   # also run by php artisan optimize:clear
   Rejected files were found but not registered: 6 placed by no file type (helpers and plain classes; nothing to do). Run with -v to list them.
 ```
 
-Rejected files are PHP files the scan found but didn't register. The second line groups them by reason:
+`mod:cache` prints what it registered, and a second line for any files it found but didn't register, grouped by reason:
 
 | Reason | What to do |
 | --- | --- |
-| placed by no file type, such as `app/Models/User.php` in the `modules` layout, or a base class in `app/Support` | nothing |
-| in a discovered folder but not a provider, command, listener or subscriber | check it: a listener's `handle()` may be missing its event type |
+| placed by no file type | nothing: files no file type of the layout owns, such as `app/Models/User.php`, the base classes in `app/Support` and a module's `routes/web.php` |
+| in a discovered folder but not a provider, command, listener or subscriber | check it: for example, a listener whose `handle()` has no typed event parameter |
 | placed by more than one file type | give one file type a `priority:` |
-| placed by a file type that uses `place()` | nothing, unless it should be discovered |
+| placed by a callback, so its file type cannot be told | nothing, unless it should be discovered |
 
-`php artisan mod:cache -v` lists each file and its reason.
+`php artisan mod:cache -v` lists each rejected file with its reason.
 
 With a cache present, mod registers from the cache without scanning. Like Laravel's own caches, it doesn't pick up new classes: after adding a provider, command or listener while the cache exists, run `php artisan optimize:clear`.
 
