@@ -47,7 +47,7 @@ Each command runs the Laravel command in the second column and takes that comman
 | `mod:notification` | `make:notification` | all | `--markdown`, `--test`, `--pest`, `--phpunit`, `--force` |
 | `mod:observer` | `make:observer` | all | `--model`, `--force` |
 | `mod:policy` | `make:policy` | all | `--model`, `--guard`, `--force` |
-| `mod:provider` | `make:provider` | all | `--force` |
+| `mod:provider` | `make:provider` | all | `--force`. In `ddd`, the provider is named as given, with no `ServiceProvider` suffix |
 | `mod:query` | none | `modules`, `features`, `slices`, `type-first` | `--force` |
 | `mod:request` | `make:request` | all | `--force` |
 | `mod:resource` | `make:resource` | all | `--json-api`, `--collection`, `--force` |
@@ -128,13 +128,13 @@ Folders below each layout's group folder:
 - A slice's classes have fixed names: `mod:handler Handler --in=Knowledge/IndexDocument` writes `app/Knowledge/IndexDocument/Handler.php`. In `slices`, `mod:test` takes the slice as an optional second value.
 - `mod:test --unit` writes to `tests/Unit` instead of `tests/Feature`.
 - In `features` and `slices`, `mod:command` without a feature writes to `app/Console/Commands`.
-- Class names take the file type's suffix: `Controller`, `Request`, `Policy`, `Factory`, `Seeder`, and `ServiceProvider` for providers in every layout but `ddd`.
+- Class names take the file type's suffix: `Controller`, `Request`, `Policy`, `Factory`, `Seeder`, and `ServiceProvider` for providers in every layout but `ddd`. In `ddd`, a provider is named as given: `mod:provider Knowledge:Knowledge` writes `src/Domain/Knowledge/Providers/Knowledge.php`, and `Knowledge:KnowledgeServiceProvider` writes `KnowledgeServiceProvider.php`.
 
 ## Writing Base Classes
 
 | Command | Does |
 | --- | --- |
-| `mod:bases` | Writes every [generated base class](/going-further/stubs#generated-base-classes) the layout's file types extend that is missing. It never overwrites one, and takes no options |
+| `mod:bases` | Writes every [generated base class](/going-further/stubs#generated-base-classes) the layout can use that is missing, whether or not a class extends it yet. It never overwrites one, and takes no options |
 
 ```bash
 php artisan mod:bases
@@ -145,7 +145,7 @@ php artisan mod:bases
    INFO  Created base class App\Support\ViewModels\ViewModel [app/Support/ViewModels/ViewModel.php].
 ```
 
-When every base exists, it prints `Every base class already exists.` In a layout whose file types extend no generated base, such as `laravel`, it prints `No kind in this layout extends a generated base class.` A configured base or an installed package means there is no base to write. It is registered with the `mod:*` commands.
+When every base exists, it prints `Every base class already exists.` In a layout whose file types extend no generated base, such as `laravel`, it prints `No file type in this layout extends a generated base class.` A configured base or an installed package means there is no base to write. It is registered with the `mod:*` commands.
 
 ## Discovery Commands
 

@@ -128,7 +128,7 @@ In `features` and `slices`, `mod:command` without a feature writes to `app/Conso
 
 ## When a File Already Exists
 
-`mod:*` checks every file it is about to write before writing any of them. When one already exists, it prints an error and writes nothing:
+`mod:*` checks every file it is about to write before writing any of them. When every file already exists, it prints an error for each and exits with 0, as `make:*` does:
 
 ```bash
 php artisan mod:model Knowledge:Document -f
@@ -136,6 +136,16 @@ php artisan mod:model Knowledge:Document -f
 
 ```text
    ERROR  app/Modules/Knowledge/Models/Document.php already exists.
+   ERROR  app/Modules/Knowledge/Database/Factories/DocumentFactory.php already exists.
+```
+
+When some files exist and others don't, it writes none of them, so the new ones aren't left half done. It prints `Nothing was written.` and exits with 1. Here the factory exists and the model doesn't:
+
+```bash
+php artisan mod:model Knowledge:Document -f
+```
+
+```text
    ERROR  app/Modules/Knowledge/Database/Factories/DocumentFactory.php already exists.
    ERROR  Nothing was written.
 ```

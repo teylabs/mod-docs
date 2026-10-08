@@ -203,7 +203,7 @@ $this->app->booted(function ($app) {
 });
 ```
 
-The candidates are paths relative to the app. The definition says which file type (and discovery type) is being collected, so candidates can be scoped per type. Mod still decides which candidates are registered, in what order, and how.
+The candidates are paths relative to the app. The definition says which file type (and discovery type) is being collected, so candidates can be scoped per type. Mod still decides which candidates are registered, in what order, and how. `DiscoveryRegistrar::register()` also turns factory and policy lookup back on, following `discovery.factories` and `discovery.policies`.
 
 ## Turning Commands Off
 

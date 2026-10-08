@@ -98,7 +98,7 @@ A base is written the first time it is needed, and it is yours from then on: mod
 
 ### Writing Missing Bases
 
-A module copied from another project refers to bases it doesn't contain. `mod:bases` writes every base your layout's file types extend that is missing:
+A module copied from another project refers to bases it doesn't contain. `mod:bases` writes every base your layout can use that is missing, whether or not a class extends it yet:
 
 ```bash
 php artisan mod:bases

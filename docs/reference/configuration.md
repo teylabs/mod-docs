@@ -86,13 +86,13 @@ Maps a file type id to the type it is discovered as: `provider`, `command`, `lis
 ```php memo="config/mod.php"
 'discovery' => [
     'kinds' => [
-        'console' => 'command',
+        'handler' => 'listener',
         'migration' => false,
     ],
 ],
 ```
 
-By default, the `provider`, `command`, `listener` and `subscriber` file types are discovered as themselves, and timestamped file types such as `migration` as directories. A key must be a file type of the active layout. Class file types map to a class type, and file types such as migrations only to `directory`.
+By default, the `provider`, `command`, `listener` and `subscriber` file types are discovered as themselves, and timestamped file types such as `migration` as directories. Keys are file type ids, and each must be a file type of the active layout: an unknown key stops the app with an error listing the layout's file types. `handler` above is a file type the app declares with `kind()`. File types that hold classes map to a class type, and file types that hold plain files, such as migrations, only to `directory`.
 
 ### discovery.cache
 

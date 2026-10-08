@@ -57,9 +57,11 @@ Document::factory();                 // App\Modules\Knowledge\Database\Factories
 Gate::getPolicyFor(Document::class); // App\Modules\Knowledge\Policies\DocumentPolicy
 ```
 
-A policy your app registers with `Gate::policy()` is kept. A factory resolver your app sets after mod (`Factory::guessFactoryNamesUsing()`) replaces mod's, as it would replace any earlier one.
+A policy your app registers with `Gate::policy()` is kept. A factory resolver your app sets after mod (`Factory::guessFactoryNamesUsing()`) replaces mod's, as it would replace any earlier one. Factory and policy lookup are part of discovery, so `'discovery.enabled' => false` turns them off too.
 
 ## Discovering Event Subscribers
+
+A subscriber in a `Listeners` folder is treated the way Laravel's own event discovery treats it: its typed `handle*()` methods are registered as listeners, and `subscribe()` isn't called.
 
 Subscribers are discovered for a file type named `subscriber`. The built-in layouts don't have one, so add it to yours:
 
@@ -78,15 +80,32 @@ A class in that folder with a public `subscribe()` method taking one parameter i
 
 ## Discovering Other File Types
 
-To discover a file type you've added, such as a `console` type, as one of the discovered types, map it in `config/mod.php`:
+`discovery.kinds` maps a file type id to what it is discovered as. The built-in layouts call their Artisan commands `command`, so those are discovered already. To discover a file type of your own, declare it, then map its id:
+
+```php memo="app/Providers/AppServiceProvider.php" at="boot()"
+use Tey\Mod\Facades\Mod;
+
+Mod::layout('modules')->kind('handler', in: 'Modules/{module}/Handlers');
+```
 
 ```php memo="config/mod.php"
 'discovery' => [
-    'kinds' => ['console' => 'command'],
+    'kinds' => ['handler' => 'listener'],
 ],
 ```
 
-The value is `provider`, `command`, `listener`, `subscriber`, `directory` (for file types like migrations), or `false` to stop discovering one. For example, to manage migration folders yourself:
+A handler generated with `mod:handler Knowledge:IndexUploadedDocument`, whose `handle()` method accepts `DocumentUploaded`, is then registered as a listener:
+
+```bash
+php artisan event:list --event=DocumentUploaded
+```
+
+```text
+  App\Modules\Knowledge\Events\DocumentUploaded ..
+  ⇂ App\Modules\Knowledge\Handlers\IndexUploadedDocument@handle
+```
+
+A key that isn't a file type of the active layout stops the app with an error listing the layout's file types. The value is `provider`, `command`, `listener`, `subscriber`, `directory` (for file types like migrations), or `false` to stop discovering one. For example, to manage migration folders yourself:
 
 ```php memo="config/mod.php"
 'discovery' => [
