@@ -1,0 +1,137 @@
+# Auto-Discovery
+
+Mod registers the providers, Artisan commands and event listeners your layout places, adds its migration folders to Laravel's migrator, and finds the factory and policy of each model. A class generated into a module works without a line of registration.
+
+## Discovering Listeners
+
+The `GenerateEmbeddings` listener from [Generating Files](/basics/generating-files), in the `Knowledge` module, is registered as soon as it exists:
+
+```bash
+php artisan event:list --event=DocumentUploaded
+```
+
+```text
+  App\Modules\Knowledge\Events\DocumentUploaded ..
+  ⇂ App\Modules\Knowledge\Listeners\GenerateEmbeddings@handle
+```
+
+A listener is registered for the events its `handle()` method accepts. It is never registered twice: whatever Laravel's own event discovery covers (`app/Listeners`, or the paths given to `withEvents()`), its event cache, or a manual `Event::listen()` already holds is left alone.
+
+## What Is Discovered
+
+| File type | Registered as |
+| --- | --- |
+| `provider` | a service provider |
+| `command` | an Artisan command |
+| `listener` | an event listener, for the events its `handle()` method accepts |
+| `subscriber` | an event subscriber, through `Event::subscribe()` |
+| `migration` | a migration folder, added to the migrator |
+
+Discovery looks in each file type's own folder, such as `app/Modules/Knowledge/Listeners`, and runs after every provider has booted. Only classes that really are providers, commands, listeners or subscribers are registered; anything else in those folders is skipped.
+
+## Running Module Migrations
+
+The folders a migration is written to, such as `app/Modules/Knowledge/Database/Migrations`, are added to Laravel's migrator. `migrate`, `migrate:rollback` and `migrate:status` include them:
+
+```bash
+php artisan migrate
+```
+
+```text
+   INFO  Running migrations.
+
+  2026_10_08_120000_create_documents_table .......... 1.91ms DONE
+```
+
+Laravel's own `database/migrations` is left to Laravel.
+
+## Finding Factories and Policies
+
+A model the layout places finds its factory and policy through the layout. The model needs no `newFactory()` method, and the policy no `Gate::policy()` call:
+
+```php
+use App\Modules\Knowledge\Models\Document;
+use Illuminate\Support\Facades\Gate;
+
+Document::factory();                 // App\Modules\Knowledge\Database\Factories\DocumentFactory
+Gate::getPolicyFor(Document::class); // App\Modules\Knowledge\Policies\DocumentPolicy
+```
+
+A policy your app registers with `Gate::policy()` is kept. A factory resolver your app sets after mod (`Factory::guessFactoryNamesUsing()`) replaces mod's, as it would replace any earlier one.
+
+## Discovering Event Subscribers
+
+Subscribers are discovered for a file type named `subscriber`. The built-in layouts don't have one, so add it to yours:
+
+```php memo="app/Providers/AppServiceProvider.php" at="boot()"
+use Tey\Mod\Facades\Mod;
+
+Mod::layout('modules')->kind('subscriber', in: 'Modules/{module}/Subscribers', suffix: 'Subscriber');
+```
+
+```bash
+php artisan mod:subscriber Knowledge:Document
+# -> app/Modules/Knowledge/Subscribers/DocumentSubscriber.php
+```
+
+A class in that folder with a public `subscribe()` method taking one parameter is registered through `Event::subscribe()`.
+
+## Discovering Other File Types
+
+To discover a file type you've added, such as a `console` type, as one of the discovered types, map it in `config/mod.php`:
+
+```php memo="config/mod.php"
+'discovery' => [
+    'kinds' => ['console' => 'command'],
+],
+```
+
+The value is `provider`, `command`, `listener`, `subscriber`, `directory` (for file types like migrations), or `false` to stop discovering one. For example, to manage migration folders yourself:
+
+```php memo="config/mod.php"
+'discovery' => [
+    'kinds' => ['migration' => false],
+],
+```
+
+### Discovering Anywhere in a Domain
+
+To discover a file type in every PHP file below its group folder, not only its own folder, pass `discoverAnywhere: true`. `except:` skips folders below the group folder, such as `src/Domain/Knowledge/Tests`:
+
+```php memo="app/Providers/AppServiceProvider.php" at="boot()"
+use Tey\Mod\Facades\Mod;
+
+Mod::layout('ddd')->kind('listener', in: '{domain+}/Listeners', discoverAnywhere: true, except: ['Tests']);
+```
+
+## Caching Discovery in Production
+
+`php artisan optimize` caches discovery, and `php artisan optimize:clear` clears it. Both run mod's own commands:
+
+```bash
+php artisan mod:discovery-cache   # also run by php artisan optimize
+php artisan mod:discovery-clear   # also run by php artisan optimize:clear
+```
+
+```text
+   INFO  Discovery cached in [bootstrap/cache/mod-discovery.php]: 0 providers, 0 commands, 1 listeners, 0 subscribers, 1 directories, 3 rejected.
+```
+
+With a cache present, mod registers from the cache without scanning. Like Laravel's own caches, it doesn't pick up new classes: after adding a provider, command or listener while the cache exists, run `php artisan optimize:clear`.
+
+When the layout or the discovery settings change after the cache was written, the cache is ignored: mod scans instead and logs a warning naming both commands. Set `'discovery.on_stale_cache' => 'fail'` to stop the app booting instead.
+
+## Turning Discovery Off
+
+To keep the rest of discovery and stop finding factories or policies through the layout, turn that part off:
+
+```php memo="config/mod.php"
+'discovery' => [
+    'factories' => false,
+    'policies' => false,
+],
+```
+
+`'enabled' => false` turns all of discovery off: providers, commands, listeners, subscribers, migration folders, factories and policies.
+
+[Configuration](/reference/configuration#discovery) lists every discovery key.

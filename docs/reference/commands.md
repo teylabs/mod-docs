@@ -1,0 +1,149 @@
+# Commands
+
+Every Artisan command mod registers, the options each one takes, and the folder each one writes to in each built-in layout. `php artisan list mod` shows the commands your layout has.
+
+## Placement Options
+
+Every generator takes these, in addition to its own options:
+
+| Option | Takes | Example |
+| --- | --- | --- |
+| `--in` | every value of the layout's placeholders, in order, separated by `/`; a value spanning folders separates them with `.` | `--in=Knowledge/IndexDocument` |
+| `--<placeholder>` | one placeholder's value, one option per placeholder the command's folder uses | `--module=Knowledge`, `--feature=Knowledge --slice=IndexDocument`, `--domain=Knowledge.Search` |
+| `<values>:` prefix on the name | the same values as `--in`, before a colon | `Knowledge:Document`, `Knowledge/IndexDocument:Handler` |
+
+The `laravel` layout takes no placement. A placeholder option is left out when the Laravel command already has an option of that name; see [When an Option Name Is Already Taken](/going-further/custom-layouts#when-an-option-name-is-already-taken).
+
+Before writing, a generator checks every file it is about to write, related files included. When one exists, it prints an error and writes nothing. `--force` overwrites, on the commands that list it below.
+
+## Generator Commands
+
+Each command runs the Laravel command in the second column and takes that command's options, listed in the last column. The options come from Laravel, so they follow your Laravel version; these are Laravel 13's. Commands marked "none" have no Laravel generator: they write an empty class, or the file type's [stub](/going-further/stubs).
+
+| Command | Runs | Layouts | Options |
+| --- | --- | --- | --- |
+| `mod:action` | none | `modules`, `ddd` | `--force` |
+| `mod:cast` | `make:cast` | all | `--inbound`, `--force` |
+| `mod:channel` | `make:channel` | all | `--force` |
+| `mod:class` | `make:class` | all | `--invokable`, `--force` |
+| `mod:command` | `make:command` | all | `--command`, `--test`, `--pest`, `--phpunit`, `--force` |
+| `mod:config` | `make:config` | `laravel`, `type-first` | `--force` |
+| `mod:controller` | `make:controller` | all | `--api`, `--type`, `--invokable`, `--model`, `--parent`, `--resource`, `--requests`, `--singleton`, `--creatable`, `--test`, `--pest`, `--phpunit`, `--force` |
+| `mod:data` | none | `modules` | `--force` |
+| `mod:dto` | none | `ddd` | `--force` |
+| `mod:enum` | `make:enum` | all | `--string`, `--int`, `--force` |
+| `mod:event` | `make:event` | all | `--force` |
+| `mod:exception` | `make:exception` | all | `--render`, `--report`, `--force` |
+| `mod:factory` | `make:factory` | all | `--model` |
+| `mod:handler` | none | `slices` | `--force` |
+| `mod:interface` | `make:interface` | all | `--force` |
+| `mod:job` | `make:job` | all | `--sync`, `--batched`, `--test`, `--pest`, `--phpunit`, `--force` |
+| `mod:job-middleware` | `make:job-middleware` | all | `--test`, `--pest`, `--phpunit`, `--force` |
+| `mod:listener` | `make:listener` | all | `--event`, `--queued`, `--test`, `--pest`, `--phpunit`, `--force` |
+| `mod:mail` | `make:mail` | all | `--markdown`, `--view`, `--test`, `--pest`, `--phpunit`, `--force` |
+| `mod:message` | none | `slices` | `--force` |
+| `mod:middleware` | `make:middleware` | all | `--test`, `--pest`, `--phpunit` |
+| `mod:migration` | `make:migration` | all | `--create`, `--table`, `--fullpath` |
+| `mod:model` | `make:model` | all | `--all`, `--controller`, `--factory`, `--migration`, `--morph-pivot`, `--policy`, `--seed`, `--pivot`, `--resource`, `--api`, `--requests`, `--test`, `--pest`, `--phpunit`, `--force` |
+| `mod:notification` | `make:notification` | all | `--markdown`, `--test`, `--pest`, `--phpunit`, `--force` |
+| `mod:observer` | `make:observer` | all | `--model`, `--force` |
+| `mod:policy` | `make:policy` | all | `--model`, `--guard`, `--force` |
+| `mod:provider` | `make:provider` | all | `--force` |
+| `mod:query` | none | `modules`, `features`, `slices`, `type-first` | `--force` |
+| `mod:request` | `make:request` | all | `--force` |
+| `mod:resource` | `make:resource` | all | `--json-api`, `--collection`, `--force` |
+| `mod:rule` | `make:rule` | all | `--implicit`, `--force` |
+| `mod:scope` | `make:scope` | all | `--force` |
+| `mod:seeder` | `make:seeder` | all | none |
+| `mod:test` | `make:test` | all | `--unit`, `--pest`, `--phpunit`, `--force` |
+| `mod:trait` | `make:trait` | all | `--force` |
+| `mod:validator` | none | `features`, `slices` | `--force` |
+| `mod:value` | none | `ddd` | `--force` |
+| `mod:view-model` | none | `ddd` | `--force` |
+
+- `mod:migration` places migrations from the layout, so it exits with an error for `--path` and `--realpath`. Use `--in` instead.
+- `mod:model`'s related-file options (`--factory`, `--migration`, `--seed`, `--policy`, `--controller`, `--requests`, `--all`) write each file in the same group.
+
+### Aliases
+
+| Command | Aliases |
+| --- | --- |
+| `mod:dto` | `mod:data`, `mod:data-transfer-object`, `mod:datatransferobject` |
+| `mod:value` | `mod:value-object`, `mod:valueobject` |
+| `mod:view-model` | `mod:viewmodel` |
+
+### Commands for Your Own File Types
+
+A file type you add with `kind()` gets `mod:<id>`, or the name given in `command:`, plus any `aliases:`. Without a Laravel generator, it takes `--force` and the placement options.
+
+## Where Each Command Writes
+
+Folders below each layout's group folder:
+
+| Layout | Group folder |
+| --- | --- |
+| `modules` | `app/Modules/<Module>` |
+| `features` | `app/Features/<Feature>` |
+| `slices` | `app/<Feature>`, and `app/<Feature>/<Slice>` for a slice's classes |
+| `ddd` | `src/Domain/<Domain>` |
+
+| Command | `modules` | `features` | `slices` | `ddd` |
+| --- | --- | --- | --- | --- |
+| `mod:action` | `Actions` | | | `Actions` |
+| `mod:cast` | `Casts` | `Casts` | `Casts` | `Casts` |
+| `mod:channel` | `Channels` | `Broadcasting` | `Broadcasting` | `Channels` |
+| `mod:class`, `mod:interface`, `mod:trait` | the group folder | the group folder | the group folder | the group folder |
+| `mod:command` | `Console` | `Console/Commands` | `Console/Commands` | `Commands` |
+| `mod:controller` | `Controllers` | `Http/Controllers` | `Http/Controllers` | `app/Modules/<Domain>/Controllers` |
+| `mod:data` | `Data` | | | |
+| `mod:dto` | | | | `Data` |
+| `mod:enum` | `Enums` | `Enums` | `Enums` | `Enums` |
+| `mod:event` | `Events` | `Events` | `Events` | `Events` |
+| `mod:exception` | `Exceptions` | `Exceptions` | `Exceptions` | `Exceptions` |
+| `mod:factory` | `Database/Factories` | `Database/Factories` | `Database/Factories` | `Database/Factories` |
+| `mod:handler` | | | `<Slice>/Handler.php` | |
+| `mod:job` | `Jobs` | `Jobs` | `Jobs` | `Jobs` |
+| `mod:job-middleware` | `Jobs/Middleware` | `Jobs/Middleware` | `Jobs/Middleware` | `Jobs/Middleware` |
+| `mod:listener` | `Listeners` | `Listeners` | `Listeners` | `Listeners` |
+| `mod:mail` | `Mail` | `Mail` | `Mail` | `Mail` |
+| `mod:message` | | | `<Slice>/Command.php` | |
+| `mod:middleware` | `Middleware` | `Http/Middleware` | `Http/Middleware` | `app/Modules/<Domain>/Middleware` |
+| `mod:migration` | `Database/Migrations` | `Database/Migrations` | `Database/Migrations` | `Database/Migrations` |
+| `mod:model` | `Models` | `Models` | `Models` | `Models` |
+| `mod:notification` | `Notifications` | `Notifications` | `Notifications` | `Notifications` |
+| `mod:observer` | `Observers` | `Observers` | `Observers` | `Observers` |
+| `mod:policy` | `Policies` | `Policies` | `Policies` | `Policies` |
+| `mod:provider` | `Providers` | `Providers` | `Providers` | `Providers` |
+| `mod:query` | `Queries` | `Queries` | `<Slice>/Query.php` | |
+| `mod:request` | `Requests` | `Http/Requests` | `<Slice>/Request.php` | `app/Modules/<Domain>/Requests` |
+| `mod:resource` | `Resources` | `Http/Resources` | `Http/Resources` | `Resources` |
+| `mod:rule` | `Rules` | `Rules` | `Rules` | `Rules` |
+| `mod:scope` | `Scopes` | `Scopes` | `Scopes` | `Scopes` |
+| `mod:seeder` | `Database/Seeders` | `Database/Seeders` | `Database/Seeders` | `Database/Seeders` |
+| `mod:test` | `tests/Feature/Modules/<Module>` | `tests/Feature/<Feature>` | `tests/Feature/<Feature>/<Slice>` | `tests/Feature/<Domain>` |
+| `mod:validator` | | `Validation` | `<Slice>/Validator.php` | |
+| `mod:value` | | | | `ValueObjects` |
+| `mod:view-model` | | | | `ViewModels` |
+
+- The `laravel` layout writes every file where the matching `make:*` command does. `type-first` uses the same folders with an optional sub-folder for the feature, such as `app/Models/Knowledge` or `database/factories/Knowledge`, and adds `mod:query`, which writes to `app/Queries/<Feature>`.
+- A slice's classes have fixed names: `mod:handler Handler --in=Knowledge/IndexDocument` writes `app/Knowledge/IndexDocument/Handler.php`. In `slices`, `mod:test` takes the slice as an optional second value.
+- `mod:test --unit` writes to `tests/Unit` instead of `tests/Feature`.
+- In `features` and `slices`, `mod:command` without a feature writes to `app/Console/Commands`.
+- Class names take the file type's suffix: `Controller`, `Request`, `Policy`, `Factory`, `Seeder`, and `ServiceProvider` for providers in every layout but `ddd`.
+
+## Discovery Commands
+
+| Command | Does | Also run by |
+| --- | --- | --- |
+| `mod:discovery-cache` | Scans the layout and caches the discovered providers, commands, listeners, subscribers and migration folders | `php artisan optimize` |
+| `mod:discovery-clear` | Removes the discovery cache file | `php artisan optimize:clear` |
+
+```bash
+php artisan mod:discovery-cache
+```
+
+```text
+   INFO  Discovery cached in [bootstrap/cache/mod-discovery.php]: 0 providers, 0 commands, 1 listeners, 0 subscribers, 1 directories, 3 rejected.
+```
+
+Both are registered only while the `mod:*` commands and discovery are both on. [Caching Discovery in Production](/basics/auto-discovery#caching-discovery-in-production) covers when the cache is used.
