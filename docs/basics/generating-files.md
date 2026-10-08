@@ -42,6 +42,8 @@ The commands depend on your layout: `modules` has `mod:dto` and `mod:view-model`
 php artisan list mod
 ```
 
+A command with a dash also answers to its name without the dash: `mod:view-model` and `mod:viewmodel` are the same command.
+
 [Commands](/reference/commands) lists every command, its options and the layouts that have it.
 
 ## Generating Related Files
@@ -103,11 +105,11 @@ Each layout's option:
 
 ### Giving Two Values
 
-When a layout has two dimensions, `--in` and the short form take the values in order, separated by `/`:
+When a layout has two dimensions, `--in` and the short form take the values in order, separated by `/`. A handler's class is always named `Handler`, so its command needs no name:
 
 ```bash
-php artisan mod:handler Handler --feature=Knowledge --slice=IndexDocument
-php artisan mod:handler Handler --in=Knowledge/IndexDocument
+php artisan mod:handler --feature=Knowledge --slice=IndexDocument
+php artisan mod:handler --in=Knowledge/IndexDocument
 php artisan mod:handler Knowledge/IndexDocument:Handler
 # -> app/Knowledge/IndexDocument/Handler.php
 ```
@@ -125,6 +127,31 @@ php artisan mod:model Document
 ```
 
 In `features` and `slices`, `mod:command` without a feature writes to `app/Console/Commands`.
+
+### New and Misspelled Modules
+
+When a command creates a module's folder, it says so and lists the modules that exist, so a typo shows up straight away:
+
+```bash
+php artisan mod:model Knowledg:Document
+```
+
+```text
+   INFO  Created new module Knowledg (existing: Knowledge).
+   INFO  Model [app/Modules/Knowledg/Models/Document.php] created successfully.
+```
+
+A value that matches an existing module in all but case exits with an error, and nothing is written:
+
+```bash
+php artisan mod:model knowledge:Note
+```
+
+```text
+   ERROR  Module [knowledge] doesn't exist; did you mean [Knowledge]?
+```
+
+Module names are used as given, never changed to another case. Other layouts word both messages with their own dimension: `feature`, `slice` or `domain`.
 
 ## When a File Already Exists
 

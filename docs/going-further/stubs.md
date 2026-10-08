@@ -40,7 +40,7 @@ DTOs, view models, value objects and actions start as plain Laravel-style classe
 | `mod:dto` | [spatie/laravel-data](https://github.com/spatie/laravel-data): extends `Data` | extends a `DataTransferObject` base with `fromArray()` and `toArray()` |
 | `mod:view-model` | [spatie/laravel-view-models](https://github.com/spatie/laravel-view-models): extends `ViewModel` | extends a `ViewModel` base |
 | `mod:action` | [lorisleiva/laravel-actions](https://github.com/lorisleiva/laravel-actions): `use AsAction;` | a plain class with `handle()` |
-| `mod:value` | | a plain class with a constructor |
+| `mod:value-object` | | a plain class with a constructor |
 
 The command says which it used:
 
@@ -67,7 +67,7 @@ A file type with another id uses a starter through `stub:`:
 
 ```php memo="app/Providers/AppServiceProvider.php" at="boot()"
 use Tey\Mod\Facades\Mod;
-use Tey\Mod\Layout\BuiltIn\Starters;
+use Tey\Mod\Generation\Starters;
 
 Mod::layout('features')->kind('payload', in: 'Features/{feature}/Payloads', stub: Starters::dto());
 ```

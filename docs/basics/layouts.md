@@ -123,13 +123,13 @@ src/Domain/Knowledge/
 
 ## The Slices Layout
 
-`slices` groups code by feature, then splits each feature into slices: one folder per operation, such as `IndexDocument`. A slice's classes have fixed names, so the folder says what the operation is and the file says what part of it you're looking at:
+`slices` groups code by feature, then splits each feature into slices: one folder per operation, such as `IndexDocument`. A slice's classes have fixed names, so the folder says what the operation is and the file says what part of it you're looking at. The commands for them take no name:
 
 ```bash
 php artisan mod:model Knowledge:Document -mf
-php artisan mod:handler Handler --in=Knowledge/IndexDocument
-php artisan mod:request Request --in=Knowledge/IndexDocument
-php artisan mod:message Command --in=Knowledge/IndexDocument
+php artisan mod:handler --in=Knowledge/IndexDocument
+php artisan mod:request --in=Knowledge/IndexDocument
+php artisan mod:message --in=Knowledge/IndexDocument
 ```
 
 ```text
@@ -203,7 +203,7 @@ php artisan mod:action Knowledge:IndexDocument
 
 A domain can be nested: `Knowledge.Search` (or `Knowledge/Search`) writes to `src/Domain/Knowledge/Search`.
 
-`mod:dto`, `mod:value`, `mod:view-model` and `mod:action` start from starter stubs, and use spatie/laravel-data, spatie/laravel-view-models or lorisleiva/laravel-actions when they're installed. Their base classes go in `src/Domain/Shared`, where laravel-ddd puts them. [Stubs](/going-further/stubs#starter-stubs) covers each one.
+`mod:dto`, `mod:value-object`, `mod:view-model` and `mod:action` start from starter stubs, and use spatie/laravel-data, spatie/laravel-view-models or lorisleiva/laravel-actions when they're installed. Their base classes go in `src/Domain/Shared`, where laravel-ddd puts them. [Stubs](/going-further/stubs#starter-stubs) covers each one.
 
 ### laravel-ddd Command Names
 
@@ -212,14 +212,14 @@ The DDD commands also answer to laravel-ddd's names:
 | Command | Aliases |
 | --- | --- |
 | `mod:dto` | `mod:data`, `mod:data-transfer-object`, `mod:datatransferobject` |
-| `mod:value` | `mod:value-object`, `mod:valueobject` |
+| `mod:value-object` | `mod:value`, `mod:valueobject` |
 | `mod:view-model` | `mod:viewmodel` |
 
-In the `modules` layout, `mod:dto` answers to `mod:data` as well.
+The names without dashes come from a rule every layout follows: a command with a dash also answers to its name without them. In the `modules` layout, `mod:dto` answers to `mod:data` and `mod:value-object` to `mod:value` as well.
 
 ## Extending a Layout
 
-Every built-in layout can be extended from a service provider. One line adds a file type and its `mod:*` command:
+Every built-in layout can be extended from a service provider. One line adds a file type and its `mod:*` command. `in:` is relative to the layout's root, `app/` in `modules`:
 
 ```php memo="app/Providers/AppServiceProvider.php" at="boot()"
 use Tey\Mod\Facades\Mod;

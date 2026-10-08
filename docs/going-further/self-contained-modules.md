@@ -1,6 +1,6 @@
 # Self-Contained Modules
 
-With the `modules` layout, everything a feature needs can live in one folder that you copy to the next project. Its migrations, listeners and factories come with it.
+With the `modules` layout, everything a feature needs can live in one folder that you copy to the next project. Its migrations, listeners, factories, policies and routes come with it.
 
 ## Building Two Modules
 
@@ -13,10 +13,12 @@ php artisan mod:dto Knowledge:DocumentData
 php artisan mod:event Knowledge:DocumentUploaded
 php artisan mod:listener Knowledge:GenerateEmbeddings --event=DocumentUploaded
 php artisan mod:view-model Knowledge:ShowDocument
+php artisan mod:policy Knowledge:DocumentPolicy --model=Document
+php artisan mod:provider Knowledge:Knowledge
 
 php artisan mod:model Agents:Conversation -m
 php artisan mod:action Agents:AnswerQuestion
-php artisan mod:value Agents:TokenUsage
+php artisan mod:value-object Agents:TokenUsage
 php artisan mod:job Agents:GenerateReply
 ```
 
@@ -52,12 +54,18 @@ app/Modules/
     │   └── GenerateEmbeddings.php
     ├── Models/
     │   └── Document.php
+    ├── Policies/
+    │   └── DocumentPolicy.php
+    ├── Providers/
+    │   └── KnowledgeServiceProvider.php
     ├── Requests/
     │   ├── StoreDocumentRequest.php
     │   └── UpdateDocumentRequest.php
     └── ViewModels/
         └── ShowDocument.php
 ```
+
+`--model=Document` names the model by its short name, as `make:policy` does. Inside a module, it is the module's own `Document` model. `Gate::getPolicyFor(Document::class)` finds the policy with no `Gate::policy()` call.
 
 The DTO and the view model extend base classes that every module shares. The first `mod:dto` and `mod:view-model` write them, once, outside the modules:
 
@@ -68,9 +76,40 @@ The DTO and the view model extend base classes that every module shares. The fir
 
 [Generated Base Classes](/going-further/stubs#generated-base-classes) covers where they go and how to change them.
 
+## Adding Routes
+
+Routes are not discovered. A module keeps its own routes file and loads it from its service provider, which is discovered like any provider in the module's `Providers` folder:
+
+```php memo="app/Modules/Knowledge/routes/web.php"
+<?php
+
+use App\Modules\Knowledge\Controllers\DocumentController;
+use Illuminate\Support\Facades\Route;
+
+Route::middleware('web')->group(function () {
+    Route::resource('documents', DocumentController::class);
+});
+```
+
+```php memo="app/Modules/Knowledge/Providers/KnowledgeServiceProvider.php" at="boot()"
+$this->loadRoutesFrom(__DIR__.'/../routes/web.php');
+```
+
+`loadRoutesFrom()` adds no middleware group, so the file applies `web` itself. The routes are registered without anything in `routes/web.php`:
+
+```bash
+php artisan route:list --path=documents
+# -> GET|HEAD documents › App\Modules\Knowledge\Controllers\DocumentController@index
+# -> POST     documents › App\Modules\Knowledge\Controllers\DocumentController@store
+# -> ...
+# -> Showing [7] routes
+```
+
+The provider loads views, translations and config for the module the same way, with `loadViewsFrom()`, `loadTranslationsFrom()` and `mergeConfigFrom()`.
+
 ## Copying a Module to Another Project
 
-Each module is one folder. Copy it into another project that uses the `modules` layout, then run `mod:bases` once to write the base classes its DTOs and view models extend:
+Each module is one folder. The other project needs mod [installed](/guide/installation) with the same layout, `'layout' => 'modules'`. Copy the folder into its `app/Modules`, then run `mod:bases` once to write the base classes its DTOs and view models extend:
 
 ```bash
 php artisan mod:bases
@@ -81,7 +120,7 @@ php artisan mod:bases
    INFO  Created base class App\Support\ViewModels\ViewModel [app/Support/ViewModels/ViewModel.php].
 ```
 
-The module's migrations, listeners and factories come with it:
+The module's migrations, listeners, routes, factory and policy come with it:
 
 ```bash
 php artisan migrate --pretend
@@ -90,6 +129,9 @@ php artisan migrate --pretend
 php artisan event:list --event=DocumentUploaded
 # -> App\Modules\Knowledge\Events\DocumentUploaded
 # ->   ⇂ App\Modules\Knowledge\Listeners\GenerateEmbeddings@handle
+
+php artisan route:list --path=documents
+# -> Showing [7] routes
 ```
 
-`Document::factory()` finds the module's factory, as in the first project. `mod:bases` never overwrites a base that exists, so running it again writes nothing.
+`Document::factory()` finds the module's factory and `Gate::getPolicyFor(Document::class)` its policy, as in the first project. The copied classes extend Laravel's own `App\Http\Controllers\Controller`, which every new app has. `mod:bases` never overwrites a base that exists, so running it again writes nothing.

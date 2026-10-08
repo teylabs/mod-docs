@@ -20,7 +20,7 @@ const KIT = path.join(here, 'kit')
 const PUBLIC = path.join(here, '..', 'docs', 'public')
 
 // Bump when a deployed file changes; the docs reference these files with ?v=N.
-export const ASSET_VERSION = 1
+export const ASSET_VERSION = 2
 
 // ─── Palette ────────────────────────────────────────────────────────────────
 
@@ -266,7 +266,7 @@ const COMMANDS = [
   'php artisan mod:view-model Knowledge:ShowDocument',
   'php artisan mod:model Agents:Conversation -m',
   'php artisan mod:action Agents:AnswerQuestion',
-  'php artisan mod:value Agents:TokenUsage',
+  'php artisan mod:value-object Agents:TokenUsage',
   'php artisan mod:job Agents:GenerateReply',
 ]
 

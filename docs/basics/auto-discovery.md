@@ -29,6 +29,8 @@ A listener is registered for the events its `handle()` method accepts. It is nev
 
 Discovery looks in each file type's own folder, such as `app/Modules/Knowledge/Listeners`, and runs after every provider has booted. Only classes that really are providers, commands, listeners or subscribers are registered; anything else in those folders is skipped.
 
+Routes and views are not discovered. A module's [service provider](/going-further/self-contained-modules#adding-routes) loads its routes, and is discovered itself.
+
 ## Running Module Migrations
 
 The folders a migration is written to, such as `app/Modules/Knowledge/Database/Migrations`, are added to Laravel's migrator. `migrate`, `migrate:rollback` and `migrate:status` include them:
@@ -47,7 +49,7 @@ Laravel's own `database/migrations` is left to Laravel.
 
 ## Finding Factories and Policies
 
-A model the layout places finds its factory and policy through the layout. The model needs no `newFactory()` method, and the policy no `Gate::policy()` call:
+A model the layout places finds its factory and policy through the layout. Discovery needs no `newFactory()` method on the model and no `Gate::policy()` call:
 
 ```php
 use App\Modules\Knowledge\Models\Document;
@@ -56,6 +58,8 @@ use Illuminate\Support\Facades\Gate;
 Document::factory();                 // App\Modules\Knowledge\Database\Factories\DocumentFactory
 Gate::getPolicyFor(Document::class); // App\Modules\Knowledge\Policies\DocumentPolicy
 ```
+
+`mod:model` still writes a `newFactory()` method, so the model finds its factory even in an app without mod. A model written by hand, with only `use HasFactory;`, finds it through discovery.
 
 A policy your app registers with `Gate::policy()` is kept. A factory resolver your app sets after mod (`Factory::guessFactoryNamesUsing()`) replaces mod's, as it would replace any earlier one. Factory and policy lookup are part of discovery, so `'discovery.enabled' => false` turns them off too.
 
@@ -115,12 +119,12 @@ A key that isn't a file type of the active layout stops the app with an error li
 
 ### Discovering Anywhere in a Domain
 
-To discover a file type in every PHP file below its group folder, not only its own folder, pass `discoverAnywhere: true`. `except:` skips folders below the group folder, such as `src/Domain/Knowledge/Tests`:
+To discover a file type in every PHP file below its group folder, not only its own folder, pass `discover: 'anywhere'`. `discoverExcept:` skips folders below the group folder, such as `src/Domain/Knowledge/Tests`:
 
 ```php memo="app/Providers/AppServiceProvider.php" at="boot()"
 use Tey\Mod\Facades\Mod;
 
-Mod::layout('ddd')->kind('listener', in: '{domain+}/Listeners', discoverAnywhere: true, except: ['Tests']);
+Mod::layout('ddd')->kind('listener', in: '{domain+}/Listeners', discover: 'anywhere', discoverExcept: ['Tests']);
 ```
 
 ## Caching Discovery in Production
@@ -128,13 +132,26 @@ Mod::layout('ddd')->kind('listener', in: '{domain+}/Listeners', discoverAnywhere
 `php artisan optimize` caches discovery, and `php artisan optimize:clear` clears it. Both run mod's own commands:
 
 ```bash
-php artisan mod:discovery-cache   # also run by php artisan optimize
-php artisan mod:discovery-clear   # also run by php artisan optimize:clear
+php artisan mod:cache   # also run by php artisan optimize
+php artisan mod:clear   # also run by php artisan optimize:clear
 ```
 
 ```text
-   INFO  Discovery cached in [bootstrap/cache/mod-discovery.php]: 0 providers, 0 commands, 1 listeners, 0 subscribers, 1 directories, 3 rejected.
+   INFO  Discovery cached in [bootstrap/cache/mod-discovery.php]: 1 providers, 0 commands, 1 listeners, 0 subscribers, 2 directories, 6 rejected.
+
+  Rejected files were found but not registered: 6 placed by no file type (helpers and plain classes; nothing to do). Run with -v to list them.
 ```
+
+Rejected files are PHP files the scan found but didn't register. The second line groups them by reason:
+
+| Reason | What to do |
+| --- | --- |
+| placed by no file type, such as `app/Models/User.php` in the `modules` layout, or a base class in `app/Support` | nothing |
+| in a discovered folder but not a provider, command, listener or subscriber | check it: a listener's `handle()` may be missing its event type |
+| placed by more than one file type | give one file type a `priority:` |
+| placed by a file type that uses `place()` | nothing, unless it should be discovered |
+
+`php artisan mod:cache -v` lists each file and its reason.
 
 With a cache present, mod registers from the cache without scanning. Like Laravel's own caches, it doesn't pick up new classes: after adding a provider, command or listener while the cache exists, run `php artisan optimize:clear`.
 

@@ -19,12 +19,13 @@ php artisan mod:model Knowledge:Document -mf
 ```
 
 ```text
+   INFO  Created new module Knowledge.
    INFO  Model [app/Modules/Knowledge/Models/Document.php] created successfully.
    INFO  Factory [app/Modules/Knowledge/Database/Factories/DocumentFactory.php] created successfully.
    INFO  Migration [app/Modules/Knowledge/Database/Migrations/2026_10_08_120000_create_documents_table.php] created successfully.
 ```
 
-`Knowledge:` names the module. `-m` and `-f` are `make:model`'s own options.
+`Knowledge:` names the module, and its folder is created on first use. `-m` and `-f` are `make:model`'s own options.
 
 ## Running the Migration
 

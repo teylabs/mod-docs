@@ -127,7 +127,7 @@ uses. If the README example changes, update `TREE` and `COMMANDS` in
 `favicon.svg`, `favicon.ico`, `apple-touch-icon.png`, `og-image.jpg`,
 `logo-light.svg` and `logo-dark.svg`.
 
-[`.vitepress/config.mts`](../.vitepress/config.mts) links them with `?v=1`.
+[`.vitepress/config.mts`](../.vitepress/config.mts) links them with `?v=2`.
 **When a deployed file changes, bump `?v=` there** (and `ASSET_VERSION` in
 `build.mjs`, which records it): the CDN caches icons and images for hours.
 

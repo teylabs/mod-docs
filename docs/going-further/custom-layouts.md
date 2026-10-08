@@ -4,7 +4,7 @@ A layout is one chain of calls in a service provider. You can add file types to 
 
 ## Extending a Built-In Layout
 
-Calling `Mod::layout()` with an existing name extends that layout. A new file type gets a `mod:<type>` command. Here, a `Knowledge` module gets validators for uploads:
+Calling `Mod::layout()` with an existing name extends that layout. A new file type gets a `mod:<type>` command. `in:` is relative to the layout's root: `app/` in `modules` and `features`, and `src/Domain` for `ddd`'s domain classes. Here, a `Knowledge` module gets validators for uploads:
 
 ```php memo="app/Providers/AppServiceProvider.php" at="boot()"
 use Tey\Mod\Facades\Mod;
@@ -49,7 +49,7 @@ Mod::layout('domains')
     ->root('app', 'App\\', 'app', fn (Root $root) => $root
         ->kind('controller', in: 'Modules/{domain}/Controllers', suffix: 'Controller'))
     ->kind('factory', in: 'domain:{domain}/Database/Factories', suffix: 'Factory')
-    ->relation('factory', from: 'model', to: 'factory')
+    ->relation('model-factory', from: 'model', to: 'factory')
     ->exclude('App\\Support\\');
 ```
 
@@ -81,7 +81,7 @@ Other arguments set the class name's suffix, a fixed class name, the command's n
 
 ### Related Files
 
-`relation($id, from: ..., to: ...)` connects two file types. It drives options such as `--factory` and `--policy`, and how one generated class refers to another. With `relation('factory', from: 'model', to: 'factory')`, `mod:model --factory` writes the factory and the model finds it.
+`relation($id, from: ..., to: ...)` connects two file types. It drives options such as `--factory` and `--policy`, and how one generated class refers to another. With `relation('model-factory', from: 'model', to: 'factory')`, `mod:model --factory` writes the factory and the model finds it. Ids follow `<from>-<to>`, as in the built-in layouts; [Layout API](/reference/layout-api#relation) lists them.
 
 ### Exclusions
 

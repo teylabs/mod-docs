@@ -14,6 +14,8 @@ Every generator takes these, in addition to its own options:
 
 The `laravel` layout takes no placement. A placeholder option is left out when the Laravel command already has an option of that name; see [When an Option Name Is Already Taken](/going-further/custom-layouts#when-an-option-name-is-already-taken).
 
+A value that matches an existing group folder in all but case, such as `knowledge` for `Knowledge`, exits with an error naming the folder. A value with no folder yet creates one and says so; see [New and Misspelled Modules](/basics/generating-files#new-and-misspelled-modules).
+
 Before writing, a generator checks every file it is about to write, related files included. When one exists, it prints an error and writes nothing. `--force` overwrites, on the commands that list it below.
 
 ## Generator Commands
@@ -57,24 +59,45 @@ Each command runs the Laravel command in the second column and takes that comman
 | `mod:test` | `make:test` | all | `--unit`, `--pest`, `--phpunit`, `--force` |
 | `mod:trait` | `make:trait` | all | `--force` |
 | `mod:validator` | none | `features`, `slices` | `--force` |
-| `mod:value` | none | `modules`, `ddd` | `--force` |
+| `mod:value-object` | none | `modules`, `ddd` | `--force` |
 | `mod:view-model` | none | `modules`, `ddd` | `--force` |
 
 - `mod:migration` places migrations from the layout, so it exits with an error for `--path` and `--realpath`. Use `--in` instead.
-- `mod:dto`, `mod:view-model`, `mod:value` and `mod:action` start from [starter stubs](/going-further/stubs#starter-stubs), and the first `mod:dto` or `mod:view-model` writes its [base class](/going-further/stubs#generated-base-classes).
+- `mod:dto`, `mod:view-model`, `mod:value-object` and `mod:action` start from [starter stubs](/going-further/stubs#starter-stubs), and the first `mod:dto` or `mod:view-model` writes its [base class](/going-further/stubs#generated-base-classes).
 - `mod:model`'s related-file options (`--factory`, `--migration`, `--seed`, `--policy`, `--controller`, `--requests`, `--all`) write each file in the same group.
 
 ### Aliases
 
 | Command | Aliases |
 | --- | --- |
-| `mod:dto` | `mod:data` in `modules` and `ddd`; `mod:data-transfer-object` and `mod:datatransferobject` in `ddd` |
-| `mod:value` | `mod:value-object`, `mod:valueobject` in `ddd` |
-| `mod:view-model` | `mod:viewmodel` in `ddd` |
+| `mod:dto` | `mod:data` in `modules` and `ddd`; `mod:data-transfer-object` in `ddd` |
+| `mod:value-object` | `mod:value` |
+
+Every command or alias with a dash also answers to its name without the dashes: `mod:viewmodel`, `mod:valueobject`, `mod:jobmiddleware`, `mod:datatransferobject`. When that name already belongs to another command or alias, it stays with that one. `php artisan list mod` shows each command's aliases in brackets:
+
+```text
+  mod:value-object    [mod:value|mod:valueobject] Create a new value object class
+```
 
 ### Commands for Your Own File Types
 
-A file type you add with `kind()` gets `mod:<id>`, or the name given in `command:`, plus any `aliases:`. Without a Laravel generator, it takes `--force` and the placement options.
+A file type you add with `kind()` gets `mod:<id>`, or the name given in `command:`, plus any `aliases:` and their names without dashes: `kind('api-resource', ...)` answers to `mod:api-resource` and `mod:apiresource`. Without a Laravel generator, it takes `--force` and the placement options.
+
+### Commands From Another Layout
+
+A built-in command your layout doesn't have exits with an error naming the layouts that have it:
+
+```bash
+php artisan mod:handler Knowledge:Thing
+```
+
+```text
+   ERROR  mod:handler is not a command of the modules layout. The slices layout has it.
+
+  To add it, declare the file type in a service provider: Mod::layout('modules')->kind('handler', in: '...'). Or switch layouts in config/mod.php.
+```
+
+[Extending a Built-In Layout](/going-further/custom-layouts#extending-a-built-in-layout) shows the `kind()` line.
 
 ## Where Each Command Writes
 
@@ -121,11 +144,11 @@ Folders below each layout's group folder:
 | `mod:seeder` | `Database/Seeders` | `Database/Seeders` | `Database/Seeders` | `Database/Seeders` |
 | `mod:test` | `tests/Feature/Modules/<Module>` | `tests/Feature/<Feature>` | `tests/Feature/<Feature>/<Slice>` | `tests/Feature/<Domain>` |
 | `mod:validator` | | `Validation` | `<Slice>/Validator.php` | |
-| `mod:value` | `ValueObjects` | | | `ValueObjects` |
+| `mod:value-object` | `ValueObjects` | | | `ValueObjects` |
 | `mod:view-model` | `ViewModels` | | | `ViewModels` |
 
 - The `laravel` layout writes every file where the matching `make:*` command does. `type-first` uses the same folders with an optional sub-folder for the feature, such as `app/Models/Knowledge` or `database/factories/Knowledge`, and adds `mod:query`, which writes to `app/Queries/<Feature>`.
-- A slice's classes have fixed names: `mod:handler Handler --in=Knowledge/IndexDocument` writes `app/Knowledge/IndexDocument/Handler.php`. In `slices`, `mod:test` takes the slice as an optional second value.
+- A slice's classes have fixed names, so the name can be left out: `mod:handler --in=Knowledge/IndexDocument` writes `app/Knowledge/IndexDocument/Handler.php`. A different name is not used, and the command says so. In `slices`, `mod:test` takes the slice as an optional second value.
 - `mod:test --unit` writes to `tests/Unit` instead of `tests/Feature`.
 - In `features` and `slices`, `mod:command` without a feature writes to `app/Console/Commands`.
 - Class names take the file type's suffix: `Controller`, `Request`, `Policy`, `Factory`, `Seeder`, and `ServiceProvider` for providers in every layout but `ddd`. In `ddd`, a provider is named as given: `mod:provider Knowledge:Knowledge` writes `src/Domain/Knowledge/Providers/Knowledge.php`, and `Knowledge:KnowledgeServiceProvider` writes `KnowledgeServiceProvider.php`.
@@ -151,15 +174,19 @@ When every base exists, it prints `Every base class already exists.` In a layout
 
 | Command | Does | Also run by |
 | --- | --- | --- |
-| `mod:discovery-cache` | Scans the layout and caches the discovered providers, commands, listeners, subscribers and migration folders | `php artisan optimize` |
-| `mod:discovery-clear` | Removes the discovery cache file | `php artisan optimize:clear` |
+| `mod:cache` | Scans the layout and caches the discovered providers, commands, listeners, subscribers and migration folders | `php artisan optimize` |
+| `mod:clear` | Removes the discovery cache file | `php artisan optimize:clear` |
 
 ```bash
-php artisan mod:discovery-cache
+php artisan mod:cache
 ```
 
 ```text
-   INFO  Discovery cached in [bootstrap/cache/mod-discovery.php]: 0 providers, 0 commands, 1 listeners, 0 subscribers, 1 directories, 3 rejected.
+   INFO  Discovery cached in [bootstrap/cache/mod-discovery.php]: 1 providers, 0 commands, 1 listeners, 0 subscribers, 2 directories, 6 rejected.
+
+  Rejected files were found but not registered: 6 placed by no file type (helpers and plain classes; nothing to do). Run with -v to list them.
 ```
+
+Rejected files are PHP files the scan found but didn't register. The second line groups them by reason and says whether each needs anything from you; `-v` lists every file with its reason. [What Is Discovered](/basics/auto-discovery#what-is-discovered) explains the reasons.
 
 Both are registered only while the `mod:*` commands and discovery are both on. [Caching Discovery in Production](/basics/auto-discovery#caching-discovery-in-production) covers when the cache is used.

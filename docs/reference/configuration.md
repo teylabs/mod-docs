@@ -96,15 +96,15 @@ By default, the `provider`, `command`, `listener` and `subscriber` file types ar
 
 ### discovery.cache
 
-The cache file `mod:discovery-cache` writes, relative to the app.
+The cache file `mod:cache` writes, relative to the app.
 
 ### discovery.on_stale_cache
 
 | Value | When the layout or discovery settings changed after the cache was written |
 | --- | --- |
 | `'scan'` | Ignores the cache, scans instead without rewriting it, and logs a warning |
-| `'fail'` | Stops the app booting until the cache is rebuilt with `mod:discovery-cache` or removed |
+| `'fail'` | Stops the app booting until the cache is rebuilt with `mod:cache` or removed |
 
 ### discovery.factories and discovery.policies
 
-`true` lets `Model::factory()` and `Gate::getPolicyFor()` find a model's factory and policy through the layout's relations, with no `newFactory()` method or `Gate::policy()` call. `false` turns each off.
+`true` lets `Model::factory()` and `Gate::getPolicyFor()` find a model's factory and policy through the layout, with no `newFactory()` method or `Gate::policy()` call needed. `false` turns each off. `mod:model` still writes `newFactory()`, so a generated model finds its factory either way.

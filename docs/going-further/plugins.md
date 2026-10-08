@@ -31,6 +31,8 @@ php artisan mod:query-builder Knowledge:Chunk
 # -> src/Domain/Knowledge/Builders/ChunkBuilder.php
 ```
 
+`mod:query-builder` also answers to `mod:querybuilder`: every command or alias with a dash gets its name without the dashes, unless another command already has it.
+
 - Repeating an existing file type changes only the arguments you pass. Aliases add up: `->kind('dto', aliases: ['mod:payload'])` keeps `mod:data` and the DTO's other aliases.
 - Without `label:`, the output names the type's id in title case (`Builder`). File types with a Laravel generator keep Laravel's wording.
 - A command or alias that another file type already uses stops the layout from compiling, with an error naming both.
@@ -184,26 +186,19 @@ php artisan mod:view-model Knowledge:ShowDocument
 
 ## Supplying Discovery Candidates
 
-A package can supply the files discovery considers, for example to reuse an existing finder or skip generated folders. Turn the built-in registration off (`'discovery.enabled' => false`) and register discovery yourself once every provider has booted:
+A package can supply the files discovery considers, for example to reuse an existing finder or skip generated folders. Pass a closure to `Mod::discoverUsing()`:
 
-```php memo="src/KnowledgeToolsServiceProvider.php" at="register()"
+```php memo="src/KnowledgeToolsServiceProvider.php" at="boot()"
 use Tey\Mod\Discovery\DiscoveryDefinition;
-use Tey\Mod\Discovery\DiscoveryOptions;
-use Tey\Mod\Discovery\DiscoveryRegistrar;
-use Tey\Mod\Placement\Root;
-use Tey\Mod\Preset\Preset;
+use Tey\Mod\Facades\Mod;
+use Tey\Mod\Layout\CompiledRoot;
 
-$this->app->booted(function ($app) {
-    $options = DiscoveryOptions::fromConfig([...config('mod.discovery'), 'enabled' => true])
-        ->withCandidates(fn (Root $root, string $basePath, DiscoveryDefinition $definition): iterable => [
-            'app/Modules/Knowledge/Listeners/GenerateEmbeddings.php',
-        ]);
-
-    DiscoveryRegistrar::register($app, $app->make(Preset::class), $options);
-});
+Mod::discoverUsing(fn (CompiledRoot $root, string $basePath, DiscoveryDefinition $definition): iterable => [
+    'app/Modules/Knowledge/Listeners/GenerateEmbeddings.php',
+]);
 ```
 
-The candidates are paths relative to the app. The definition says which file type (and discovery type) is being collected, so candidates can be scoped per type. Mod still decides which candidates are registered, in what order, and how. `DiscoveryRegistrar::register()` also turns factory and policy lookup back on, following `discovery.factories` and `discovery.policies`.
+The closure receives a root of the layout and the definition of what is being collected, and returns paths relative to the app. The definition names the file type (`$definition->kindId`) and its discovery type, so candidates can be scoped per type. Mod still decides which candidates are registered, in what order, and how. Factory and policy lookup work as before, following `discovery.factories` and `discovery.policies`.
 
 ## Turning Commands Off
 
