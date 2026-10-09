@@ -10,9 +10,9 @@ on:
   workflow_dispatch:
     inputs:
       mod_ref:
-        description: 'teylabs/mod branch, tag, or commit to verify'
-        required: true
-        default: main
+        description: 'teylabs/mod branch, tag, or commit to verify (empty = the latest release)'
+        required: false
+        default: ''
         type: string
 
 permissions:
@@ -26,8 +26,6 @@ jobs:
       matrix:
         laravel: [12, 13]
     name: Laravel ${{ matrix.laravel }}
-    env:
-      MOD_REF: ${{ inputs.mod_ref || 'main' }}
     steps:
       - uses: actions/checkout@v7
       - uses: shivammathur/setup-php@v2
@@ -46,6 +44,18 @@ jobs:
           path: ${{ steps.composer-cache.outputs.dir }}
           key: docs-composer-${{ runner.os }}-L${{ matrix.laravel }}-${{ github.run_id }}
           restore-keys: docs-composer-${{ runner.os }}-L${{ matrix.laravel }}-
+      # The docs describe the released package, so they're verified against the latest
+      # release tag. Dispatch with mod_ref (e.g. main) to check unreleased work.
+      - name: Choose the mod ref
+        env:
+          INPUT_REF: ${{ inputs.mod_ref }}
+        run: |
+          ref="$INPUT_REF"
+          if [ -z "$ref" ]; then
+            ref=$(git ls-remote --tags --refs --sort=-v:refname https://github.com/teylabs/mod 'v*' | head -1 | sed 's#.*refs/tags/##')
+          fi
+          echo "Verifying against teylabs/mod $ref"
+          echo "MOD_REF=$ref" >> "$GITHUB_ENV"
       - name: Create the fresh app from the mod ref
         run: verify/setup.sh "$RUNNER_TEMP/docs-verify" "git:$MOD_REF" "${{ matrix.laravel }}"
       - name: Verify documented examples

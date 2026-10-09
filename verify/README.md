@@ -53,4 +53,4 @@ To extend coverage, add a plainly worded `check` to the page's scenario. Use `fr
 
 For a negative check, temporarily change a displayed output line in a covered example and run its scenario: it must exit 1 and name the missing output. Remove the quotes around `commands[slot].txt` in the layouts shell check and run `layouts`: it must fail with zsh's `no matches found`. Restore both changes before committing.
 
-GitHub Actions runs PHP 8.4 with Laravel 12 and 13 for pushes and pull requests targeting main, every Monday at 06:00 UTC, and manual dispatch. It uses mod `main` unless dispatch supplies `mod_ref`, caches Composer downloads and uploads `verify.txt` with the resolved mod commit. Hosted CI is established only after the workflow runs on GitHub.
+GitHub Actions runs PHP 8.4 with Laravel 12 and 13 for pushes and pull requests targeting main, every Monday at 06:00 UTC, and manual dispatch. It verifies against the latest teylabs/mod release tag, since the docs describe the released package; dispatch with `mod_ref` (for example `main`) to check unreleased work. It caches Composer downloads and uploads `verify.txt` with the resolved mod commit.
