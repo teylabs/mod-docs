@@ -1,22 +1,22 @@
 # Checks docs/going-further/plugins.md.
 PAGE=$DOCS/docs/going-further/plugins.md
 
-# Plugin examples: Generating a Base Class, and inKindRoot in ddd
+# Plugin examples: Generating a Base Class, and inFileTypeRoot in ddd
 fresh "docs: plugin generated base" modules
 mkdir -p "$APP/pkg/stubs/bases"
 printf '<?php\n\nnamespace {{ namespace }};\n{{ baseImport }}\nclass {{ class }}{{ extends }}\n{\n    public function __construct(\n        //\n    ) {}\n}\n' > "$APP/pkg/stubs/dto.stub"
 printf '<?php\n\nnamespace {{ namespace }};\n\nabstract class {{ class }}\n{\n}\n' > "$APP/pkg/stubs/bases/data-transfer-object.stub"
 boot "\\Tey\\Mod\\Facades\\Mod::stubs()->for('dto', \\Tey\\Mod\\Generation\\Stub::file(base_path('pkg/stubs/dto.stub'))->whenInstalled('spatie/laravel-data', base: 'Spatie\\\\LaravelData\\\\Data')->generatesBase(\\Tey\\Mod\\Generation\\GeneratedBase::named('DataTransferObject', in: 'Data', stub: base_path('pkg/stubs/bases/data-transfer-object.stub'))));"
 check "plugin base in app/Support/Data" sh -c "cd '$APP' && out=\$('$PHP' artisan mod:dto Knowledge:DocumentData --no-ansi) && echo \"\$out\" | grep -qF 'Created base class App\Support\Data\DataTransferObject [app/Support/Data/DataTransferObject.php].' && echo \"\$out\" | grep -qF 'DTO [app/Modules/Knowledge/Data/DocumentData.php] created successfully.'"
-fresh "docs: plugin base inKindRoot" ddd
+fresh "docs: plugin base inFileTypeRoot" ddd
 mkdir -p "$APP/pkg/stubs/bases"
 printf '<?php\n\nnamespace {{ namespace }};\n{{ baseImport }}\nclass {{ class }}{{ extends }}\n{\n}\n' > "$APP/pkg/stubs/dto.stub"
 printf '<?php\n\nnamespace {{ namespace }};\n\nabstract class {{ class }}\n{\n}\n' > "$APP/pkg/stubs/bases/data-transfer-object.stub"
-boot "\\Tey\\Mod\\Facades\\Mod::stubs()->for('dto', \\Tey\\Mod\\Generation\\Stub::file(base_path('pkg/stubs/dto.stub'))->generatesBase(\\Tey\\Mod\\Generation\\GeneratedBase::named('DataTransferObject', in: 'Shared/Data', stub: base_path('pkg/stubs/bases/data-transfer-object.stub'))->inKindRoot()));"
-check "inKindRoot base in src/Domain/Shared/Data" sh -c "cd '$APP' && '$PHP' artisan mod:dto Knowledge:DocumentData --no-ansi | grep -qF 'src/Domain/Shared/Data/DataTransferObject.php'"
+boot "\\Tey\\Mod\\Facades\\Mod::stubs()->for('dto', \\Tey\\Mod\\Generation\\Stub::file(base_path('pkg/stubs/dto.stub'))->generatesBase(\\Tey\\Mod\\Generation\\GeneratedBase::named('DataTransferObject', in: 'Shared/Data', stub: base_path('pkg/stubs/bases/data-transfer-object.stub'))->inFileTypeRoot()));"
+check "inFileTypeRoot base in src/Domain/Shared/Data" sh -c "cd '$APP' && '$PHP' artisan mod:dto Knowledge:DocumentData --no-ansi | grep -qF 'src/Domain/Shared/Data/DataTransferObject.php'"
 fresh "docs: plugin builder alias" ddd
 autoload 'Domain\' 'src/Domain/'
-boot "\\Tey\\Mod\\Facades\\Mod::layout('ddd')->kind('builder', in: '{domain+}/Builders', suffix: 'Builder', aliases: ['mod:query-builder'], label: 'Query builder');"
+boot "\\Tey\\Mod\\Facades\\Mod::layout('ddd')->generates('builder', in: '{domain+}/Builders', suffix: 'Builder', aliases: ['mod:query-builder'], label: 'Query builder');"
 check "mod:builder label" sh -c "cd '$APP' && '$PHP' artisan mod:builder Knowledge:Document --no-ansi | grep -qF 'Query builder [src/Domain/Knowledge/Builders/DocumentBuilder.php] created successfully.'"
 check "mod:query-builder alias" sh -c "cd '$APP' && '$PHP' artisan mod:query-builder Knowledge:Chunk --no-ansi | grep -qF 'src/Domain/Knowledge/Builders/ChunkBuilder.php'"
 check "mod:querybuilder dash-free alias" sh -c "cd '$APP' && '$PHP' artisan mod:querybuilder Knowledge:Page --no-ansi | grep -qF 'src/Domain/Knowledge/Builders/PageBuilder.php'"
@@ -98,3 +98,23 @@ rm "$APP/app/Modules/Knowledge/Data/DocumentData.php"
 check 'A plugin variant uses the documented installed package' doc_shell 'Using Another Package When It Is Installed'
 check 'The plugin DTO extends the installed Data class' grep -F 'use Spatie\LaravelData\Data;' "$APP/app/Modules/Knowledge/Data/DocumentData.php"
 APP=$WORK/base-$MAJOR
+
+fresh 'package template folder' modules
+mkdir -p "$APP/app/stubs/@group/Tools"
+PAGE=$DOCS/docs/going-further/custom-generators.md
+doc_file 'Editing the template' app/stubs/@group/Tools/tool.stub
+PAGE=$DOCS/docs/going-further/plugins.md
+doc_boot 'Shipping generator templates'
+check 'Package template command follows the app layout' art mod:tool Knowledge:PackageTool
+check 'Package template writes valid PHP' has app/Modules/Knowledge/Tools/PackageTool.php
+fresh 'package scaffold' modules
+mkdir -p "$APP/app/stubs"
+# A self-contained native controller stub is the fixture for the package variant.
+cat > "$APP/app/stubs/controller.crud.stub" <<'STUB'
+<?php
+namespace {{ namespace }};
+class {{ class }} {}
+STUB
+doc_boot 'Shipping scaffolds'
+check 'Package scaffold uses its registered variant' art mod:document Knowledge:Document
+check 'Package scaffold controller is valid' has app/Modules/Knowledge/Controllers/DocumentController.php
