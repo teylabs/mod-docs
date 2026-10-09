@@ -1,8 +1,8 @@
 # Commands
 
-Every Artisan command mod registers, the options each one takes, and the folder each one writes to in each built-in layout. `php artisan list mod` shows the commands your layout has.
+Every Artisan command mod registers, the options each one takes, and the folder each one writes to in each built-in layout. `php artisan mod:list` shows the file types, templates and scaffolds your layout has.
 
-## Placement Options
+## Placement options
 
 Every generator takes these, in addition to its own options:
 
@@ -18,7 +18,7 @@ A value that differs from an existing group only by case, such as `knowledge` fo
 
 Before writing, a generator checks every file it is about to write, related files included. When one exists, it prints an error and writes nothing. `--force` overwrites, on the commands that list it below.
 
-## Generator Commands
+## Generator commands
 
 Each command runs the Laravel command in the second column and takes that command's options, listed in the last column. The options come from Laravel, so they follow your Laravel version; these are Laravel 13's. Commands marked "none" have no Laravel generator: they write an empty class, or the file type's [stub](/going-further/stubs).
 
@@ -79,11 +79,11 @@ Every hyphenated command or alias also works without the dash: `mod:viewmodel`, 
   mod:value-object    [mod:value|mod:valueobject] Create a new value object class
 ```
 
-### Commands for Your Own File Types
+### Commands for your own file types
 
-A file type you add with `kind()` gets `mod:<id>`, or the name given in `command:`, plus any `aliases:`, each also without the dash: `kind('api-resource', ...)` answers to `mod:api-resource` and `mod:apiresource`. Without a Laravel generator, it takes `--force` and the placement options.
+A file type you add with `generates()` gets `mod:<id>`, or the name given in `command:`, plus any `aliases:`, each also without the dash: `generates('api-resource', ...)` answers to `mod:api-resource` and `mod:apiresource`. Without a Laravel generator, it takes `--force` and the placement options.
 
-### Commands From Another Layout
+### Commands from another layout
 
 A built-in command your layout doesn't have exits with an error naming the layouts that have it:
 
@@ -94,12 +94,12 @@ php artisan mod:handler Knowledge:Thing
 ```text
    ERROR  mod:handler is not a command of the modules layout. The slices layout has it.
 
-  To add it, declare the file type in a service provider: Mod::layout('modules')->kind('handler', in: '<folder>'). Or switch layouts in config/mod.php.
+  To add it, declare the file type in a service provider: Mod::layout('modules')->generates('handler', in: '<folder>'). Or switch layouts in config/mod.php.
 ```
 
-[Extending a Built-In Layout](/going-further/custom-layouts#extending-a-built-in-layout) shows the `kind()` line.
+[Customizing a built-in layout](/going-further/custom-layouts#customizing-a-built-in-layout) shows the `generates()` line.
 
-## Where Each Command Writes
+## Where each command writes
 
 Folders below each layout's group folder:
 
@@ -153,7 +153,7 @@ Folders below each layout's group folder:
 - In `features` and `slices`, `mod:command` without a feature writes to `app/Console/Commands`.
 - Class names take the file type's suffix: `Controller`, `Request`, `Policy`, `Factory`, `Seeder`, and `ServiceProvider` for providers in every layout but `ddd`. In `ddd`, a provider is named as given: `mod:provider Knowledge:Knowledge` writes `src/Domain/Knowledge/Providers/Knowledge.php`, and `Knowledge:KnowledgeServiceProvider` writes `KnowledgeServiceProvider.php`.
 
-## Writing Base Classes
+## Writing base classes
 
 | Command | Does |
 | --- | --- |
@@ -170,7 +170,7 @@ php artisan mod:bases
 
 When every base exists, it prints `Every base class already exists.` In a layout whose file types extend no generated base, such as `laravel`, it prints `No file type in this layout extends a generated base class.` A configured base or an installed package means there is no base to write. It is registered with the `mod:*` commands.
 
-## Discovery Commands
+## Discovery commands
 
 | Command | Does | Also run by |
 | --- | --- | --- |
@@ -190,3 +190,55 @@ php artisan mod:cache
 The second line counts the files it found but didn't register, grouped by reason. `php artisan mod:cache -v` lists each rejected file with its reason; [Caching Discovery in Production](/basics/auto-discovery#caching-discovery-in-production) explains each reason.
 
 Both are registered only while the `mod:*` commands and discovery are both on. [Caching Discovery in Production](/basics/auto-discovery#caching-discovery-in-production) covers when the cache is used.
+
+## Creating templates
+
+`mod:template [type] [path]` creates a generator template:
+
+```bash
+php artisan mod:template tool
+php artisan mod:template dto @module/Data/links
+```
+
+With no arguments, choose a starting type and name in prompts. One argument names a class template; two arguments are the starting type and the name/path. A type alone therefore names a class template: `mod:template job` can collide with the built-in command. [Custom generators](/going-further/custom-generators) covers starting types, paths, extraction and prompts.
+
+| Option | Does |
+| --- | --- |
+| `--from[=class-or-file]` | Extracts namespace and declared-name tokens without loading source PHP; a bare option opens search |
+| `--into=path` | Supplies the extraction destination |
+| `--force` | Overwrites a template |
+
+Without interaction, extraction without `--into` uses the source-folder suggestion and kebab-case name. Other missing answers name the flag or command form that resolves them.
+
+## Inspecting the layout
+
+```bash
+php artisan mod:list
+php artisan mod:list -v
+php artisan mod:list --type=model
+php artisan mod:list --json
+```
+
+`-v` adds aliases, stubs, bases, relations and discovered classes. `--type=<id>` shows every detail for one file type. JSON root keys are `layout`, `extends`, `path`, `token`, `groups`, `types`, `templates`, `scaffolds` and `discovery`. Scaffold tree nodes expose children and reference metadata. Invalid config exits 1; `--json` prints an `error` object. An unknown `--type` also exits 1 with guidance.
+
+## Registering autoload mappings
+
+`mod:autoload` adds missing Composer PSR-4 entries for the active layout and reloads Composer. Existing exact or parent mappings, including `autoload-dev`, count as coverage:
+
+```bash
+php artisan mod:autoload --dry-run
+php artisan mod:autoload --no-dump
+php artisan mod:autoload
+```
+
+| Option | Does |
+| --- | --- |
+| `--dry-run` | Previews missing mappings without writing or running Composer |
+| `--no-dump` | Writes mappings without running Composer |
+| `--namespace=<namespace>` | Supplies the namespace for a moved group outside the mounted roots |
+
+A moved path outside the roots prompts for a namespace, defaulting to its folder name (`Areas\`). Without a terminal, it uses and announces that default. A conflicting mapping exits 1 without writing; fix the mapping in `composer.json` and run again. If Composer is missing, entries remain written and the notice names `composer dump-autoload` to run manually. A failed dump exits 1 and keeps the entries.
+
+## Scaffold commands
+
+A registered recipe gets `mod:<scaffold>`, with placement and question options, `--skip-existing` and `--force`. A child gets `mod:<root>.<part>` and takes the root's name and a child value. [Scaffolds](/going-further/scaffolds) covers planning, collision choices and growing clusters.
