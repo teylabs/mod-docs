@@ -219,7 +219,7 @@ php artisan mod:list --type=model
 php artisan mod:list --json
 ```
 
-`-v` adds aliases, stubs, bases, relations and discovered classes. `--type=<id>` shows every detail for one file type. JSON root keys are `layout`, `extends`, `path`, `token`, `groups`, `types`, `templates`, `scaffolds` and `discovery`. Scaffold tree nodes expose children and reference metadata. Invalid config exits 1; `--json` prints an `error` object. An unknown `--type` also exits 1 with guidance.
+`mod:list` counts discovered factories and policies alongside providers, commands, listeners, subscribers and directories. `-v` adds aliases, stubs, bases, relations and discovered classes, including factory and policy targets. `--type=<id>` shows every detail for one file type. JSON root keys are `layout`, `extends`, `path`, `token`, `groups`, `types`, `templates`, `scaffolds` and `discovery`. Scaffold tree nodes expose children and reference metadata. Invalid config exits 1; `--json` prints an `error` object. An unknown `--type` also exits 1 with guidance.
 
 ## Registering autoload mappings
 
@@ -237,7 +237,7 @@ php artisan mod:autoload
 | `--no-dump` | Writes mappings without running Composer |
 | `--namespace=<namespace>` | Supplies the namespace for a moved group outside the mounted roots |
 
-A moved path outside the roots prompts for a namespace, defaulting to its folder name (`Areas\`). Without a terminal, it uses and announces that default. A conflicting mapping exits 1 without writing; fix the mapping in `composer.json` and run again. If Composer is missing, entries remain written and the notice names `composer dump-autoload` to run manually. A failed dump exits 1 and keeps the entries.
+A moved path outside the roots prompts for a namespace, defaulting to its folder name (`Areas\`). Without a terminal, it uses and announces that default. A conflicting mapping exits 1 without writing; fix the mapping in `composer.json` and run again. When every mapping is configured, the command says so and suggests `composer dump-autoload` if classes do not load. A failed Composer run, including a missing executable, exits 1, keeps the written entries and names `composer dump-autoload` to run manually.
 
 ## Scaffold commands
 
