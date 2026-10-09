@@ -227,7 +227,7 @@ Values go down through `with:` and questions. Results come up through aliases: `
 
 ### Templates for the tree
 
-The layout view model owns navigation entries. Each page owns its title. Three generated page view models therefore produce three navigation entries in this recipe; a recipe that omits a navigation insert can have a different count. Frontend pages remain manual.
+The layout view model owns navigation entries. Each page owns its title. Three generated page view models therefore produce three navigation entries in this recipe; a recipe that omits a navigation insert can have a different count. The controller template calls `inertia()`, so this recipe requires an Inertia app. Create the matching `Widget/Overview`, `Widget/Details`, `Widget/Notes` and later frontend pages yourself; mod does not generate them.
 
 ```php memo="stubs/mod.view-model.tabs-layout.stub"
 <?php
@@ -403,6 +403,6 @@ The deep class is named `RequirementsSectionViewModel`, with a namespace matchin
 
 ## Writing a reusable recipe
 
-Record required packages, import aliases, model base settings and variant files alongside the recipe. A house controller may call Inertia or a query-builder package; those are dependencies of the recipe, not of mod. Keep authorization and validation specific to the application.
+Record required packages, import aliases, model base settings and variant files alongside the recipe. If a house variant calls a query-builder package, record it as a dependency of the recipe. Keep authorization and validation specific to the application.
 
 Members support PHP classes and migrations. Choose the view model shape your app already uses: a layout with tabs, a request-based section index, or a public `tabs()` method with links. Keep page count and navigation count explicit when adapting it.
