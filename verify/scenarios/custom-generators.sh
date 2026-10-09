@@ -41,4 +41,7 @@ check 'A neutral package anchor follows the app layout' art mod:tool Agents:Pack
 check 'Package tool exists' has app/Modules/Agents/Tools/PackageTool.php
 mkdir -p "$APP/stubs/mod/@module/Tools"
 doc_file 'Editing the template' 'stubs/mod/@module/Tools/tool.stub'
-check 'App template wins over package template' art mod:list --json
+check 'App template provenance names the overridden provider' out_has 'app (overrides App\Providers\AppServiceProvider)' mod:list
+check 'App template JSON provenance names the overridden provider' out_has 'app (overrides App\\Providers\\AppServiceProvider)' mod:list --json
+check 'The overridden provenance is cached' art mod:cache
+check 'Cached template provenance still names the overridden provider' out_has 'app (overrides App\Providers\AppServiceProvider)' mod:list

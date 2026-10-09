@@ -182,4 +182,4 @@ use Tey\Mod\Facades\Mod;
 Mod::stubs()->folder(dirname(__DIR__).'/stubs');
 ```
 
-Use `@group` inside the folder so placement follows the app's layout. The app's templates win over package templates. Two packages claiming one command disable that command with a warning naming both; other commands keep working. [Plugins](/going-further/plugins#shipping-generator-templates) covers package registration.
+Use `@group` inside the folder so placement follows the app's layout. The app's templates win over package templates; `mod:list` identifies them as `app (overrides <package>)`. Two packages claiming one command disable that command with a warning naming both; other commands keep working. [Plugins](/going-further/plugins#shipping-generator-templates) covers package registration.
