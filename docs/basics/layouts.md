@@ -2,7 +2,7 @@
 
 A layout decides where each file type goes. You choose one in `config/mod.php`, and every `mod:*` command writes to its folders.
 
-## Choosing a Layout
+## Choosing a layout
 
 Six layouts are built in. The table shows where each one writes a `Document` model for a `Knowledge` module:
 
@@ -21,7 +21,7 @@ Six layouts are built in. The table shows where each one writes a `Document` mod
 
 The default, `laravel`, places files exactly like `make:*`. Changing the layout changes where new files go; existing files stay where they are.
 
-## Comparing the Layouts
+## Comparing the layouts
 
 Each tree is the result of `php artisan mod:model Knowledge:Document --all` in a fresh app:
 
@@ -121,7 +121,7 @@ src/Domain/Knowledge/
 
 [Commands](/reference/commands#where-each-command-writes) lists the folder of every command in every layout.
 
-## The Slices Layout
+## The slices layout
 
 `slices` groups code by feature, then splits each feature into slices: one folder per operation, such as `IndexDocument`. A slice's classes have fixed names, so the folder says what the operation is and the file says what part of it you're looking at. The commands for them take no name:
 
@@ -149,7 +149,7 @@ app/Knowledge/
 
 `mod:handler`, `mod:message`, `mod:request`, `mod:query` and `mod:validator` write a slice's classes. Models, events, jobs and the other shared classes sit in the feature's own folders.
 
-## The Type-First Layout
+## The type-first layout
 
 `type-first` keeps Laravel's folders and adds an optional sub-folder below each one:
 
@@ -161,7 +161,7 @@ php artisan mod:job ExtractText
 # -> app/Jobs/ExtractText.php
 ```
 
-## The DDD Layout
+## The DDD layout
 
 The `ddd` layout uses [laravel-ddd](https://github.com/teylabs/laravel-ddd)'s folders, so a laravel-ddd application keeps its structure:
 
@@ -171,9 +171,9 @@ The `ddd` layout uses [laravel-ddd](https://github.com/teylabs/laravel-ddd)'s fo
 | `App\Modules\` | `app/Modules` | controllers, requests and middleware |
 | `Tests\` | `tests` | tests, in `tests/Feature/<Domain>` |
 
-### Autoloading the Domain Namespace
+### Autoloading the domain namespace
 
-`src/Domain` is outside `app/`, so add its namespace to your `composer.json` autoload:
+`src/Domain` is outside `app/`. Run `php artisan mod:autoload` to add its namespace to Composer and reload the autoloader. It adds this entry:
 
 ```json memo="composer.json"
 "autoload": {
@@ -185,10 +185,10 @@ The `ddd` layout uses [laravel-ddd](https://github.com/teylabs/laravel-ddd)'s fo
 ```
 
 ```bash
-composer dump-autoload
+php artisan mod:autoload
 ```
 
-### Generating Domain Classes
+### Generating domain classes
 
 Each class belongs to a domain, given as `Knowledge:`, `--domain=Knowledge` or `--in=Knowledge`:
 
@@ -205,7 +205,7 @@ A domain can be nested: `Knowledge.Search` (or `Knowledge/Search`) writes to `sr
 
 `mod:dto`, `mod:value-object`, `mod:view-model` and `mod:action` start from starter stubs, and use spatie/laravel-data, spatie/laravel-view-models or lorisleiva/laravel-actions when they're installed. Their base classes go in `src/Domain/Shared`, where laravel-ddd puts them. [Stubs](/going-further/stubs#starter-stubs) covers each one.
 
-### laravel-ddd Command Names
+### laravel-ddd command names
 
 The DDD commands also answer to laravel-ddd's names:
 
@@ -217,14 +217,16 @@ The DDD commands also answer to laravel-ddd's names:
 
 Every hyphenated command also works without the dash, in every layout. In the `modules` layout, `mod:dto` answers to `mod:data` and `mod:value-object` to `mod:value` as well.
 
-## Extending a Layout
+<a id="extending-a-layout"></a>
 
-Every built-in layout can be extended from a service provider. One line adds a file type and its `mod:*` command. `in:` is relative to the layout's root, `app/` in `modules`:
+## Customizing a layout
+
+Every built-in layout can be customized from a service provider. One line adds a file type and its `mod:*` command. `in:` is relative to the layout's root, `app/` in `modules`:
 
 ```php memo="app/Providers/AppServiceProvider.php" at="boot()"
 use Tey\Mod\Facades\Mod;
 
-Mod::layout('modules')->kind('validator', in: 'Modules/{module}/Validators', suffix: 'Validator');
+Mod::layout('modules')->generates('validator', in: 'Modules/{module}/Validators', suffix: 'Validator');
 ```
 
 ```bash
@@ -232,4 +234,6 @@ php artisan mod:validator Knowledge:Upload
 # -> app/Modules/Knowledge/Validators/UploadValidator.php
 ```
 
-[Custom Layouts](/going-further/custom-layouts) covers extending and defining layouts.
+[Custom Layouts](/going-further/custom-layouts) covers customizing, extending and defining layouts.
+
+[Custom generators](/going-further/custom-generators) adds commands from generator templates or PHP declarations.
