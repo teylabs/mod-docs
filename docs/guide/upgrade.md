@@ -1,10 +1,12 @@
 # Upgrading
 
+In 0.3.1, `ddd` again matches laravel-ddd: application classes use `Controllers/`, `Requests/` and `Middleware/` directly under `app/Modules/<Domain>`. The preset declares no frontend paths, view namespaces or routes root. Extend it with `->frontend(...)` and `->mounts('routes', null, ...)` to opt in. Existing files stay where they are.
+
 0.2 renames the Layout API outright. Update layout declarations, config keys and exception imports before upgrading an app that customizes mod.
 
 ## Upgrading to 0.3
 
-HTTP classes (controllers, requests, middleware, resources) now live under Http/
+HTTP classes (controllers, requests, middleware, resources) in module and feature layouts now live under Http/
 
 ## Renamed in 0.2
 

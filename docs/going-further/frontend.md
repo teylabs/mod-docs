@@ -2,6 +2,8 @@
 
 Generate Inertia pages, Blade views and frontend files beside their module’s PHP classes. Page identities and imports follow the active layout.
 
+The `ddd` preset has no frontend paths or view namespaces. Extend it with `->frontend(...)` before generating frontend files. Its markdown mail and notification views stay in Laravel's `resources/views`. In `mod:list --json`, the `frontend` object keeps all seven keys with null values until paths are declared.
+
 ## Generating a Page
 
 ```bash

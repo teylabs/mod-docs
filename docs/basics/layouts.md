@@ -99,12 +99,11 @@ database/
 
 ```text [ddd]
 app/Modules/Knowledge/
-└── Http/
-    ├── Controllers/
-    │   └── DocumentController.php
-    └── Requests/
-        ├── StoreDocumentRequest.php
-        └── UpdateDocumentRequest.php
+├── Controllers/
+│   └── DocumentController.php
+└── Requests/
+    ├── StoreDocumentRequest.php
+    └── UpdateDocumentRequest.php
 src/Domain/Knowledge/
 ├── Database/
 │   ├── Factories/
@@ -208,6 +207,22 @@ php artisan mod:action Knowledge:IndexDocument
 A domain can be nested: `Knowledge.Search` (or `Knowledge/Search`) writes to `src/Domain/Knowledge/Search`.
 
 `mod:dto`, `mod:value-object`, `mod:view-model` and `mod:action` start from starter stubs, and use spatie/laravel-data, spatie/laravel-view-models or lorisleiva/laravel-actions when they're installed. Their base classes go in `src/Domain/Shared`, where laravel-ddd puts them. [Stubs](/going-further/stubs#starter-stubs) covers each one.
+
+The preset declares no frontend folders, view namespaces or routes root. `mod:mail --markdown` and `mod:notification --markdown` keep their views in Laravel's `resources/views`, with unqualified view names. `mod:page` explains how to declare `->frontend()` and stops.
+
+### Opting In to Frontend and Routes
+
+To opt in, extend the layout and declare the paths you need:
+
+```php
+use Tey\Mod\Facades\Mod;
+
+Mod::layout('web-ddd')->extends('ddd')
+    ->frontend(pages: 'app/Modules/{domain}/ui/js/pages', views: 'app/Modules/{domain}/ui/views', pageName: '{domain}::{path}')
+    ->mounts('routes', null, 'app/Modules/{domain}/routes');
+```
+
+Select `web-ddd` in `config/mod.php`. Its views register domain namespaces, and its pages and routes use the declared folders. Case-only folder collisions are still checked.
 
 ### Laravel-ddd Command Names
 
