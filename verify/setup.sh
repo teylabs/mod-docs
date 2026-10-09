@@ -6,7 +6,7 @@ if [ "$#" -lt 3 ]; then
     exit 1
 fi
 WORK=$1; SRC=$2; shift 2
-PHP=${PHP:-php}
+PHP=${PHP:-$(command -v php)}
 COMPOSER_BIN=${COMPOSER_BIN:-$(command -v composer)}
 export PHP COMPOSER_BIN COMPOSER_NO_INTERACTION=1
 composer() { "$PHP" "$COMPOSER_BIN" "$@"; }

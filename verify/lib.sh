@@ -1,5 +1,5 @@
 # Shared helpers for disposable apps created by setup.sh.
-PHP=${PHP:-php}
+PHP=${PHP:-$(command -v php)}
 COMPOSER_BIN=${COMPOSER_BIN:-$(command -v composer)}
 export PHP COMPOSER_BIN COMPOSER_NO_INTERACTION=1 COLUMNS=72 TERM=dumb
 art() { (cd "$APP" && "$PHP" artisan "$@" --no-ansi --no-interaction 2>&1); }
