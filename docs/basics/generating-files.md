@@ -1,8 +1,8 @@
-# Generating Files
+# Generating files
 
 Each file type in your layout has a `mod:*` command that writes into the layout's folders. It is Laravel's own `make:*` command underneath, so it takes the same arguments and options and generates the same code.
 
-## Running a Generator
+## Running a generator
 
 In an app that stores documents, a `Knowledge` module holds everything about them. With the `modules` layout, generate an event for an uploaded document and a listener for it:
 
@@ -34,7 +34,7 @@ class GenerateEmbeddings
 
 `make:*` is untouched and keeps writing to Laravel's default folders.
 
-### Listing the Commands
+### Listing the commands
 
 The commands depend on your layout: `modules` has `mod:dto` and `mod:view-model`, `slices` has `mod:handler`, and `laravel` has neither. List the ones your layout has:
 
@@ -46,7 +46,7 @@ Every hyphenated command also works without the dash: `mod:viewmodel`, `mod:valu
 
 [Commands](/reference/commands) lists every command, its options and the layouts that have it.
 
-## Generating Related Files
+## Generating related files
 
 `make:model`'s options for related files create them in the same module:
 
@@ -78,7 +78,7 @@ The same goes for `-m`, `-f`, `-s`, `--policy`, `--controller` and `--requests`.
 
 Each generated class refers to the others where they are: the factory names the model, and the model finds its factory, so `Document::factory()` works wherever the factory lives.
 
-## Choosing the Module
+## Choosing the module
 
 The `laravel` layout puts files where `make:*` does. The other layouts group your code, so each command also needs to know which group a file belongs to.
 
@@ -103,7 +103,7 @@ Each layout's option:
 | `type-first` | `--feature` (optional) | `Knowledge`, or none for `app/Models/Document.php` |
 | `ddd` | `--domain` (one or more folders) | `Knowledge`, or `Knowledge.Search` for `src/Domain/Knowledge/Search` |
 
-### Giving Two Values
+### Giving two values
 
 When a layout has two dimensions, `--in` and the short form take the values in order, separated by `/`. A handler's class is always named `Handler`, so its command needs no name:
 
@@ -114,7 +114,7 @@ php artisan mod:handler Knowledge/IndexDocument:Handler
 # -> app/Knowledge/IndexDocument/Handler.php
 ```
 
-### Leaving the Module Out
+### Leaving the module out
 
 A command that needs a module exits with an error naming every way to give one:
 
@@ -128,7 +128,7 @@ php artisan mod:model Document
 
 In `features` and `slices`, `mod:command` without a feature writes to `app/Console/Commands`.
 
-### New and Misspelled Modules
+### New and misspelled modules
 
 A command compares the module you give with the modules that exist: folders that hold the layout's files for a module. A new name creates the module's folder and says so, listing the existing modules:
 
@@ -152,14 +152,7 @@ php artisan mod:model knowledge:Note
    INFO  Model [app/Modules/Knowledge/Models/Note.php] created successfully.
 ```
 
-A near miss such as `Knowledg` asks whether you meant an existing module or a new one, with the closest module selected:
-
-```text
- ┌ Module [Knowledg] doesn't exist. Did you mean an existing one? ─┐
- │ › ● Knowledge                                                   │
- │   ○ Create new module Knowledg                                  │
- └─────────────────────────────────────────────────────────────────┘
-```
+A near miss such as `Knowledg` asks whether you meant an existing module or a new one, with the closest module selected.
 
 Without a terminal to ask in, such as with `--no-interaction` or in CI, it starts the new module and says so:
 
@@ -176,7 +169,7 @@ A near miss is one or two letters away from an existing module, ignoring case, a
 
 Each message prints once per command, and other layouts word it with their own dimension: `Created new feature Knowledge.`, `Created new slice IndexDocument.` In `slices`, Laravel's own `app/Http` and `app/Models` don't count as features.
 
-## When a File Already Exists
+## When a file already exists
 
 `mod:*` checks every file it is about to write before writing any of them. When every file already exists, it prints an error for each and exits with 0, as `make:*` does:
 
@@ -201,3 +194,5 @@ php artisan mod:model Knowledge:Document -f
 ```
 
 Pass `--force` to overwrite, on the commands whose `make:*` command has it.
+
+For a repeating class shape, [Custom generators](/going-further/custom-generators) creates its own command. For several file types together, use a [scaffold](/going-further/scaffolds).

@@ -133,11 +133,12 @@ export default defineConfig({
     sidebar: [
       {
         // Laravel's order: what it is, set it up, get it working.
-        text: 'Getting Started',
+        text: 'Getting started',
         items: [
           { text: 'Introduction', link: '/guide/introduction' },
           { text: 'Installation', link: '/guide/installation' },
-          { text: 'Quick Start', link: '/guide/quick-start' },
+          { text: 'Quick start', link: '/guide/quick-start' },
+          { text: 'Upgrading from 0.1', link: '/guide/upgrade' },
         ],
       },
       {
@@ -145,15 +146,17 @@ export default defineConfig({
         text: 'Basics',
         items: [
           { text: 'Layouts', link: '/basics/layouts' },
-          { text: 'Generating Files', link: '/basics/generating-files' },
-          { text: 'Auto-Discovery', link: '/basics/auto-discovery' },
+          { text: 'Generating files', link: '/basics/generating-files' },
+          { text: 'Auto-discovery', link: '/basics/auto-discovery' },
         ],
       },
       {
-        text: 'Going Further',
+        text: 'Going further',
         items: [
-          { text: 'Custom Layouts', link: '/going-further/custom-layouts' },
-          { text: 'Self-Contained Modules', link: '/going-further/self-contained-modules' },
+          { text: 'Custom layouts', link: '/going-further/custom-layouts' },
+          { text: 'Custom generators', link: '/going-further/custom-generators' },
+          { text: 'Scaffolds', link: '/going-further/scaffolds' },
+          { text: 'Self-contained modules', link: '/going-further/self-contained-modules' },
           { text: 'Stubs', link: '/going-further/stubs' },
           { text: 'Plugins', link: '/going-further/plugins' },
         ],

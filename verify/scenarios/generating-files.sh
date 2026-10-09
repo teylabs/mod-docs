@@ -40,7 +40,7 @@ check 'The case correction matches the page' doc_output 'New and Misspelled Modu
 # Remove Billing and Note so the near-miss fixture has exactly the stated peers.
 rm -rf "$APP/app/Modules/Billing" "$APP/app/Modules/Knowledge/Models/Note.php"
 check 'A near miss without a terminal creates the new module' doc_shell 'New and Misspelled Modules' 3
-check 'The noninteractive near-miss notice matches the page' doc_output 'New and Misspelled Modules' 4
+check 'The noninteractive near-miss notice matches the page' doc_output 'New and Misspelled Modules' 3
 check 'Existing model and factory commands exit with zero' doc_shell 'When a File Already Exists' 1
 check 'Existing model and factory errors match the page' doc_output 'When a File Already Exists' 1
 rm "$APP/app/Modules/Knowledge/Models/Document.php"
