@@ -1,8 +1,8 @@
-# Generating files
+# Generating Files
 
 Each file type in your layout has a `mod:*` command that writes into the layout's folders. It is Laravel's own `make:*` command underneath, so it takes the same arguments and options and generates the same code.
 
-## Running a generator
+## Running a Generator
 
 In an app that stores documents, a `Knowledge` module holds everything about them. With the `modules` layout, generate an event for an uploaded document and a listener for it:
 
@@ -34,7 +34,7 @@ class GenerateEmbeddings
 
 `make:*` is untouched and keeps writing to Laravel's default folders.
 
-### Listing the commands
+### Listing the Commands
 
 The commands depend on your layout: `modules` has `mod:dto` and `mod:view-model`, `slices` has `mod:handler`, and `laravel` has neither. List the ones your layout has:
 
@@ -46,7 +46,7 @@ Every hyphenated command also works without the dash: `mod:viewmodel`, `mod:valu
 
 [Commands](/reference/commands) lists every command, its options and the layouts that have it.
 
-## Generating related files
+## Generating Related Files
 
 `make:model`'s options for related files create them in the same module:
 
@@ -56,8 +56,6 @@ php artisan mod:model Knowledge:Document --all
 
 ```text
 app/Modules/Knowledge/
-├── Controllers/
-│   └── DocumentController.php
 ├── Database/
 │   ├── Factories/
 │   │   └── DocumentFactory.php
@@ -65,20 +63,23 @@ app/Modules/Knowledge/
 │   │   └── 2026_10_08_120000_create_documents_table.php
 │   └── Seeders/
 │       └── DocumentSeeder.php
+├── Http/
+│   ├── Controllers/
+│   │   └── DocumentController.php
+│   └── Requests/
+│       ├── StoreDocumentRequest.php
+│       └── UpdateDocumentRequest.php
 ├── Models/
 │   └── Document.php
-├── Policies/
-│   └── DocumentPolicy.php
-└── Requests/
-    ├── StoreDocumentRequest.php
-    └── UpdateDocumentRequest.php
+└── Policies/
+    └── DocumentPolicy.php
 ```
 
 The same goes for `-m`, `-f`, `-s`, `--policy`, `--controller` and `--requests`. As with `make:model`, `--requests` writes form requests only for a resource controller, so pass `--controller --resource --requests` together.
 
 Each generated class refers to the others where they are: the factory names the model, and the model finds its factory, so `Document::factory()` works wherever the factory lives.
 
-## Choosing the module
+## Choosing the Module
 
 The `laravel` layout puts files where `make:*` does. The other layouts group your code, so each command also needs to know which group a file belongs to.
 
@@ -103,7 +104,7 @@ Each layout's option:
 | `type-first` | `--feature` (optional) | `Knowledge`, or none for `app/Models/Document.php` |
 | `ddd` | `--domain` (one or more folders) | `Knowledge`, or `Knowledge.Search` for `src/Domain/Knowledge/Search` |
 
-### Giving two values
+### Giving Two Values
 
 When a layout has two dimensions, `--in` and the short form take the values in order, separated by `/`. A handler's class is always named `Handler`, so its command needs no name:
 
@@ -114,7 +115,7 @@ php artisan mod:handler Knowledge/IndexDocument:Handler
 # -> app/Knowledge/IndexDocument/Handler.php
 ```
 
-### Leaving the module out
+### Leaving the Module Out
 
 A command that needs a module exits with an error naming every way to give one:
 
@@ -128,7 +129,7 @@ php artisan mod:model Document
 
 In `features` and `slices`, `mod:command` without a feature writes to `app/Console/Commands`.
 
-### New and misspelled modules
+### New and Misspelled Modules
 
 A command compares the module you give with the modules that exist: folders that hold the layout's files for a module. A new name creates the module's folder and says so, listing the existing modules:
 
@@ -169,7 +170,7 @@ A near miss is one or two letters away from an existing module, ignoring case, a
 
 Each message prints once per command, and other layouts word it with their own dimension: `Created new feature Knowledge.`, `Created new slice IndexDocument.` In `slices`, Laravel's own `app/Http` and `app/Models` don't count as features.
 
-## When a file already exists
+## When a File Already Exists
 
 `mod:*` checks every file it is about to write before writing any of them. When every file already exists, it prints an error for each and exits with 0, as `make:*` does:
 

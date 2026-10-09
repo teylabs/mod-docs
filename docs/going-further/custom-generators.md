@@ -1,8 +1,8 @@
-# Custom generators
+# Custom Generators
 
 A generator is a `mod:*` command for one file type. A template file declares what a layout generates. So does `->generates()` in PHP.
 
-## Creating a generator
+## Creating a Generator
 
 With the `modules` layout and an existing `Agents` module, create a generator template:
 
@@ -19,7 +19,7 @@ php artisan mod:template tool
   Try ............................. php artisan mod:tool Agents:<Name>
 ```
 
-## Editing the template
+## Editing the Template
 
 Edit the template to hold your repeating class shape. It starts with namespace, class and base placeholders:
 
@@ -49,7 +49,7 @@ php artisan mod:tool Agents:SearchDocuments
 
 No PHP registration is needed. The filename names the command. `show-document-page.stub`, `ShowDocumentPage.stub` and `show_document_page.stub` all name `mod:show-document-page`; its dash-free alias also accepts `mod:showDocumentPage` and `mod:ShowDocumentPage`. Two templates that normalize to the same command are a configuration error.
 
-## Choosing a starting type
+## Choosing a Starting Type
 
 One argument is a name for a class template. With two arguments, the first is the starting type and the second is the name or path:
 
@@ -65,7 +65,7 @@ Starting types include `class`, `interface`, `trait`, `enum`, [starters](/going-
 
 Native listener, controller, model, factory, policy, test and observer stubs need context and cannot be used directly. Publish a self-contained stub for that file type, or choose `class`. Plain-file templates are not supported.
 
-## Paths and slots
+## Paths and Slots
 
 An anchor follows the layout's group folder. `@module`, `@domain`, `@feature` and `@slice` name a level; `@group` is the neutral form for packages. A slot becomes an option and a placeholder:
 
@@ -79,7 +79,7 @@ Quote shell paths containing a `[slot]`; anchors alone need no quotes. Fill slot
 
 Without an anchor, a path is relative to `app/`, or another layout root when it starts with that root's path. There can be one anchor. A literal prefix before it must match a place where the layout keeps that group. In `slices`, `Feature/Slice:` fills the levels down to `@slice`. In `type-first`, the feature is optional. Built-in modules and features are flat; DDD domains can nest.
 
-### The application layer in DDD
+### The Application Layer in DDD
 
 `@domain/Workflows/workflow` belongs to `src/Domain/<domain>/Workflows`. A literal application path puts the template in the other layer:
 
@@ -100,7 +100,7 @@ php artisan mod:presenter Knowledge:ShowDocument
 
 Name forms include `studly`, `camel`, `snake`, `kebab`, `plural`, `singular`, `lower`, `upper`, `title` and `headline`. They apply left to right. Namespace and base placeholders are described in [Stubs](/going-further/stubs#starting-from-your-own-stub). Stubs have no loops or conditionals. [Scaffolds](/going-further/scaffolds) also supply sibling aliases and question answers.
 
-## From an existing class
+## From an Existing Class
 
 Extract the namespace and declared name from a class you already like, without loading it:
 
@@ -124,7 +124,7 @@ Without `--into`, the wizard asks for the destination and template name. In a no
 
 Extraction replaces the namespace declaration and name tokens equal to the declared name. Strings, longer names, comments, qualified names and imports remain as they are. The output reports comments and qualified references left untouched. Edit the rest to generalize the template. Source folders such as `Webhooks/Drive` stay literal unless you replace them with a slot.
 
-## The same, in PHP
+## The Same, in PHP
 
 `stubs/mod/@module/Tools/tool.stub` and this declaration both give you `mod:tool`:
 
@@ -140,7 +140,7 @@ Copy the template contents to `stubs/tool.stub` for the PHP form. Either way you
 
 PHP also sets `suffix:`, `aliases:`, `fixed:`, discovery rules and base selection. [Layout API](/reference/layout-api#generates) lists the arguments.
 
-### Refining a template
+### Refining a Template
 
 Create `stubs/mod/@module/Data/links.stub` from the DTO starter, then add only a suffix in PHP:
 
@@ -152,7 +152,7 @@ Mod::layout('modules')->generates('links', suffix: 'Links');
 
 A `generates()` call without `in:` refines the template instead of replacing its folder. This has the same result as a PHP declaration with `in: 'Modules/{module}/Data'`, `suffix: 'Links'` and `stub: Starters::dto()`.
 
-## When something is off
+## When Something Is Off
 
 In a terminal, commands ask when one answer resolves the problem: a missing slot, an existing template, reversed arguments, an unknown starting type or an ambiguous source. A template name already used by a built-in command offers to customize its published stub instead.
 

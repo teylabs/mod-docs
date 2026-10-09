@@ -2,7 +2,7 @@
 
 A layout decides where each file type goes. You choose one in `config/mod.php`, and every `mod:*` command writes to its folders.
 
-## Choosing a layout
+## Choosing a Layout
 
 Six layouts are built in. The table shows where each one writes a `Document` model for a `Knowledge` module:
 
@@ -21,7 +21,7 @@ Six layouts are built in. The table shows where each one writes a `Document` mod
 
 The default, `laravel`, places files exactly like `make:*`. Changing the layout changes where new files go; existing files stay where they are.
 
-## Comparing the layouts
+## Comparing the Layouts
 
 Each tree is the result of `php artisan mod:model Knowledge:Document --all` in a fresh app:
 
@@ -29,8 +29,6 @@ Each tree is the result of `php artisan mod:model Knowledge:Document --all` in a
 
 ```text [modules]
 app/Modules/Knowledge/
-├── Controllers/
-│   └── DocumentController.php
 ├── Database/
 │   ├── Factories/
 │   │   └── DocumentFactory.php
@@ -38,13 +36,16 @@ app/Modules/Knowledge/
 │   │   └── 2026_10_08_120000_create_documents_table.php
 │   └── Seeders/
 │       └── DocumentSeeder.php
+├── Http/
+│   ├── Controllers/
+│   │   └── DocumentController.php
+│   └── Requests/
+│       ├── StoreDocumentRequest.php
+│       └── UpdateDocumentRequest.php
 ├── Models/
 │   └── Document.php
-├── Policies/
-│   └── DocumentPolicy.php
-└── Requests/
-    ├── StoreDocumentRequest.php
-    └── UpdateDocumentRequest.php
+└── Policies/
+    └── DocumentPolicy.php
 ```
 
 ```text [features]
@@ -98,11 +99,12 @@ database/
 
 ```text [ddd]
 app/Modules/Knowledge/
-├── Controllers/
-│   └── DocumentController.php
-└── Requests/
-    ├── StoreDocumentRequest.php
-    └── UpdateDocumentRequest.php
+└── Http/
+    ├── Controllers/
+    │   └── DocumentController.php
+    └── Requests/
+        ├── StoreDocumentRequest.php
+        └── UpdateDocumentRequest.php
 src/Domain/Knowledge/
 ├── Database/
 │   ├── Factories/
@@ -121,7 +123,7 @@ src/Domain/Knowledge/
 
 [Commands](/reference/commands#where-each-command-writes) lists the folder of every command in every layout.
 
-## The slices layout
+## The Slices Layout
 
 `slices` groups code by feature, then splits each feature into slices: one folder per operation, such as `IndexDocument`. A slice's classes have fixed names, so the folder says what the operation is and the file says what part of it you're looking at. The commands for them take no name:
 
@@ -134,22 +136,24 @@ php artisan mod:message --in=Knowledge/IndexDocument
 
 ```text
 app/Knowledge/
-├── IndexDocument/
-│   ├── Command.php
-│   ├── Handler.php
-│   └── Request.php
 ├── Database/
 │   ├── Factories/
 │   │   └── DocumentFactory.php
 │   └── Migrations/
 │       └── 2026_10_08_120000_create_documents_table.php
+├── IndexDocument/
+│   ├── Command.php
+│   ├── Handler.php
+│   └── Http/
+│       └── Requests/
+│           └── Request.php
 └── Models/
     └── Document.php
 ```
 
 `mod:handler`, `mod:message`, `mod:request`, `mod:query` and `mod:validator` write a slice's classes. Models, events, jobs and the other shared classes sit in the feature's own folders.
 
-## The type-first layout
+## The Type-first Layout
 
 `type-first` keeps Laravel's folders and adds an optional sub-folder below each one:
 
@@ -161,7 +165,7 @@ php artisan mod:job ExtractText
 # -> app/Jobs/ExtractText.php
 ```
 
-## The DDD layout
+## The DDD Layout
 
 The `ddd` layout uses [laravel-ddd](https://github.com/teylabs/laravel-ddd)'s folders, so a laravel-ddd application keeps its structure:
 
@@ -171,7 +175,7 @@ The `ddd` layout uses [laravel-ddd](https://github.com/teylabs/laravel-ddd)'s fo
 | `App\Modules\` | `app/Modules` | controllers, requests and middleware |
 | `Tests\` | `tests` | tests, in `tests/Feature/<Domain>` |
 
-### Autoloading the domain namespace
+### Autoloading the Domain Namespace
 
 `src/Domain` is outside `app/`. Run `php artisan mod:autoload` to add its namespace to Composer and reload the autoloader. It adds this entry:
 
@@ -188,7 +192,7 @@ The `ddd` layout uses [laravel-ddd](https://github.com/teylabs/laravel-ddd)'s fo
 php artisan mod:autoload
 ```
 
-### Generating domain classes
+### Generating Domain Classes
 
 Each class belongs to a domain, given as `Knowledge:`, `--domain=Knowledge` or `--in=Knowledge`:
 
@@ -205,7 +209,7 @@ A domain can be nested: `Knowledge.Search` (or `Knowledge/Search`) writes to `sr
 
 `mod:dto`, `mod:value-object`, `mod:view-model` and `mod:action` start from starter stubs, and use spatie/laravel-data, spatie/laravel-view-models or lorisleiva/laravel-actions when they're installed. Their base classes go in `src/Domain/Shared`, where laravel-ddd puts them. [Stubs](/going-further/stubs#starter-stubs) covers each one.
 
-### laravel-ddd command names
+### Laravel-ddd Command Names
 
 The DDD commands also answer to laravel-ddd's names:
 
@@ -219,7 +223,7 @@ Every hyphenated command also works without the dash, in every layout. In the `m
 
 <a id="extending-a-layout"></a>
 
-## Customizing a layout
+## Customizing a Layout
 
 Every built-in layout can be customized from a service provider. One line adds a file type and its `mod:*` command. `in:` is relative to the layout's root, `app/` in `modules`:
 
@@ -237,3 +241,30 @@ php artisan mod:validator Knowledge:Upload
 [Custom Layouts](/going-further/custom-layouts) covers customizing, extending and defining layouts.
 
 [Custom generators](/going-further/custom-generators) adds commands from generator templates or PHP declarations.
+
+## Module Resources
+
+HTTP classes live under `Http/`; frontend files and routes live beside them. A module can contain:
+
+```text
+app/Modules/Inventory/
+├── Http/
+│   ├── Controllers/WidgetController.php
+│   ├── Requests/StoreWidgetRequest.php
+│   ├── Resources/WidgetResource.php      # API resources: no clash with resources/
+│   └── Routing/InventoryRoutes.php       # optional registrar
+├── Models/Widget.php
+├── Policies/WidgetPolicy.php
+├── Database/{Factories,Migrations,Seeders}/
+├── resources/
+│   ├── js/
+│   │   ├── pages/Widget/Index.vue        # Inertia: Inventory::Widget/Index
+│   │   └── components/WidgetCard.vue
+│   ├── css/inventory.css
+│   └── views/mail/widget-restocked.blade.php   # view('inventory::mail.widget-restocked')
+└── routes/
+    ├── web.php
+    └── api.php
+```
+
+The lowercase `resources/` root holds plain files and is excluded from PHP class discovery. [Frontend Files](/going-further/frontend) and [Module Routes](/going-further/routes) show how to create them.

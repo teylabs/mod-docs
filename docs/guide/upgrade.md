@@ -1,6 +1,10 @@
-# Upgrading from 0.1
+# Upgrading
 
 0.2 renames the Layout API outright. Update layout declarations, config keys and exception imports before upgrading an app that customizes mod.
+
+## Upgrading to 0.3
+
+HTTP classes (controllers, requests, middleware, resources) now live under Http/
 
 ## Renamed in 0.2
 

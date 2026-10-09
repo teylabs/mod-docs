@@ -34,6 +34,9 @@ jobs:
           extensions: mbstring, sqlite, pdo_sqlite
           tools: composer:v2
           coverage: none
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
       - name: Install zsh
         run: sudo apt-get update && sudo apt-get install -y zsh
       - name: Locate Composer cache
@@ -56,6 +59,8 @@ jobs:
           fi
           echo "Verifying against teylabs/mod $ref"
           echo "MOD_REF=$ref" >> "$GITHUB_ENV"
+      - name: Build the docs and Markdown index
+        run: npm ci && npm run build
       - name: Create the fresh app from the mod ref
         run: verify/setup.sh "$RUNNER_TEMP/docs-verify" "git:$MOD_REF" "${{ matrix.laravel }}"
       - name: Verify documented examples
@@ -68,4 +73,5 @@ jobs:
           path: |
             ${{ runner.temp }}/docs-verify/verify.txt
             ${{ runner.temp }}/docs-verify/mod-ref.txt
+            ${{ runner.temp }}/docs-verify/kit-refs.txt
           if-no-files-found: warn

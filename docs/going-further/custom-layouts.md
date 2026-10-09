@@ -1,10 +1,10 @@
-# Custom layouts
+# Custom Layouts
 
 A layout is one chain of calls in a service provider. You can add file types to a built-in layout, move its folders, add a layer to it, or define a layout from scratch. When you're done, `mod:*` commands write to every folder your app uses.
 
 <a id="extending-a-built-in-layout"></a>
 
-## Customizing a built-in layout
+## Customizing a Built-in Layout
 
 Calling `Mod::layout()` with an existing name customizes that layout. A new file type gets a `mod:<type>` command. `in:` is relative to the layout's root: `app/` in `modules` and `features`, and `src/Domain` for `ddd`'s domain classes. Here, a `Knowledge` module gets validators for uploads:
 
@@ -21,7 +21,7 @@ php artisan mod:validator Knowledge:Upload
 
 For a new command from a template, see [Custom generators](/going-further/custom-generators). A file type with no Laravel generator starts as an empty class. [Stubs](/going-further/stubs#starting-from-your-own-stub) shows how to change what it starts as.
 
-### Moving a folder
+### Moving a Folder
 
 Repeating an existing file type changes only the arguments you pass. This moves every job in the `features` layout:
 
@@ -36,7 +36,7 @@ php artisan mod:job Knowledge:ExtractText
 # -> app/Features/Knowledge/Queue/ExtractText.php
 ```
 
-## Extending a layout
+## Extending a Layout
 
 Use `->extends()` first in the chain to copy a layout, then customize the copy:
 
@@ -58,7 +58,7 @@ php artisan mod:model Billing:Invoice
 
 `path()` is relative to the project root; absolute paths work too. A type-first path uses a wildcard for the file type folder: `->path('app/*/{feature}')`. Custom layouts can infer a path from their file type paths. [Layout API](/reference/layout-api#group-paths) covers inference and nesting.
 
-## Defining a layout
+## Defining a Layout
 
 A layout of your own starts from its roots: each maps a namespace to a folder. This one keeps the domain core in `src/Domain` and each domain's controllers in `app/Modules`:
 
@@ -71,7 +71,7 @@ Mod::layout('domains')
         ->generates('model', in: '{domain}/Models')
         ->generates('action', in: '{domain}/Actions'))
     ->mounts('app', 'App\\', 'app', fn (Root $root) => $root
-        ->generates('controller', in: 'Modules/{domain}/Controllers', suffix: 'Controller'))
+        ->generates('controller', in: 'Modules/{domain}/Http/Controllers', suffix: 'Controller'))
     ->generates('factory', in: 'domain:{domain}/Database/Factories', suffix: 'Factory')
     ->relates('model', 'factory')
     ->excludes('App\\Support\\');
@@ -97,13 +97,13 @@ The layout is checked the first time it is used. Every problem is reported at on
 
 `mounts($name, $namespace, $path, $closure)` maps a namespace to a folder. File types declared inside the closure live in that root. A `null` namespace makes a root for plain files, such as config files.
 
-### File types
+### File Types
 
 `generates($id, in: ...)` declares a file type and its folder below the root. A `root:` prefix, as in `domain:{domain}/Database/Factories`, places it in another root. Without one, it uses the enclosing closure's root, or else the first declared root.
 
 Other arguments set the class name's suffix, a fixed class name, the command's name and aliases, and where discovery looks. [Layout API](/reference/layout-api#generates) lists them all.
 
-### Related files
+### Related Files
 
 `relates($from, $to, ...)` connects two file types. It drives options such as `--factory` and `--policy`, and how one generated class refers to another. With `relates('model', 'factory')`, `mod:model --factory` writes the factory and the model finds it. Ids follow `<from>-<to>`, as in the built-in layouts; [Layout API](/reference/layout-api#relates) lists them.
 
@@ -121,7 +121,7 @@ Placeholders in `in:` are the layout's dimensions: the ways it groups code. Thei
 | `{feature?}` | an optional folder | omit it, or `--feature=Knowledge` |
 | `{area+}` | one or more folders | `--area=Knowledge.Search` writes to `.../Knowledge/Search/...` |
 
-### Renaming an option
+### Renaming an Option
 
 An option is named after its placeholder. To call it something else, change the token in the group path:
 
@@ -134,11 +134,11 @@ Mod::layout('slices')->path('app/{feature}/{operation}'); // --feature=Knowledge
 
 The path tokens name the options, anchors and placeholders. File type paths follow the new group path.
 
-### When an option name is already taken
+### When an Option Name Is Already Taken
 
 Some Laravel commands already have an option that could share a placeholder's name. If your layout writes controllers to `Http/Controllers/{model}`, a `--model` option would clash with `make:controller --model`. Mod keeps Laravel's option, leaves the placement option out and logs a warning. `--in` and the short form still work. Rename the placeholder's option to get it back.
 
-## Adding a layer
+## Adding a Layer
 
 Add a root to a built-in layout. In `ddd`, file types that use the same `{domain+}` placeholder take the same `--domain` option and `Knowledge:` prefix:
 

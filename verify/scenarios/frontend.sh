@@ -7,6 +7,7 @@ for STACK in vue react; do
     check "$STACK: mod:crud-pages Inventory:Widget" doc_shell 'Generating Pages With Their Controller'
     check "$STACK: migrate" art migrate --force
     check "$STACK: npm run build" bash -c 'cd "$1" && npm run build' harness "$APP"
+    check "$STACK: upstream kit input corrections" "$PHP" "$VERIFY/frontend/prepare-kit.php" "$APP" "$MAJOR" "$STACK" after
     if [ "$STACK" = vue ]; then
         check 'Vue: npx vue-tsc --noEmit' bash -c 'cd "$1" && npx vue-tsc --noEmit' harness "$APP"
         COMPONENT='Inventory::Widget/Index'

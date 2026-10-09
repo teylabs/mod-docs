@@ -7,8 +7,8 @@ crud_setup() {
 fresh 'S1 CRUD recipe' modules
 crud_setup
 check 'CRUD command writes all eight files' doc_shell 'Generating a recipe'
-check 'Controller variant renders sibling aliases' grep -F 'use App\Modules\Knowledge\Requests\StoreDocumentRequest;' "$APP/app/Modules/Knowledge/Controllers/DocumentController.php"
-check 'Controller is valid PHP' has app/Modules/Knowledge/Controllers/DocumentController.php
+check 'Controller variant renders sibling aliases' grep -F 'use App\Modules\Knowledge\Http\Requests\StoreDocumentRequest;' "$APP/app/Modules/Knowledge/Http/Controllers/DocumentController.php"
+check 'Controller is valid PHP' has app/Modules/Knowledge/Http/Controllers/DocumentController.php
 check 'Model factory follows the recipe' has app/Modules/Knowledge/Database/Factories/DocumentFactory.php
 check 'Recipe collision flags keep existing files' doc_shell 'Collisions'
 doc_boot 'Including another recipe'
@@ -19,7 +19,7 @@ crud_setup
 doc_boot 'Layout overrides'
 art mod:autoload
 check 'DDD override generates a cluster' art mod:crud Knowledge:Document
-check 'Resources explicitly move to the application layer' has app/Modules/Knowledge/Resources/DocumentResource.php
+check 'Resources explicitly move to the application layer' has app/Modules/Knowledge/Http/Resources/DocumentResource.php
 check 'View models remain in the domain layer' has src/Domain/Knowledge/ViewModels/ShowDocumentViewModel.php
 fresh 'invokable scaffold' modules
 doc_file 'Recipe classes' app/Scaffolds/DocumentScaffold.php
@@ -41,7 +41,7 @@ check 'Tree creation writes all pages and inserts' doc_shell 'Parts: scaffolds i
 for tab in Overview Details Notes; do
     check "The $tab view model is valid" has "app/Modules/Inventory/ViewModels/Widget${tab}ViewModel.php"
 done
-check 'Tree classes load in a fresh PHP process' classes_load 'App\Modules\Inventory\ViewModels\ManageWidgetViewModel' 'App\Modules\Inventory\ViewModels\WidgetOverviewViewModel' 'App\Modules\Inventory\ViewModels\WidgetDetailsViewModel' 'App\Modules\Inventory\ViewModels\WidgetNotesViewModel' 'App\Modules\Inventory\Controllers\WidgetController'
+check 'Tree classes load in a fresh PHP process' classes_load 'App\Modules\Inventory\ViewModels\ManageWidgetViewModel' 'App\Modules\Inventory\ViewModels\WidgetOverviewViewModel' 'App\Modules\Inventory\ViewModels\WidgetDetailsViewModel' 'App\Modules\Inventory\ViewModels\WidgetNotesViewModel' 'App\Modules\Inventory\Http\Controllers\WidgetController'
 check 'Three tabs produce three entries' sh -c "test \$(grep -c \"'label'\" '$APP/app/Modules/Inventory/ViewModels/ManageWidgetViewModel.php') -eq 3"
 check 'Route parameters retain literal braces' grep -F 'widgets/{widget}/overview' "$APP/app/Modules/Inventory/routes/web.php"
 check 'Growth uses the same deterministic cluster' doc_shell 'Growing a cluster later'

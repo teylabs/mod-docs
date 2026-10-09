@@ -1,7 +1,7 @@
 PAGE=$DOCS/docs/reference/commands.md
 fresh 'command inventory' modules
 check 'Inventory shell forms run' doc_shell 'Inspecting the layout'
-check 'JSON has the documented root keys' sh -c "cd '$APP' && '$PHP' artisan mod:list --json | '$PHP' -r '\$i=json_decode(stream_get_contents(STDIN),true,512,JSON_THROW_ON_ERROR); exit(array_keys(\$i)===[\"layout\",\"extends\",\"path\",\"token\",\"groups\",\"types\",\"templates\",\"scaffolds\",\"discovery\"]?0:1);'"
+check 'JSON has the documented root keys' sh -c "cd '$APP' && '$PHP' artisan mod:list --json | '$PHP' -r '\$i=json_decode(stream_get_contents(STDIN),true,512,JSON_THROW_ON_ERROR); exit(array_keys(\$i)===[\"layout\",\"extends\",\"path\",\"token\",\"groups\",\"types\",\"templates\",\"scaffolds\",\"discovery\",\"views\",\"frontend\",\"stack\",\"wiring\",\"routes\"]?0:1);'"
 check 'Invalid inventory type fails' fails art mod:list --type=missing
 check 'Create templates from command examples' doc_shell 'Creating templates'
 check 'Template commands are registered' out_has mod:tool list mod

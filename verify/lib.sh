@@ -2,6 +2,7 @@
 PHP=${PHP:-$(command -v php)}
 COMPOSER_BIN=${COMPOSER_BIN:-$(command -v composer)}
 export PHP COMPOSER_BIN COMPOSER_NO_INTERACTION=1 COLUMNS=72 TERM=dumb
+export PATH="$(dirname "$PHP"):$PATH"
 art() { (cd "$APP" && "$PHP" artisan "$@" --no-ansi --no-interaction 2>&1); }
 # Keep the caller's shell text intact: zsh must see quotes and bracket globs.
 zsh_art() { (cd "$APP" && zsh -f -e -o pipefail -c 'php() { "$PHP" "$@"; }; eval "$1"' harness "$1" 2>&1); }

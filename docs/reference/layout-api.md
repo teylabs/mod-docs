@@ -2,7 +2,7 @@
 
 Every method of the `Mod` facade, the layout chain, stubs and generator commands. [Custom Layouts](/going-further/custom-layouts) and [Plugins](/going-further/plugins) show them in use.
 
-## The Mod facade
+## The Mod Facade
 
 `Tey\Mod\Facades\Mod`, called from a service provider's `boot()`:
 
@@ -16,9 +16,10 @@ Every method of the `Mod` facade, the layout chain, stubs and generator commands
 | `Mod::stubs()` | `StubRegistry` | The stubs registered for file types: [`for()`](#registering-stubs) |
 | `Mod::scaffold(string $name, Closure $recipe)` | `ModManager` | Registers a global recipe or dot-path part override |
 | `Mod::scaffolds(array $recipes)` | `ModManager` | Registers named closures or invokable recipe classes with a string `$name` |
+| `Mod::routes(only: [], except: [])` | `void` | Loads selected module routes in the current Laravel group |
 | `Mod::generators()` | `GeneratorRegistry` | The commands behind file types: [`use()`](#swapping-generators) |
 
-## Layout methods
+## Layout Methods
 
 `Tey\Mod\Layout\Layout`. Every method returns the layout, so the calls chain:
 
@@ -33,13 +34,14 @@ Every method of the `Mod` facade, the layout chain, stubs and generator commands
 | `allowsNesting(?string $dimension = null)` | Allows nested values for a group; name the dimension when the layout has several |
 | `scaffolds(string $name, Closure $recipe)` | Defines a layout-specific scaffold override |
 | `withoutCommands()` | Registers no `mod:*` commands for this layout. File types keep their command names for a host to dispatch by, and several may share one |
+| `frontend(pages: null, components: null, css: null, views: null, pageName: null)` | Sets frontend folders and the framework page-name pattern |
 | `compile()` | Checks the layout and returns it compiled; throws `Tey\Mod\Exceptions\InvalidLayout` listing every problem |
 
 Repeating `mounts()` or `generates()` changes only supplied arguments. Repeating `relates()` for the same pair or `as:` id changes that relation. A layout can't be changed once it is in use.
 
 The closure passed to `mounts()` receives a `Tey\Mod\Layout\Root`, whose `generates()` takes the same arguments as the layout's.
 
-## Group paths
+## Group Paths
 
 `path()` is relative to the project root, unlike `generates(in:)`, which is below a mounted root. Absolute paths work too. The group token comes from an explicit path, otherwise the layout's own file type paths, otherwise its singularized name. Ambiguous layouts need an explicit path. Type-first uses `path('app/*/{feature}')`, with a wildcard for the file type folder.
 
@@ -70,6 +72,7 @@ A moved group outside every mount gets a folder-derived namespace. `Mod::current
 | `discoverExcept:` | `['Tests']` | with `discover: 'anywhere'`, folders below the group folder discovery skips |
 | `stub:` | `Stub::file(...)`, `Starters::dto()` | the [stub](#stub) its classes start from, or a [starter](#starters) |
 | `priority:` | `-10` | breaks ties when two file types could own the same class; higher wins |
+| `case:` | `'kebab'` | controls the filename casing for a plain file type |
 | `using:` | `fn (FileType $type) => $type->file()` | a closure receiving the [`FileType`](#filetype-methods), for what the arguments don't cover |
 
 A `generates()` call without `in:` can refine a generator template, retaining its folder and contents while adding suffixes, aliases, discovery or bases.
@@ -78,7 +81,7 @@ A file type with an id Laravel has a generator for (`model`, `controller`, `list
 
 <a id="kind-methods"></a>
 
-### FileType methods
+### FileType Methods
 
 `Tey\Mod\Layout\FileType`, reached through `using:`. The arguments above call the matching methods; these have no argument:
 
@@ -155,7 +158,7 @@ Variants are tried in the order they were added, and the first that applies wins
 
 A generated base is never overwritten, even with `--force`. [`mod:bases`](/reference/commands#writing-base-classes) writes any that are missing.
 
-### Stub placeholders
+### Stub Placeholders
 
 | Placeholder | Filled with |
 | --- | --- |
@@ -164,7 +167,7 @@ A generated base is never overwritten, even with `--force`. [`mod:bases`](/refer
 | `{{ baseImport }}` | its `use` line, or nothing when there is no base |
 | `{{ extends }}` | ` extends <baseClass>`, or nothing when there is no base |
 
-### Stub resolution order
+### Stub Resolution Order
 
 The stub a class starts from is the first that exists:
 
@@ -187,7 +190,7 @@ The stub a class starts from is the first that exists:
 
 `Starters::dto()` and `Starters::viewModel()` take an optional `baseIn:` folder below the file type's root, such as `Starters::dto(baseIn: 'Shared/Data')`, which places the base there as `inFileTypeRoot()` does. The `ddd` layout uses it to keep its bases in `src/Domain/Shared`.
 
-## Registering stubs
+## Registering Stubs
 
 | Method | Does |
 | --- | --- |
@@ -196,21 +199,21 @@ The stub a class starts from is the first that exists:
 
 App generator templates take precedence over package templates. Two packages claiming one command disable only that command, with a warning naming both. The active template list is cached and fingerprinted. Flat published stubs still take precedence for their file type.
 
-## Scaffold methods
+## Scaffold Methods
 
 `Tey\Mod\Scaffolds\Scaffold`; every method returns the builder:
 
 | Method | Does |
 | --- | --- |
-| `makes($fileType, $name = null, $as = null, $stub = null, $options = [])` | Adds a PHP-class or migration member. `$as` defaults to the file type id; `$stub` selects a named variant; options go to the file type command |
+| `makes($fileType, $name = null, $as = null, $stub = null, $options = [], $ungrouped = false, $group = null, $existing = null)` | Adds a class, migration or plain-file member. `$as` defaults to the file type id; `$stub` selects a named variant; options go to the file type command |
 | `include(string $name)` | Copies questions, members, parts and repetitions; later members or parts can replace included ones |
-| `asks($name, $type = 'text', $default = null, $label = null, $options = [])` | Adds a question and option; types: text, list, choice, confirm, model, class. Choices use `$options` |
+| `asks($name, $type = 'text', $default = null, $label = null, $options = [])` | Adds a question and option; types: text, list, choice, confirm, model, class, file. Choices use `$options` |
 | `each(string $name, string $part)` | Repeats a part for each value in a list answer |
 | `part($name, $uses = null, $with = [], $configure = null)` | Adds a child recipe reference or inline closure. Use `configure:` after named arguments |
 
 `Tey\Mod\Scaffolds\Part` adds `uses(string $scaffold, array $with = [])` and `inserts(string $into, string $at, string $stub)`. An insert targets a parent-owned member alias or an anchored routes path, and uses `stubs/mod.insert.<name>.stub` before a retained `mod:<anchor>` marker. [Scaffolds](/going-further/scaffolds) covers aliases, collision choices, growth and recursion.
 
-### Scaffold registry
+### Scaffold Registry
 
 Read the effective finite tree:
 
@@ -222,7 +225,7 @@ $problems = $registry->problems();
 
 `nodes()` returns a fresh array keyed by dot path. Rows contain `key`, `source`, `from`, alias-keyed `members` (`fileType`, `name`, `stub`, `options`), immediate `children` in declaration order, and `uses` (a referenced scaffold or null). Referenced members are included; recursive references stay finite. Disabled nodes are omitted; `problems()` gives their diagnostics. `mod:cache` stores this metadata while providers keep registering executable callbacks.
 
-## Swapping generators
+## Swapping Generators
 
 | Method | Does |
 | --- | --- |
@@ -230,7 +233,7 @@ $problems = $registry->problems();
 
 The class extends a mod command: `Tey\Mod\Commands\GenericClassCommand` for file types with no Laravel generator, or the matching command, such as `ModelCommand`, `ControllerCommand`, `RequestCommand`, `FactoryCommand` or `MigrationCommand`. The app can set the same mapping in [`generators`](/reference/configuration#generators).
 
-### Generator hooks
+### Generator Hooks
 
 Protected methods a command class can override:
 
@@ -250,7 +253,7 @@ Protected methods a command class can override:
 
 These hooks, and the methods on this page, are mod's public API. A command's other protected methods are internal and can change in any release.
 
-## The compiled layout
+## The Compiled Layout
 
 `Mod::current()` returns the active layout as a `Tey\Mod\Layout\CompiledLayout`:
 
@@ -260,6 +263,7 @@ These hooks, and the methods on this page, are mod's public API. A command's oth
 | `placementOptions()` | each dimension's option name, such as `['module' => 'module']` |
 | `roots()` | the layout's roots, as `Tey\Mod\Layout\CompiledRoot` |
 | `namespaceFor(string $path)` | the namespace inferred for a path, including moved groups |
+| `frontend()` | nullable frontend path templates and `page_name` |
 | `hasKind(string $id)` | whether the layout has a file type of that id |
 
 ## Exceptions
@@ -272,19 +276,30 @@ Every exception mod throws extends `Tey\Mod\Exceptions\ModException`. The ones y
 | `UnknownFileType` | a file type id isn't in the layout |
 | `InvalidName` | a class name can't be used, such as a nested name for a file type that doesn't accept one |
 
-## Renamed in 0.2
+## Frontend Paths
 
-| 0.1 | 0.2 |
+Customize only the frontend values you need in a provider’s `boot()`:
+
+```php memo="app/Providers/AppServiceProvider.php" at="boot()"
+use Tey\Mod\Facades\Mod;
+
+Mod::layout('modules')->frontend(
+    pages: 'resources/js/pages/{module}',
+    components: 'resources/js/components/{module}',
+    pageName: '{module}/{path}',
+);
+```
+
+Omitted arguments retain their current values. `extends()` copies the frontend configuration. Built-in folders follow the app’s `pages` or `Pages` casing; explicit overrides retain their spelling. The compiled data contains `pages`, `components`, `css`, `views` and `page_name`, nullable for undeclared frontend configuration.
+
+Compilation checks case-only folder collisions on every OS. If a custom layout puts API resources in `Resources/`, move its frontend paths under `ui/` with `frontend()` to keep them distinct from lowercase `resources/`.
+
+## Scaffold Member Placement
+
+| Named argument | Behaviour |
 | --- | --- |
-| `root()` | `mounts()` |
-| `kind()` | `generates()` |
-| `relation($id, from: ..., to: ...)` | `relates($from, $to, as: $id)`; omit `as:` for the usual `<from>-<to>` id |
-| `exclude()` | `excludes()` |
-| `typeFolders()` | `path()` with a project-relative group path |
-| `placementOption()` | removed; the token in `path()` names the option |
-| `Tey\Mod\Layout\Kind` | `Tey\Mod\Layout\FileType` in `using:` callbacks |
-| `Tey\Mod\Exceptions\UnknownKind` | `Tey\Mod\Exceptions\UnknownFileType` |
-| `GeneratedBase::inKindRoot()` | `GeneratedBase::inFileTypeRoot()` |
-| `discovery.kinds` | `discovery.file_types` |
+| `ungrouped: true` | Uses the file type’s no-group placement |
+| `group: '{{ area }}'` | Places this member in the question’s resolved group |
+| `existing: 'keep'` | Writes the member once and retains it, including with `--force` |
 
-[Upgrading from 0.1](/guide/upgrade) shows before/after code.
+A member override does not change the following member’s default group. See [Scaffolds](/going-further/scaffolds#placing-individual-members).

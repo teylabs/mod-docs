@@ -4,7 +4,7 @@ A stub holds the contents a generated class starts from. Laravel's file types st
 
 [Custom generators](/going-further/custom-generators) creates commands from generator templates. This page covers contents, starters and bases.
 
-## Starting from your own stub
+## Starting From Your Own Stub
 
 A file type with no Laravel generator starts as an empty class. To start from your own stub, add `stubs/mod.<type>.stub` to your app. For the `repository` file type from [Adding a Layer](/going-further/custom-layouts#adding-a-layer), which writes a repository for a `Document` model in the `Knowledge` domain:
 
@@ -33,7 +33,7 @@ php artisan mod:repository Knowledge:Document
 | `{{ baseImport }}` | its `use` line, or nothing when there is no base |
 | `{{ extends }}` | ` extends <baseClass>`, or nothing when there is no base |
 
-## Starter stubs
+## Starter Stubs
 
 DTOs, view models, value objects and actions start as plain Laravel-style classes. When a package for them is installed, mod uses it instead:
 
@@ -76,7 +76,7 @@ Mod::layout('features')->generates('payload', in: 'Features/{feature}/Payloads',
 
 `Starters::dto()`, `Starters::viewModel()`, `Starters::valueObject()` and `Starters::action()` are the four starters.
 
-## Generated base classes
+## Generated Base Classes
 
 Without spatie/laravel-data, the first `mod:dto` writes a `DataTransferObject` base into your app:
 
@@ -98,7 +98,7 @@ php artisan mod:dto Knowledge:DocumentData
 
 A base is written the first time it is needed, and it is yours from then on: mod never overwrites it, not even with `--force`. To change what it starts as, add `stubs/mod.base.data-transfer-object.stub` or `stubs/mod.base.view-model.stub` to your app.
 
-### Writing missing bases
+### Writing Missing Bases
 
 A module copied from another project refers to bases it doesn't contain. `mod:bases` writes every base your layout can use that is missing, whether or not a class extends it yet:
 
@@ -119,7 +119,7 @@ It never overwrites a base. When every base exists, it says so and writes nothin
 
 <a id="extending-your-own-base-class"></a>
 
-### Using your own base class
+### Using Your Own Base Class
 
 To extend a class of your own instead, set it in `config/mod.php`, by file type. A configured base wins over an installed package:
 
@@ -136,7 +136,7 @@ php artisan mod:dto Knowledge:DocumentData
 
 `view-model`, `value-object` and `action` take a base the same way.
 
-### Using the base in your stub
+### Using the Base in Your Stub
 
 A stub of your own uses `{{ baseImport }}` and `{{ extends }}` for the base mod chose, so one file serves every case:
 

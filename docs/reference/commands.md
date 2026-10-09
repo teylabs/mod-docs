@@ -2,7 +2,7 @@
 
 Every Artisan command mod registers, the options each one takes, and the folder each one writes to in each built-in layout. `php artisan mod:list` shows the file types, templates and scaffolds your layout has.
 
-## Placement options
+## Placement Options
 
 Every generator takes these, in addition to its own options:
 
@@ -18,7 +18,7 @@ A value that differs from an existing group only by case, such as `knowledge` fo
 
 Before writing, a generator checks every file it is about to write, related files included. When one exists, it prints an error and writes nothing. `--force` overwrites, on the commands that list it below.
 
-## Generator commands
+## Generator Commands
 
 Each command runs the Laravel command in the second column and takes that command's options, listed in the last column. The options come from Laravel, so they follow your Laravel version; these are Laravel 13's. Commands marked "none" have no Laravel generator: they write an empty class, or the file type's [stub](/going-further/stubs).
 
@@ -79,11 +79,11 @@ Every hyphenated command or alias also works without the dash: `mod:viewmodel`, 
   mod:value-object    [mod:value|mod:valueobject] Create a new value object class
 ```
 
-### Commands for your own file types
+### Commands for Your Own File Types
 
 A file type you add with `generates()` gets `mod:<id>`, or the name given in `command:`, plus any `aliases:`, each also without the dash: `generates('api-resource', ...)` answers to `mod:api-resource` and `mod:apiresource`. Without a Laravel generator, it takes `--force` and the placement options.
 
-### Commands from another layout
+### Commands From Another Layout
 
 A built-in command your layout doesn't have exits with an error naming the layouts that have it:
 
@@ -99,7 +99,7 @@ php artisan mod:handler Knowledge:Thing
 
 [Customizing a built-in layout](/going-further/custom-layouts#customizing-a-built-in-layout) shows the `generates()` line.
 
-## Where each command writes
+## Where Each Command Writes
 
 Folders below each layout's group folder:
 
@@ -117,7 +117,7 @@ Folders below each layout's group folder:
 | `mod:channel` | `Channels` | `Broadcasting` | `Broadcasting` | `Channels` |
 | `mod:class`, `mod:interface`, `mod:trait` | the group folder | the group folder | the group folder | the group folder |
 | `mod:command` | `Console` | `Console/Commands` | `Console/Commands` | `Commands` |
-| `mod:controller` | `Controllers` | `Http/Controllers` | `Http/Controllers` | `app/Modules/<Domain>/Controllers` |
+| `mod:controller` | `Http/Controllers` | `Http/Controllers` | `Http/Controllers` | `app/Modules/<Domain>/Http/Controllers` |
 | `mod:dto` | `Data` | | | `Data` |
 | `mod:enum` | `Enums` | `Enums` | `Enums` | `Enums` |
 | `mod:event` | `Events` | `Events` | `Events` | `Events` |
@@ -129,7 +129,7 @@ Folders below each layout's group folder:
 | `mod:listener` | `Listeners` | `Listeners` | `Listeners` | `Listeners` |
 | `mod:mail` | `Mail` | `Mail` | `Mail` | `Mail` |
 | `mod:message` | | | `<Slice>/Command.php` | |
-| `mod:middleware` | `Middleware` | `Http/Middleware` | `Http/Middleware` | `app/Modules/<Domain>/Middleware` |
+| `mod:middleware` | `Http/Middleware` | `Http/Middleware` | `Http/Middleware` | `app/Modules/<Domain>/Http/Middleware` |
 | `mod:migration` | `Database/Migrations` | `Database/Migrations` | `Database/Migrations` | `Database/Migrations` |
 | `mod:model` | `Models` | `Models` | `Models` | `Models` |
 | `mod:notification` | `Notifications` | `Notifications` | `Notifications` | `Notifications` |
@@ -137,8 +137,8 @@ Folders below each layout's group folder:
 | `mod:policy` | `Policies` | `Policies` | `Policies` | `Policies` |
 | `mod:provider` | `Providers` | `Providers` | `Providers` | `Providers` |
 | `mod:query` | `Queries` | `Queries` | `<Slice>/Query.php` | |
-| `mod:request` | `Requests` | `Http/Requests` | `<Slice>/Request.php` | `app/Modules/<Domain>/Requests` |
-| `mod:resource` | `Resources` | `Http/Resources` | `Http/Resources` | `Resources` |
+| `mod:request` | `Http/Requests` | `Http/Requests` | `<Slice>/Http/Requests/Request.php` | `app/Modules/<Domain>/Http/Requests` |
+| `mod:resource` | `Http/Resources` | `Http/Resources` | `Http/Resources` | `Resources` |
 | `mod:rule` | `Rules` | `Rules` | `Rules` | `Rules` |
 | `mod:scope` | `Scopes` | `Scopes` | `Scopes` | `Scopes` |
 | `mod:seeder` | `Database/Seeders` | `Database/Seeders` | `Database/Seeders` | `Database/Seeders` |
@@ -153,7 +153,7 @@ Folders below each layout's group folder:
 - In `features` and `slices`, `mod:command` without a feature writes to `app/Console/Commands`.
 - Class names take the file type's suffix: `Controller`, `Request`, `Policy`, `Factory`, `Seeder`, and `ServiceProvider` for providers in every layout but `ddd`. In `ddd`, a provider is named as given: `mod:provider Knowledge:Knowledge` writes `src/Domain/Knowledge/Providers/Knowledge.php`, and `Knowledge:KnowledgeServiceProvider` writes `KnowledgeServiceProvider.php`.
 
-## Writing base classes
+## Writing Base Classes
 
 | Command | Does |
 | --- | --- |
@@ -170,7 +170,7 @@ php artisan mod:bases
 
 When every base exists, it prints `Every base class already exists.` In a layout whose file types extend no generated base, such as `laravel`, it prints `No file type in this layout extends a generated base class.` A configured base or an installed package means there is no base to write. It is registered with the `mod:*` commands.
 
-## Discovery commands
+## Discovery Commands
 
 | Command | Does | Also run by |
 | --- | --- | --- |
@@ -182,16 +182,16 @@ php artisan mod:cache
 ```
 
 ```text
-   INFO  Discovery cached in [bootstrap/cache/mod-discovery.php]: 1 providers, 0 commands, 1 listeners, 0 subscribers, 2 directories, 6 rejected.
+   INFO  Discovery cached in [bootstrap/cache/mod-discovery.php]: 1 providers, 0 commands, 1 listeners, 0 subscribers, 2 directories, 5 rejected.
 
-  Rejected files were found but not registered: 6 placed by no file type (helpers and plain classes; nothing to do). Run with -v to list them.
+  Rejected files were found but not registered: 5 placed by no file type (helpers and plain classes; nothing to do). Run with -v to list them.
 ```
 
 The second line counts the files it found but didn't register, grouped by reason. `php artisan mod:cache -v` lists each rejected file with its reason; [Caching Discovery in Production](/basics/auto-discovery#caching-discovery-in-production) explains each reason.
 
 Both are registered only while the `mod:*` commands and discovery are both on. [Caching Discovery in Production](/basics/auto-discovery#caching-discovery-in-production) covers when the cache is used.
 
-## Creating templates
+## Creating Templates
 
 `mod:template [type] [path]` creates a generator template:
 
@@ -210,7 +210,7 @@ With no arguments, choose a starting type and name in prompts. One argument name
 
 Without interaction, extraction without `--into` uses the source-folder suggestion and kebab-case name. Other missing answers name the flag or command form that resolves them.
 
-## Inspecting the layout
+## Inspecting the Layout
 
 ```bash
 php artisan mod:list
@@ -219,9 +219,9 @@ php artisan mod:list --type=model
 php artisan mod:list --json
 ```
 
-`mod:list` counts discovered factories and policies alongside providers, commands, listeners, subscribers and directories. `-v` adds aliases, stubs, bases, relations and discovered classes, including factory and policy targets. `--type=<id>` shows every detail for one file type. JSON root keys are `layout`, `extends`, `path`, `token`, `groups`, `types`, `templates`, `scaffolds` and `discovery`. Scaffold tree nodes expose children and reference metadata. Invalid config exits 1; `--json` prints an `error` object. An unknown `--type` also exits 1 with guidance.
+`mod:list` counts discovered factories and policies alongside providers, commands, listeners, subscribers and directories. `-v` adds aliases, stubs, bases, relations and discovered classes, including factory and policy targets. `--type=<id>` shows every detail for one file type. JSON root keys are `layout`, `extends`, `path`, `token`, `groups`, `types`, `templates`, `scaffolds`, `discovery`, `frontend`, `views`, `wiring`, `routes` and `stack`. The [inventory schema](/schemas/inventory.json) describes required fields and additive keys. Scaffold tree nodes expose children and reference metadata. Invalid config exits 1; `--json` prints an `error` object. An unknown `--type` also exits 1 with guidance.
 
-## Registering autoload mappings
+## Registering Autoload Mappings
 
 `mod:autoload` adds missing Composer PSR-4 entries for the active layout and reloads Composer. Existing exact or parent mappings, including `autoload-dev`, count as coverage:
 
@@ -239,6 +239,38 @@ php artisan mod:autoload
 
 A moved path outside the roots prompts for a namespace, defaulting to its folder name (`Areas\`). Without a terminal, it uses and announces that default. A conflicting mapping exits 1 without writing; fix the mapping in `composer.json` and run again. When every mapping is configured, the command says so and suggests `composer dump-autoload` if classes do not load. A failed Composer run, including a missing executable, exits 1, keeps the written entries and names `composer dump-autoload` to run manually.
 
-## Scaffold commands
+## Scaffold Commands
 
 A registered recipe gets `mod:<scaffold>`, with placement and question options, `--skip-existing` and `--force`. A child gets `mod:<root>.<part>` and takes the root's name and a child value. [Scaffolds](/going-further/scaffolds) covers planning, collision choices and growing clusters.
+
+## Frontend Commands
+
+| Command | Behaviour | Options |
+| --- | --- | --- |
+| `mod:page <group>:<name>` | Generates a minimal detected-stack Inertia page | `--force`, placement, preview |
+| `mod:view <group>:<dotted-name>` | Generates a namespaced Blade view | `--extension`, `--test`, `--pest`, `--phpunit`, `--force`, placement, preview |
+| `mod:component <group>:<name>` | Generates a Blade class and view | `--view` for anonymous, `--inline`, `--path`, test/style flags, `--force`, placement, preview |
+
+Vue and React components use generator templates. Grouped `mod:mail --markdown` / `--view` and `mod:notification --markdown` place and qualify companion views. All planned collisions are checked before a class is written.
+
+## Route Commands
+
+| Command | Behaviour | Options |
+| --- | --- | --- |
+| `mod:routes <group>` | Generates web route files | `--api`, `--console`, `--force`, preview |
+| `mod:route-registrar <group>` | Generates a `RegistersRoutes` class | `--force`, preview |
+
+Load the files through [Mod::routes()](/going-further/routes). Route generators prompt about replacement in a terminal; without one, the error names `--force`.
+
+## Installing Inertia
+
+```bash
+php artisan mod:install inertia --dry-run --json
+php artisan mod:install inertia --no-interaction
+```
+
+`--dry-run` previews edits without prompting; `--json` requires `--dry-run`. `--no-interaction` applies recognized wiring. A custom resolver or configuration prints manual instructions and exits 0 without edits. Declining the preview changes nothing. A repeated installation prints `Already wired.`
+
+## Previewing Generator Plans
+
+Commands that write files support `--dry-run`; add `--json` for the machine plan. Required questions use flags/defaults, with missing answers reported in warnings. Read `would_write` rather than the exit code alone. Cache maintenance has no file preview. [Agents](/going-further/agents) describes the plan and inventory schemas.

@@ -10,6 +10,7 @@ php artisan vendor:publish --tag=mod-config
 | Key | Default | Description |
 | --- | --- | --- |
 | [`layout`](#layout) | `'laravel'` | The active layout |
+| [`routes.order`](#routes-order) | `[]` | Modules loaded before the alphabetical remainder |
 | [`commands`](#commands) | `true` | Register the `mod:*` commands |
 | [`generators`](#generators) | `[]` | Replace the command behind a file type |
 | [`bases`](#bases) | `null` for each | The class DTOs, view models, value objects and actions extend |
@@ -81,7 +82,7 @@ The folders bases go in are left out of placement and discovery, so a base is ne
 
 <a id="discovery-kinds"></a>
 
-### discovery.file_types
+### Discovery.file_types
 
 Maps a file type id to the type it is discovered as: `provider`, `command`, `listener`, `subscriber`, `directory`, or `false` to stop discovering it. Merged over the defaults:
 
@@ -96,17 +97,27 @@ Maps a file type id to the type it is discovered as: `provider`, `command`, `lis
 
 By default, the `provider`, `command`, `listener` and `subscriber` file types are discovered as themselves, and timestamped file types such as `migration` as directories. Keys are file type ids, and each must be a file type of the active layout: an unknown key stops the app with an error listing the layout's file types. `handler` above is a file type the app declares with `generates()`. File types that hold classes map to a class type, and file types that hold plain files, such as migrations, only to `directory`.
 
-### discovery.cache
+### Discovery.cache
 
 The cache file `mod:cache` writes, relative to the app.
 
-### discovery.on_stale_cache
+### Discovery.on_stale_cache
 
 | Value | When the layout or discovery settings changed after the cache was written |
 | --- | --- |
 | `'scan'` | Ignores the cache, scans instead without rewriting it, and logs a warning |
 | `'fail'` | Stops the app booting until the cache is rebuilt with `mod:cache` or removed |
 
-### discovery.factories and discovery.policies
+### Discovery.factories and Discovery.policies
 
 `true` lets `Model::factory()` and `Gate::getPolicyFor()` find a model's factory and policy through the layout, with no `newFactory()` method or `Gate::policy()` call needed. `false` turns each off. `mod:model -f` still writes `newFactory()`, so the model keeps working without mod.
+
+## routes.order
+
+```php memo="config/mod.php"
+'routes' => [
+    'order' => ['Billing', 'Knowledge'],
+],
+```
+
+`Mod::routes()` loads these modules first, followed by the rest alphabetically. Unknown names produce a warning. `only` and `except` filter each loading call; see [Module Routes](/going-further/routes).
