@@ -137,6 +137,8 @@ php artisan route:list --path=documents
 
 ## Carrying Views and Generators
 
+These examples use the `modules` layout. The `ddd` preset declares no frontend paths, view namespaces or routes root; an extended layout must opt in to those folders.
+
 A copied module carries its `resources/views`, route files, generator templates and scaffold recipes. The destination app needs the same layout and frontend wiring. Views register on boot; route files load through [module routes](/going-further/routes) or the module provider.
 
 Put module-owned generator templates under `<module>/stubs/mod/`, using only `@module` anchors. For a command targeting that module, precedence is module, app, then package.

@@ -38,8 +38,8 @@ check "The generator succeeds: mod:test Knowledge:DocumentTest --unit" art mod:t
 check "The file exists and passes PHP syntax: tests/Unit/Knowledge/DocumentTest.php" has tests/Unit/Knowledge/DocumentTest.php
 check "The file exists and passes PHP syntax: the Queue job's path follows in: from app/" has app/Features/Knowledge/Queue/ExtractText.php
 fresh "docs: repeated kind keeps root" ddd
-boot "\\Tey\\Mod\\Facades\\Mod::layout('ddd')->generates('controller', in: '{domain+}/Http/Controllers');"
-check "ddd controller stays in app/Modules" sh -c "cd '$APP' && '$PHP' artisan mod:controller Knowledge:DocumentController --no-ansi | grep -qF 'app/Modules/Knowledge/Http/Controllers/DocumentController.php'"
+boot "\\Tey\\Mod\\Facades\\Mod::layout('ddd')->generates('controller', in: '{domain+}/Controllers');"
+check "ddd controller stays in app/Modules" sh -c "cd '$APP' && '$PHP' artisan mod:controller Knowledge:DocumentController --no-ansi | grep -qF 'app/Modules/Knowledge/Controllers/DocumentController.php'"
 fresh "docs: relation by id" modules
 boot "\\Tey\\Mod\\Facades\\Mod::layout('modules')->relates('model', 'seeder', name: ['suffix' => 'Data']);"
 check "model-seeder renamed: DocumentDataSeeder" sh -c "cd '$APP' && '$PHP' artisan mod:model Knowledge:Document --seed --no-ansi | grep -qF 'app/Modules/Knowledge/Database/Seeders/DocumentDataSeeder.php'"

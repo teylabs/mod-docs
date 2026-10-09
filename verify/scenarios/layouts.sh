@@ -11,7 +11,7 @@ for L in modules features type-first ddd; do
         type-first) for f in app/Http/Controllers/Knowledge/DocumentController app/Http/Requests/Knowledge/StoreDocumentRequest app/Http/Requests/Knowledge/UpdateDocumentRequest app/Models/Knowledge/Document app/Policies/Knowledge/DocumentPolicy database/factories/Knowledge/DocumentFactory 'database/migrations/Knowledge/*_create_documents_table' database/seeders/Knowledge/DocumentSeeder; do check "The file exists and passes PHP syntax: $f.php" has "$f.php"; done
             check "type-first: mod:model Document without a feature" art mod:model Document
             check "The file exists and passes PHP syntax: app/Models/Document.php" has app/Models/Document.php ;;
-        ddd) for f in app/Modules/Knowledge/Http/Controllers/DocumentController app/Modules/Knowledge/Http/Requests/StoreDocumentRequest app/Modules/Knowledge/Http/Requests/UpdateDocumentRequest src/Domain/Knowledge/Models/Document src/Domain/Knowledge/Policies/DocumentPolicy src/Domain/Knowledge/Database/Factories/DocumentFactory 'src/Domain/Knowledge/Database/Migrations/*_create_documents_table' src/Domain/Knowledge/Database/Seeders/DocumentSeeder; do check "The file exists and passes PHP syntax: $f.php" has "$f.php"; done ;;
+        ddd) for f in app/Modules/Knowledge/Controllers/DocumentController app/Modules/Knowledge/Requests/StoreDocumentRequest app/Modules/Knowledge/Requests/UpdateDocumentRequest src/Domain/Knowledge/Models/Document src/Domain/Knowledge/Policies/DocumentPolicy src/Domain/Knowledge/Database/Factories/DocumentFactory 'src/Domain/Knowledge/Database/Migrations/*_create_documents_table' src/Domain/Knowledge/Database/Seeders/DocumentSeeder; do check "The file exists and passes PHP syntax: $f.php" has "$f.php"; done ;;
     esac
 done
 fresh "layout laravel" laravel
@@ -75,3 +75,20 @@ check 'The documented validator extension writes the stated path' doc_shell 'Cus
 # Exercise shell globbing even before a page adds template [slot] commands.
 check 'A quoted bracket path survives zsh globbing' zsh_art "php artisan list --raw > 'commands[slot].txt'"
 check 'The bracket path contains the command listing' grep -F 'mod:model' "$APP/commands[slot].txt"
+
+# DDD parity and documented opt-in.
+fresh 'DDD native views' ddd
+check 'DDD mail keeps the Laravel markdown view' art mod:mail Knowledge:DocumentReady --markdown=mail.document-ready
+check 'DDD notification keeps the Laravel markdown view' art mod:notification Knowledge:DocumentChanged --markdown=mail.document-changed
+check 'DDD mail view is in the app resources' has resources/views/mail/document-ready.blade.php
+check 'DDD notification view is in the app resources' has resources/views/mail/document-changed.blade.php
+check 'DDD mail view name is unqualified' grep -qF "mail.document-ready" "$APP/src/Domain/Knowledge/Mail/DocumentReady.php"
+check 'DDD has no frontend or route roots' "$PHP" -r '$j=json_decode(shell_exec("cd ".escapeshellarg($argv[1])." && ".escapeshellarg($argv[2])." artisan mod:list --json"),true,512,JSON_THROW_ON_ERROR); foreach($j["frontend"] as $value) { if($value!==null) throw new RuntimeException("Unexpected frontend declaration"); } if($j["views"]!==[] || $j["routes"]!==[]) throw new RuntimeException("Unexpected view or routes");' "$APP" "$PHP"
+fresh 'documented DDD frontend opt-in' ddd
+doc_boot 'Opting In to Frontend and Routes'
+LAYOUT=web-ddd perl -0pi -e 's/\x27layout\x27 => \x27[^\x27]*\x27/\x27layout\x27 => \x27$ENV{LAYOUT}\x27/' "$APP/config/mod.php"
+printf '{"dependencies":{"@inertiajs/vue3":"*"}}\n' > "$APP/package.json"
+check 'Opted-in DDD page generation succeeds' art mod:page Knowledge:Document/Index
+check 'Opted-in DDD page uses the declared folder' test -f "$APP/app/Modules/Knowledge/ui/js/pages/Document/Index.vue"
+check 'Opted-in DDD routes generation succeeds' art mod:routes Knowledge
+check 'Opted-in DDD routes use the declared folder' has app/Modules/Knowledge/routes/web.php
