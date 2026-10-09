@@ -4,10 +4,10 @@ PAGE=$DOCS/docs/going-further/stubs.md
 
 # Layout examples: Starter Stubs
 fresh "docs: starters in features" features
-boot "\\Tey\\Mod\\Facades\\Mod::layout('features')->kind('dto', in: 'Features/{feature}/Data');"
+boot "\\Tey\\Mod\\Facades\\Mod::layout('features')->generates('dto', in: 'Features/{feature}/Data');"
 check "features dto starts as a DTO with the app/Support base" sh -c "cd '$APP' && out=\$('$PHP' artisan mod:dto Knowledge:DocumentData --no-ansi) && echo \"\$out\" | grep -qF 'Created base class App\Support\Data\DataTransferObject [app/Support/Data/DataTransferObject.php].' && echo \"\$out\" | grep -qF 'DTO [app/Features/Knowledge/Data/DocumentData.php] created successfully.'"
 fresh "docs: starter through stub:" features
-boot "\\Tey\\Mod\\Facades\\Mod::layout('features')->kind('payload', in: 'Features/{feature}/Payloads', stub: \\Tey\\Mod\\Generation\\Starters::dto());"
+boot "\\Tey\\Mod\\Facades\\Mod::layout('features')->generates('payload', in: 'Features/{feature}/Payloads', stub: \\Tey\\Mod\\Generation\\Starters::dto());"
 check "payload with Starters::dto() extends the DTO base" sh -c "cd '$APP' && '$PHP' artisan mod:payload Knowledge:DocumentPayload --no-ansi >/dev/null && grep -q 'extends DataTransferObject' app/Features/Knowledge/Payloads/DocumentPayload.php"
 fresh "docs: ddd bases" ddd
 check "ddd base in src/Domain/Shared" sh -c "cd '$APP' && out=\$('$PHP' artisan mod:dto Knowledge:DocumentData --no-ansi) && echo \"\$out\" | grep -qF 'Created base class Domain\Shared\Data\DataTransferObject [src/Domain/Shared/Data/DataTransferObject.php].' && echo \"\$out\" | grep -qF 'DTO [src/Domain/Knowledge/Data/DocumentData.php] created successfully.'"
@@ -51,7 +51,7 @@ printf '\n// Owned by the application\n' >> "$APP/app/Support/Data/DataTransferO
 art mod:dto Knowledge:DocumentData --force > /dev/null
 check 'Generating a DTO never overwrites an existing base' grep -F 'Owned by the application' "$APP/app/Support/Data/DataTransferObject.php"
 fresh 'documented configured base' modules
-doc_config 'Extending Your Own Base Class'
+doc_config 'Using your own base class'
 doc_file 'Using the Base in Your Stub' stubs/mod.dto.stub
-check 'The app stub uses the configured base from the page' doc_shell 'Extending Your Own Base Class'
+check 'The app stub uses the configured base from the page' doc_shell 'Using your own base class'
 check 'The DTO imports the configured base' grep -F 'use App\Support\BaseData;' "$APP/app/Modules/Knowledge/Data/DocumentData.php"
