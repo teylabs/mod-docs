@@ -34,8 +34,8 @@ fresh 'prefixed DDD anchor' ddd
 check 'Literal application path before the domain anchor' doc_shell 'The application layer in DDD'
 check 'Application-layer template creates the documented class' has app/Modules/Knowledge/Presenters/ShowDocument.php
 fresh 'package template folder' modules
-mkdir -p "$APP/app/stubs/@group/Tools"
-doc_file 'Editing the template' 'app/stubs/@group/Tools/tool.stub'
+mkdir -p "$APP/app/stubs/mod/@group/Tools"
+doc_file 'Editing the template' 'app/stubs/mod/@group/Tools/tool.stub'
 doc_boot 'Packages'
 check 'A neutral package anchor follows the app layout' art mod:tool Agents:PackageTool
 check 'Package tool exists' has app/Modules/Agents/Tools/PackageTool.php

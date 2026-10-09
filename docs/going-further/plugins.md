@@ -217,10 +217,10 @@ Register a folder from the package's provider, and use `@group` inside it:
 ```php memo="src/ToolsServiceProvider.php" at="boot()"
 use Tey\Mod\Facades\Mod;
 
-Mod::stubs()->folder(dirname(__DIR__).'/stubs');
+Mod::stubs()->folder(__DIR__.'/../stubs/mod');
 ```
 
-For example, `stubs/@group/Tools/tool.stub` gives the app a `mod:tool` command whose folder follows its layout. [Custom generators](/going-further/custom-generators#editing-the-template) shows the contents. The app's template takes precedence. Two packages claiming the same command disable only that command with a warning naming both; the other commands keep working.
+For example, `stubs/mod/@group/Tools/tool.stub` gives the app a `mod:tool` command whose folder follows its layout. [Custom generators](/going-further/custom-generators#editing-the-template) shows the contents. The app's template takes precedence. Two packages claiming the same command disable only that command with a warning naming both; the other commands keep working.
 
 ## Shipping scaffolds
 

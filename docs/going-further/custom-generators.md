@@ -179,7 +179,7 @@ A package registers its template folder in its provider:
 ```php memo="src/ToolsServiceProvider.php" at="boot()"
 use Tey\Mod\Facades\Mod;
 
-Mod::stubs()->folder(dirname(__DIR__).'/stubs');
+Mod::stubs()->folder(__DIR__.'/../stubs/mod');
 ```
 
 Use `@group` inside the folder so placement follows the app's layout. The app's templates win over package templates; `mod:list` identifies them as `app (overrides <package>)`. Two packages claiming one command disable that command with a warning naming both; other commands keep working. [Plugins](/going-further/plugins#shipping-generator-templates) covers package registration.

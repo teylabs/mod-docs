@@ -100,9 +100,9 @@ check 'The plugin DTO extends the installed Data class' grep -F 'use Spatie\Lara
 APP=$WORK/base-$MAJOR
 
 fresh 'package template folder' modules
-mkdir -p "$APP/app/stubs/@group/Tools"
+mkdir -p "$APP/app/stubs/mod/@group/Tools"
 PAGE=$DOCS/docs/going-further/custom-generators.md
-doc_file 'Editing the template' app/stubs/@group/Tools/tool.stub
+doc_file 'Editing the template' app/stubs/mod/@group/Tools/tool.stub
 PAGE=$DOCS/docs/going-further/plugins.md
 doc_boot 'Shipping generator templates'
 check 'Package template command follows the app layout' art mod:tool Knowledge:PackageTool
