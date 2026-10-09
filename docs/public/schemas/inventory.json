@@ -1,0 +1,707 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "required": [
+    "layout",
+    "extends",
+    "path",
+    "token",
+    "groups",
+    "types",
+    "templates",
+    "scaffolds",
+    "discovery",
+    "frontend",
+    "views",
+    "stack",
+    "wiring",
+    "routes"
+  ],
+  "properties": {
+    "layout": {
+      "type": "string"
+    },
+    "extends": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "path": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "token": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "groups": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "types": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "id",
+          "command",
+          "aliases",
+          "folder",
+          "source",
+          "stub",
+          "base",
+          "discovery",
+          "classes",
+          "relations"
+        ],
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "command": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "aliases": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "folder": {
+            "type": "string"
+          },
+          "source": {
+            "type": "string"
+          },
+          "stub": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "base": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "discovery": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "classes": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": [
+                "kind",
+                "type",
+                "class",
+                "path",
+                "context",
+                "events"
+              ],
+              "properties": {
+                "kind": {
+                  "type": "string"
+                },
+                "type": {
+                  "type": "string"
+                },
+                "class": {
+                  "type": "string"
+                },
+                "path": {
+                  "type": "string"
+                },
+                "context": {
+                  "type": "object",
+                  "additionalProperties": {
+                    "type": "string"
+                  }
+                },
+                "events": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "required": [
+                      "event",
+                      "method"
+                    ],
+                    "properties": {
+                      "event": {
+                        "type": "string"
+                      },
+                      "method": {
+                        "type": "string"
+                      }
+                    }
+                  }
+                },
+                "target": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "relations": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "plain": {
+            "type": "boolean"
+          },
+          "extension": {
+            "type": "string"
+          },
+          "case": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "templates": {
+      "type": "object",
+      "required": [
+        "problems",
+        "notices",
+        "items"
+      ],
+      "properties": {
+        "problems": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": [
+              "path",
+              "reason"
+            ],
+            "properties": {
+              "path": {
+                "type": "string"
+              },
+              "reason": {
+                "type": "string"
+              }
+            }
+          }
+        },
+        "notices": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "items": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": [
+              "type",
+              "source",
+              "path"
+            ],
+            "properties": {
+              "type": {
+                "type": "string"
+              },
+              "source": {
+                "type": "string"
+              },
+              "path": {
+                "type": "string"
+              }
+            }
+          }
+        }
+      }
+    },
+    "scaffolds": {
+      "type": "object",
+      "required": [
+        "items",
+        "problems"
+      ],
+      "properties": {
+        "items": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": [
+              "name",
+              "command",
+              "source",
+              "members"
+            ],
+            "properties": {
+              "name": {
+                "type": "string"
+              },
+              "command": {
+                "type": "string"
+              },
+              "source": {
+                "type": "string"
+              },
+              "members": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "required": [
+                    "alias",
+                    "type",
+                    "name",
+                    "stub",
+                    "options",
+                    "folder",
+                    "ungrouped",
+                    "group",
+                    "existing"
+                  ],
+                  "properties": {
+                    "alias": {
+                      "type": "string"
+                    },
+                    "type": {
+                      "type": "string"
+                    },
+                    "name": {
+                      "type": [
+                        "string",
+                        "null"
+                      ]
+                    },
+                    "stub": {
+                      "type": [
+                        "string",
+                        "null"
+                      ]
+                    },
+                    "options": {
+                      "type": [
+                        "object",
+                        "array"
+                      ]
+                    },
+                    "folder": {
+                      "type": "string"
+                    },
+                    "ungrouped": {
+                      "type": "boolean"
+                    },
+                    "group": {
+                      "type": [
+                        "string",
+                        "null"
+                      ]
+                    },
+                    "existing": {
+                      "enum": [
+                        "keep",
+                        null
+                      ]
+                    }
+                  }
+                }
+              },
+              "uses": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "children": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              },
+              "from": {
+                "type": "string"
+              },
+              "origin": {
+                "type": "string"
+              }
+            }
+          }
+        },
+        "problems": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": [
+              "name",
+              "reason"
+            ],
+            "properties": {
+              "name": {
+                "type": "string"
+              },
+              "reason": {
+                "type": "string"
+              }
+            }
+          }
+        }
+      }
+    },
+    "discovery": {
+      "type": "object",
+      "required": [
+        "enabled",
+        "source",
+        "counts",
+        "entries",
+        "rejections",
+        "stale_cache"
+      ],
+      "properties": {
+        "enabled": {
+          "type": "boolean"
+        },
+        "source": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "counts": {
+          "type": "object",
+          "required": [
+            "provider",
+            "command",
+            "listener",
+            "subscriber",
+            "directory",
+            "factory",
+            "policy",
+            "rejected"
+          ],
+          "additionalProperties": {
+            "type": "integer"
+          }
+        },
+        "entries": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": [
+              "kind",
+              "type",
+              "class",
+              "path",
+              "context",
+              "events"
+            ],
+            "properties": {
+              "kind": {
+                "type": "string"
+              },
+              "type": {
+                "type": "string"
+              },
+              "class": {
+                "type": "string"
+              },
+              "path": {
+                "type": "string"
+              },
+              "context": {
+                "type": "object",
+                "additionalProperties": {
+                  "type": "string"
+                }
+              },
+              "events": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "required": [
+                    "event",
+                    "method"
+                  ],
+                  "properties": {
+                    "event": {
+                      "type": "string"
+                    },
+                    "method": {
+                      "type": "string"
+                    }
+                  }
+                }
+              },
+              "target": {
+                "type": "string"
+              }
+            }
+          }
+        },
+        "rejections": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": [
+              "path",
+              "reason",
+              "detail",
+              "kind",
+              "class",
+              "candidates"
+            ],
+            "properties": {
+              "path": {
+                "type": "string"
+              },
+              "reason": {
+                "type": "string"
+              },
+              "detail": {
+                "type": "string"
+              },
+              "kind": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "class": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "candidates": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        },
+        "stale_cache": {
+          "type": [
+            "string",
+            "null"
+          ]
+        }
+      }
+    },
+    "frontend": {
+      "type": "object",
+      "required": [
+        "pages",
+        "components",
+        "css",
+        "views",
+        "page_name",
+        "view_namespace",
+        "import_alias"
+      ],
+      "properties": {
+        "pages": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "components": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "css": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "views": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "page_name": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "view_namespace": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "import_alias": {
+          "type": [
+            "object",
+            "null"
+          ],
+          "required": [
+            "alias",
+            "root"
+          ],
+          "properties": {
+            "alias": {
+              "type": "string"
+            },
+            "root": {
+              "type": "string"
+            }
+          }
+        }
+      }
+    },
+    "views": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "group",
+          "namespace",
+          "path",
+          "components"
+        ],
+        "properties": {
+          "group": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "namespace": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "path": {
+            "type": "string"
+          },
+          "components": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": [
+                "path",
+                "tag"
+              ],
+              "properties": {
+                "path": {
+                  "type": "string"
+                },
+                "tag": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "stack": {
+      "type": "object",
+      "required": [
+        "inertia",
+        "typescript",
+        "pages"
+      ],
+      "properties": {
+        "inertia": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "typescript": {
+          "type": "boolean"
+        },
+        "pages": {
+          "type": "string"
+        }
+      }
+    },
+    "wiring": {
+      "type": "object",
+      "required": [
+        "inertia",
+        "vite_alias",
+        "tailwind"
+      ],
+      "properties": {
+        "inertia": {
+          "type": "boolean"
+        },
+        "vite_alias": {
+          "type": "boolean"
+        },
+        "tailwind": {
+          "type": "boolean"
+        }
+      }
+    },
+    "routes": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "group",
+          "entrypoint",
+          "kind",
+          "middleware_group",
+          "order",
+          "loaded_by"
+        ],
+        "properties": {
+          "group": {
+            "type": "string"
+          },
+          "entrypoint": {
+            "type": "string"
+          },
+          "kind": {
+            "type": "string",
+            "enum": [
+              "file",
+              "registrar"
+            ]
+          },
+          "middleware_group": {
+            "type": "string",
+            "enum": [
+              "web",
+              "api",
+              "console"
+            ]
+          },
+          "order": {
+            "type": "integer"
+          },
+          "loaded_by": {
+            "type": [
+              "string",
+              "null"
+            ]
+          }
+        }
+      }
+    }
+  }
+}

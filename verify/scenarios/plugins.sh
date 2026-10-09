@@ -117,4 +117,4 @@ class {{ class }} {}
 STUB
 doc_boot 'Shipping scaffolds'
 check 'Package scaffold uses its registered variant' art mod:document Knowledge:Document
-check 'Package scaffold controller is valid' has app/Modules/Knowledge/Controllers/DocumentController.php
+check 'Package scaffold controller is valid' has app/Modules/Knowledge/Http/Controllers/DocumentController.php

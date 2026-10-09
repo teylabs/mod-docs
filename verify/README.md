@@ -69,3 +69,15 @@ Run unreleased pages against `git:main`, and record the SHA in `mod-ref.txt`. Ke
 New examples trace to mod's acceptance tests under `tests/Feature/Acceptance/Examples/`: E1–E16 and M1–M16 for templates and creation; S1–S12 for scaffolds; S13–S22 for questions, parts, inserts, growth and recursion. Recipe and template bodies come from those tests' fixtures. Page scenarios read the fenced examples directly, run quoted paths through zsh, compare displayed output, lint generated PHP and load the tree classes in fresh PHP processes. Interactive questions are covered by the package's acceptance tests; these scenarios use explicit non-interactive answers.
 
 The 0.1 “Before” snippet on the Upgrade page is historical input, not executable 0.2 code. Its “After” snippet is executed against main.
+
+## Frontend and Agent Verification
+
+The default run includes `frontend`, `routes` and `agents`. The frontend scenario needs Node 24 and npm, and creates four disposable starter-kit apps: Vue and React on Laravel 12 and 13. Each app runs `mod:install inertia`, the documented CRUD/page recipe, migrations, `npm run build`, and `npx vue-tsc --noEmit` or `npx tsc --noEmit`. A request through Laravel's HTTP kernel checks status 200 and the exact Inertia component, including React's kebab casing. Resolver checks execute the shipped JavaScript for lazy/eager maps, app/module pages, uppercase `Pages`, normalized custom maps, missing/ambiguous files, invalid names and no fallback.
+
+`frontend/setup.sh` pins the four upstream revisions recorded by the package's installer acceptance fixtures. `kit-refs.txt` records them. Kits with an upstream npm lock use `npm ci`; current kits without one use `npm install`. The app's generated lock records that dependency resolution. PHP is added to PATH so Vite's Wayfinder subprocess uses the configured PHP installation.
+
+Two guarded input corrections are applied in disposable kits by `frontend/prepare-kit.php`: the Laravel 12 Vue kit's validation error is a flat `errors.code`, and the Laravel 13 kits' Wayfinder `Method` union includes Laravel's `query` verb. The Vue correction runs during setup; the Wayfinder correction runs after the build regenerates its upstream helper. They do not change Mod's resolver, generated pages, compiler settings or type-check assertions. Unexpected upstream expressions stop setup. Full-app type checking remains enabled.
+
+Unreleased 0.3 docs must be verified against the matching package branch or SHA, rather than the latest 0.2 release. Use the existing workflow dispatch `mod_ref` input for that evidence; the release-default workflow policy remains unchanged. Node checks belong in this docs workflow, never in Mod's PHP matrix.
+
+`npm test` checks Markdown publication and sidebar coverage contracts. `npm run build` checks links and emits `llms.txt` plus unchanged Markdown sources at sidebar page paths. The JSON schemas served under `/schemas/` are byte-compared with the package fixtures by the agents scenario.

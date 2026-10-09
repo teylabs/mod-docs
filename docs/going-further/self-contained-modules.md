@@ -39,8 +39,6 @@ app/Modules/
 └── Knowledge/
     ├── Actions/
     │   └── IndexDocument.php
-    ├── Controllers/
-    │   └── DocumentController.php
     ├── Data/
     │   └── DocumentData.php
     ├── Database/
@@ -50,6 +48,12 @@ app/Modules/
     │       └── 2026_10_08_120000_create_documents_table.php
     ├── Events/
     │   └── DocumentUploaded.php
+    ├── Http/
+    │   ├── Controllers/
+    │   │   └── DocumentController.php
+    │   └── Requests/
+    │       ├── StoreDocumentRequest.php
+    │       └── UpdateDocumentRequest.php
     ├── Listeners/
     │   └── GenerateEmbeddings.php
     ├── Models/
@@ -58,9 +62,6 @@ app/Modules/
     │   └── DocumentPolicy.php
     ├── Providers/
     │   └── KnowledgeServiceProvider.php
-    ├── Requests/
-    │   ├── StoreDocumentRequest.php
-    │   └── UpdateDocumentRequest.php
     └── ViewModels/
         └── ShowDocument.php
 ```
@@ -83,7 +84,7 @@ Mod doesn't discover route files. Load a module's routes from a provider in the 
 ```php memo="app/Modules/Knowledge/routes/web.php"
 <?php
 
-use App\Modules\Knowledge\Controllers\DocumentController;
+use App\Modules\Knowledge\Http\Controllers\DocumentController;
 use Illuminate\Support\Facades\Route;
 
 Route::middleware('web')->group(function () {
@@ -99,8 +100,8 @@ $this->loadRoutesFrom(__DIR__.'/../routes/web.php');
 
 ```bash
 php artisan route:list --path=documents
-# -> GET|HEAD documents › App\Modules\Knowledge\Controllers\DocumentController@index
-# -> POST     documents › App\Modules\Knowledge\Controllers\DocumentController@store
+# -> GET|HEAD documents › App\Modules\Knowledge\Http\Controllers\DocumentController@index
+# -> POST     documents › App\Modules\Knowledge\Http\Controllers\DocumentController@store
 # -> ...
 # -> Showing [7] routes
 ```
@@ -133,3 +134,39 @@ php artisan route:list --path=documents
 ```
 
 `Document::factory()` finds the module's factory and `Gate::getPolicyFor(Document::class)` its policy, as in the first project. The copied classes extend Laravel's own `App\Http\Controllers\Controller`, which every new app has. `mod:bases` never overwrites a base that exists, so running it again writes nothing.
+
+## Carrying Views and Generators
+
+A copied module carries its `resources/views`, route files, generator templates and scaffold recipes. The destination app needs the same layout and frontend wiring. Views register on boot; route files load through [module routes](/going-further/routes) or the module provider.
+
+Put module-owned generator templates under `<module>/stubs/mod/`, using only `@module` anchors. For a command targeting that module, precedence is module, app, then package.
+
+Invokable scaffold classes in `<module>/Scaffolds/` declare a public string `$name` and `__invoke(Scaffold $scaffold)`. A module provider can also register recipes in `boot()`:
+
+```php memo="app/Modules/Inventory/Providers/InventoryServiceProvider.php"
+use Tey\Mod\Facades\Mod;
+use Tey\Mod\Scaffolds\Scaffold;
+
+Mod::scaffolds([
+    'stock-count' => fn (Scaffold $s) => $s->makes('tool', name: 'Count{name}')->makes('job', name: 'Recount{name}'),
+]);
+```
+
+The provider’s namespace must belong to the module for this registration to be module-owned. `mod:list --json` reports canonical sources such as `module:Inventory`, `app` and `package:vendor/name`; `mod:list -v` shows the template, recipe or provider origin.
+
+### An Invokable Module Scaffold
+
+Put the recipe class in the module’s `Scaffolds/` folder:
+
+```php memo="app/Modules/Inventory/Scaffolds/StockReport.php"
+<?php
+namespace App\Modules\Inventory\Scaffolds;
+use Tey\Mod\Scaffolds\Scaffold;
+final class StockReport
+{
+    public string $name = 'stock-report';
+    public function __invoke(Scaffold $s): void { $s->makes('tool', name: 'Report{name}'); }
+}
+```
+
+The module’s `stubs/mod/@module/Tools/tool.stub` defines its `tool` file type. The class registers `mod:stock-report` on the next boot; copying the module carries this recipe and its template together.

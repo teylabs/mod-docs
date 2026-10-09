@@ -18,7 +18,8 @@ check "The generator succeeds: mod:action Agents:AnswerQuestion" art mod:action 
 check "mod:value-object Agents:TokenUsage" sh -c "cd '$APP' && '$PHP' artisan mod:value-object Agents:TokenUsage --no-ansi | grep -qF 'Value object [app/Modules/Agents/ValueObjects/TokenUsage.php]'"
 check "The generator succeeds: mod:job Agents:GenerateReply" art mod:job Agents:GenerateReply
 TREE=$(cd "$APP" && find app/Modules -type f | sort | sed -E 's/[0-9]{4}_[0-9]{2}_[0-9]{2}_[0-9]{6}_/TS_/' | tr '\n' ' ')
-EXPECT="app/Modules/Agents/Actions/AnswerQuestion.php app/Modules/Agents/Database/Migrations/TS_create_conversations_table.php app/Modules/Agents/Jobs/GenerateReply.php app/Modules/Agents/Models/Conversation.php app/Modules/Agents/ValueObjects/TokenUsage.php app/Modules/Knowledge/Actions/IndexDocument.php app/Modules/Knowledge/Controllers/DocumentController.php app/Modules/Knowledge/Data/DocumentData.php app/Modules/Knowledge/Database/Factories/DocumentFactory.php app/Modules/Knowledge/Database/Migrations/TS_create_documents_table.php app/Modules/Knowledge/Events/DocumentUploaded.php app/Modules/Knowledge/Listeners/GenerateEmbeddings.php app/Modules/Knowledge/Models/Document.php app/Modules/Knowledge/Policies/DocumentPolicy.php app/Modules/Knowledge/Requests/StoreDocumentRequest.php app/Modules/Knowledge/Requests/UpdateDocumentRequest.php app/Modules/Knowledge/ViewModels/ShowDocument.php "
+EXPECT="app/Modules/Agents/Actions/AnswerQuestion.php app/Modules/Agents/Database/Migrations/TS_create_conversations_table.php app/Modules/Agents/Jobs/GenerateReply.php app/Modules/Agents/Models/Conversation.php app/Modules/Agents/ValueObjects/TokenUsage.php app/Modules/Knowledge/Actions/IndexDocument.php app/Modules/Knowledge/Http/Controllers/DocumentController.php app/Modules/Knowledge/Data/DocumentData.php app/Modules/Knowledge/Database/Factories/DocumentFactory.php app/Modules/Knowledge/Database/Migrations/TS_create_documents_table.php app/Modules/Knowledge/Events/DocumentUploaded.php app/Modules/Knowledge/Listeners/GenerateEmbeddings.php app/Modules/Knowledge/Models/Document.php app/Modules/Knowledge/Policies/DocumentPolicy.php app/Modules/Knowledge/Http/Requests/StoreDocumentRequest.php app/Modules/Knowledge/Http/Requests/UpdateDocumentRequest.php app/Modules/Knowledge/ViewModels/ShowDocument.php "
+EXPECT=$(printf '%s\n' "$EXPECT" | tr ' ' '\n' | sed '/^$/d' | sort | tr '\n' ' ')
 check "The two modules contain exactly the expected files" test "$TREE" = "$EXPECT"
 [ "$TREE" = "$EXPECT" ] || printf 'Actual tree: %s\n' "$TREE" >&2
 check "bases live outside app/Modules, in app/Support" sh -c "test -f '$APP/app/Support/Data/DataTransferObject.php' && test -f '$APP/app/Support/ViewModels/ViewModel.php'"
@@ -30,7 +31,7 @@ check "provider boot loads routes" grep -qF "\$this->loadRoutesFrom(__DIR__.'/..
 mkdir -p "$APP/app/Modules/Knowledge/routes"; cat > "$APP/app/Modules/Knowledge/routes/web.php" <<'PHP'
 <?php
 
-use App\Modules\Knowledge\Controllers\DocumentController;
+use App\Modules\Knowledge\Http\Controllers\DocumentController;
 use Illuminate\Support\Facades\Route;
 
 Route::middleware('web')->group(function () {
@@ -40,7 +41,7 @@ PHP
 check "route:list shows the module's routes" out_has "documents.index" route:list --path=documents
 check "the route has the web middleware" sh -c "cd '$APP' && '$PHP' artisan route:list --path=documents --json | grep -q '\"web\"'"
 check "GET /documents returns 200" sh -c "cd '$APP' && '$PHP' artisan tinker --execute 'echo app(Illuminate\Contracts\Http\Kernel::class)->handle(Illuminate\Http\Request::create(\"/documents\"))->getStatusCode();' | grep -q 200"
-check "discovery.md's mod:cache output, verbatim" sh -c "cd '$APP' && out=\$('$PHP' artisan mod:cache --no-ansi) && '$PHP' artisan mod:clear -q && echo \"\$out\" | grep -qF 'Discovery cached in [bootstrap/cache/mod-discovery.php]: 1 providers, 0 commands, 1 listeners, 0 subscribers, 2 directories, 6 rejected.' && echo \"\$out\" | grep -qF 'Rejected files were found but not registered: 6 placed by no file type (helpers and plain classes; nothing to do). Run with -v to list them.'"
+check "discovery.md's mod:cache output, verbatim" sh -c "cd '$APP' && out=\$('$PHP' artisan mod:cache --no-ansi) && '$PHP' artisan mod:clear -q && echo \"\$out\" | grep -qF 'Discovery cached in [bootstrap/cache/mod-discovery.php]: 1 providers, 0 commands, 1 listeners, 0 subscribers, 2 directories, 5 rejected.' && echo \"\$out\" | grep -qF 'Rejected files were found but not registered: 5 placed by no file type (helpers and plain classes; nothing to do). Run with -v to list them.'"
 (cd "$APP" && "$PHP" artisan mod:cache --no-ansi; "$PHP" artisan mod:clear -q) >> "$WORK/modcache-$MAJOR.txt"
 check "route:cache includes them" sh -c "cd '$APP' && '$PHP' artisan route:cache -q && '$PHP' artisan route:list --path=documents | grep -q documents.store && '$PHP' artisan route:clear -q"
 SRCAPP=$APP

@@ -2,7 +2,7 @@
 
 A package can build on mod instead of shipping its own generators. When you're done, your package adds file types and commands to a layout, ships the stubs they start from, and uses another package's base class when it is installed.
 
-## Writing a plugin
+## Writing a Plugin
 
 A mod plugin is an ordinary Laravel package whose service provider calls the `Mod` facade in `boot()`. Require `tey/mod` in the package:
 
@@ -12,7 +12,7 @@ composer require tey/mod
 
 Mod reads the layout when Artisan starts, so the order of providers doesn't matter. The examples on this page come from a package of tools for apps with a `Knowledge` domain that stores documents.
 
-### Adding file types and commands
+### Adding File Types and Commands
 
 Extend a built-in layout with `Mod::layout()`. A new file type gets a `mod:<type>` command; `command:` renames it, `aliases:` adds other names and `label:` sets the noun its output uses:
 
@@ -37,7 +37,7 @@ A hyphenated command or alias also gets a dash-free alias, so `mod:query-builder
 - Without `label:`, the output names the type's id in title case (`Builder`). File types with a Laravel generator keep Laravel's wording.
 - A command or alias that another file type already uses stops the layout from compiling, with an error naming both.
 
-## Registering stubs
+## Registering Stubs
 
 Register the stub a file type starts from:
 
@@ -63,7 +63,7 @@ class {{ class }} extends Builder
 
 `Mod::stubs()->for()` works for any file type, including those with a Laravel generator. An app's own `stubs/mod.<type>.stub` still wins over a plugin's stub; [Layout API](/reference/layout-api#stub-resolution-order) gives the full order.
 
-### Using another package when it is installed
+### Using Another Package When It Is Installed
 
 A stub can name variants. The first whose package is installed (`whenInstalled`) or whose class exists (`whenClass`) supplies the base class, the stub, or both:
 
@@ -85,7 +85,7 @@ php artisan mod:dto Knowledge:DocumentData
 
 An explicit base wins over every variant. The app sets one in `config/mod.php`; a plugin can read its own config key and give a default with `->base(config: 'knowledge.base_dto', class: 'App\\Support\\BaseData')`.
 
-### Generating a base class
+### Generating a Base Class
 
 When no variant applies, a stub can write a base class into the app the first time it is used. The base goes in the app's bases folder, `app/Support` by default:
 
@@ -111,7 +111,7 @@ php artisan mod:dto Knowledge:DocumentData
 - Once the file exists, the app owns it: mod never overwrites it, even with `--force`. `mod:bases` writes it when it is missing.
 - Stubs must not use mod's own classes, so the generated code runs without mod installed.
 
-## Swapping a generator
+## Swapping a Generator
 
 Replace the command behind a file type with `Mod::generators()->use()`. Extend the command it replaces: `GenericClassCommand` for file types with no Laravel generator, or the matching command such as `ModelCommand`:
 
@@ -141,7 +141,7 @@ Mod::generators()->use('builder', BuilderCommand::class);
 
 An app can do the same from `config/mod.php` with the [`generators`](/reference/configuration#generators) key. The hooks a command offers are listed in [Layout API](/reference/layout-api#generator-hooks).
 
-## Example: a DDD plugin
+## Example: a DDD Plugin
 
 The provider below is the shape of [laravel-ddd](https://github.com/teylabs/laravel-ddd) on mod. It keeps laravel-ddd's own config keys for base classes, adds a file type the built-in layout doesn't have, and ships its own stubs:
 
@@ -184,7 +184,7 @@ php artisan mod:view-model Knowledge:ShowDocument
 # ->  INFO  Using the configured base Domain\Shared\ViewModels\ViewModel.
 ```
 
-## Supplying discovery candidates
+## Supplying Discovery Candidates
 
 A package can supply the files discovery considers, for example to reuse an existing finder or skip generated folders. Pass a closure to `Mod::discoverUsing()`:
 
@@ -200,7 +200,7 @@ Mod::discoverUsing(fn (CompiledRoot $root, string $basePath, DiscoveryDefinition
 
 The closure receives a root of the layout and the definition of what is being collected, and returns paths relative to the app. The definition names the file type (`$definition->kindId`) and its discovery type, so candidates can be scoped per type. Mod still decides which candidates are registered, in what order, and how. Factory and policy lookup work as before, following `discovery.factories` and `discovery.policies`.
 
-## Turning commands off
+## Turning Commands Off
 
 A package or app with its own Artisan commands can keep mod's placement and discovery without the `mod:*` commands:
 
@@ -210,7 +210,7 @@ A package or app with its own Artisan commands can keep mod's placement and disc
 
 Or turn them off for one layout with `Mod::layout('mine')->withoutCommands()`. Its file types keep their `command:` names for a host to dispatch by, and several file types may then share one. The discovery cache commands are registered only while the `mod:*` commands and discovery are both on.
 
-## Shipping generator templates
+## Shipping Generator Templates
 
 Register a folder from the package's provider, and use `@group` inside it:
 
@@ -222,7 +222,7 @@ Mod::stubs()->folder(__DIR__.'/../stubs/mod');
 
 For example, `stubs/mod/@group/Tools/tool.stub` gives the app a `mod:tool` command whose folder follows its layout. [Custom generators](/going-further/custom-generators#editing-the-template) shows the contents. The app's template takes precedence. Two packages claiming the same command disable only that command with a warning naming both; the other commands keep working.
 
-## Shipping scaffolds
+## Shipping Scaffolds
 
 A package provider registers recipes with the same API as an app. If mod is optional, list `tey/mod` in Composer's `suggest` and guard registration:
 

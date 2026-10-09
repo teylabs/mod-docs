@@ -1,11 +1,15 @@
 import { defineConfig } from 'vitepress'
 import { creditLine } from './credit.mjs'
+import { publishMarkdown } from '../scripts/llms.mjs'
 
 // https://vitepress.dev/reference/site-config
 export default defineConfig({
+  async buildEnd(config) {
+    await publishMarkdown({ sidebar: config.site.themeConfig.sidebar, srcDir: config.srcDir, outDir: config.outDir })
+  },
   title: 'Mod for Laravel',
   description: 'Modular development toolkit for Laravel. Pick or extend a common layout like DDD or a modular monolith, or create your own.',
-  lang: 'en-US',
+  lang: 'en-CA',
 
   // Pages live in docs/; the repository root keeps its README and CNAME.
   srcDir: 'docs',
@@ -138,7 +142,7 @@ export default defineConfig({
           { text: 'Introduction', link: '/guide/introduction' },
           { text: 'Installation', link: '/guide/installation' },
           { text: 'Quick start', link: '/guide/quick-start' },
-          { text: 'Upgrading from 0.1', link: '/guide/upgrade' },
+          { text: 'Upgrading', link: '/guide/upgrade' },
         ],
       },
       {
@@ -156,6 +160,9 @@ export default defineConfig({
           { text: 'Custom layouts', link: '/going-further/custom-layouts' },
           { text: 'Custom generators', link: '/going-further/custom-generators' },
           { text: 'Scaffolds', link: '/going-further/scaffolds' },
+          { text: 'Frontend Files', link: '/going-further/frontend' },
+          { text: 'Module Routes', link: '/going-further/routes' },
+          { text: 'Agents', link: '/going-further/agents' },
           { text: 'Self-contained modules', link: '/going-further/self-contained-modules' },
           { text: 'Stubs', link: '/going-further/stubs' },
           { text: 'Plugins', link: '/going-further/plugins' },

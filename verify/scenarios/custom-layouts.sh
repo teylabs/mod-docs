@@ -44,13 +44,13 @@ fresh "docs: relation by id" modules
 boot "\\Tey\\Mod\\Facades\\Mod::layout('modules')->relates('model', 'seeder', name: ['suffix' => 'Data']);"
 check "model-seeder renamed: DocumentDataSeeder" sh -c "cd '$APP' && '$PHP' artisan mod:model Knowledge:Document --seed --no-ansi | grep -qF 'app/Modules/Knowledge/Database/Seeders/DocumentDataSeeder.php'"
 fresh "docs: defining a layout" domains
-boot "\\Tey\\Mod\\Facades\\Mod::layout('domains')->mounts('domain', 'Domain\\\\', 'src/Domain', fn (\\Tey\\Mod\\Layout\\Root \$root) => \$root->generates('model', in: '{domain}/Models')->generates('action', in: '{domain}/Actions'))->mounts('app', 'App\\\\', 'app', fn (\\Tey\\Mod\\Layout\\Root \$root) => \$root->generates('controller', in: 'Modules/{domain}/Controllers', suffix: 'Controller'))->generates('factory', in: 'domain:{domain}/Database/Factories', suffix: 'Factory')->relates('model', 'factory')->excludes('App\\\\Support\\\\');"
+boot "\\Tey\\Mod\\Facades\\Mod::layout('domains')->mounts('domain', 'Domain\\\\', 'src/Domain', fn (\\Tey\\Mod\\Layout\\Root \$root) => \$root->generates('model', in: '{domain}/Models')->generates('action', in: '{domain}/Actions'))->mounts('app', 'App\\\\', 'app', fn (\\Tey\\Mod\\Layout\\Root \$root) => \$root->generates('controller', in: 'Modules/{domain}/Http/Controllers', suffix: 'Controller'))->generates('factory', in: 'domain:{domain}/Database/Factories', suffix: 'Factory')->relates('model', 'factory')->excludes('App\\\\Support\\\\');"
 art mod:autoload
 check "The generator succeeds: mod:model Knowledge:Document --factory" art mod:model Knowledge:Document --factory
 check "The file exists and passes PHP syntax: src/Domain/Knowledge/Models/Document.php" has src/Domain/Knowledge/Models/Document.php
 check "The file exists and passes PHP syntax: src/Domain/Knowledge/Database/Factories/DocumentFactory.php" has src/Domain/Knowledge/Database/Factories/DocumentFactory.php
 check "The generator succeeds: mod:controller Knowledge:DocumentController" art mod:controller Knowledge:DocumentController
-check "The file exists and passes PHP syntax: app/Modules/Knowledge/Controllers/DocumentController.php" has app/Modules/Knowledge/Controllers/DocumentController.php
+check "The file exists and passes PHP syntax: app/Modules/Knowledge/Http/Controllers/DocumentController.php" has app/Modules/Knowledge/Http/Controllers/DocumentController.php
 fresh "docs: placement option" modules
 boot "\\Tey\\Mod\\Facades\\Mod::layout('modules')->path('app/Modules/{area}');"
 check "The generator succeeds: mod:model Document --area=Knowledge" art mod:model Document --area=Knowledge
