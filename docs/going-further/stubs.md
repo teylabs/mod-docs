@@ -1,8 +1,10 @@
 # Stubs
 
-A stub is the template a generated class starts from. Laravel's file types start from Laravel's own stubs. File types mod adds start from mod's stubs, or from an empty class, and your app can replace any of them.
+A stub holds the contents a generated class starts from. Laravel's file types start from Laravel's own stubs. File types mod adds start from mod's stubs, or from an empty class, and your app can replace any of them.
 
-## Starting From Your Own Stub
+[Custom generators](/going-further/custom-generators) creates commands from generator templates. This page covers contents, starters and bases.
+
+## Starting from your own stub
 
 A file type with no Laravel generator starts as an empty class. To start from your own stub, add `stubs/mod.<type>.stub` to your app. For the `repository` file type from [Adding a Layer](/going-further/custom-layouts#adding-a-layer), which writes a repository for a `Document` model in the `Knowledge` domain:
 
@@ -31,7 +33,7 @@ php artisan mod:repository Knowledge:Document
 | `{{ baseImport }}` | its `use` line, or nothing when there is no base |
 | `{{ extends }}` | ` extends <baseClass>`, or nothing when there is no base |
 
-## Starter Stubs
+## Starter stubs
 
 DTOs, view models, value objects and actions start as plain Laravel-style classes. When a package for them is installed, mod uses it instead:
 
@@ -54,7 +56,7 @@ The `modules` and `ddd` layouts have all four commands. In any layout, a file ty
 ```php memo="app/Providers/AppServiceProvider.php" at="boot()"
 use Tey\Mod\Facades\Mod;
 
-Mod::layout('features')->kind('dto', in: 'Features/{feature}/Data');
+Mod::layout('features')->generates('dto', in: 'Features/{feature}/Data');
 ```
 
 ```bash
@@ -69,12 +71,12 @@ A file type with another id uses a starter through `stub:`:
 use Tey\Mod\Facades\Mod;
 use Tey\Mod\Generation\Starters;
 
-Mod::layout('features')->kind('payload', in: 'Features/{feature}/Payloads', stub: Starters::dto());
+Mod::layout('features')->generates('payload', in: 'Features/{feature}/Payloads', stub: Starters::dto());
 ```
 
 `Starters::dto()`, `Starters::viewModel()`, `Starters::valueObject()` and `Starters::action()` are the four starters.
 
-## Generated Base Classes
+## Generated base classes
 
 Without spatie/laravel-data, the first `mod:dto` writes a `DataTransferObject` base into your app:
 
@@ -96,7 +98,7 @@ php artisan mod:dto Knowledge:DocumentData
 
 A base is written the first time it is needed, and it is yours from then on: mod never overwrites it, not even with `--force`. To change what it starts as, add `stubs/mod.base.data-transfer-object.stub` or `stubs/mod.base.view-model.stub` to your app.
 
-### Writing Missing Bases
+### Writing missing bases
 
 A module copied from another project refers to bases it doesn't contain. `mod:bases` writes every base your layout can use that is missing, whether or not a class extends it yet:
 
@@ -115,7 +117,9 @@ It never overwrites a base. When every base exists, it says so and writes nothin
    INFO  Every base class already exists.
 ```
 
-### Extending Your Own Base Class
+<a id="extending-your-own-base-class"></a>
+
+### Using your own base class
 
 To extend a class of your own instead, set it in `config/mod.php`, by file type. A configured base wins over an installed package:
 
@@ -132,7 +136,7 @@ php artisan mod:dto Knowledge:DocumentData
 
 `view-model`, `value-object` and `action` take a base the same way.
 
-### Using the Base in Your Stub
+### Using the base in your stub
 
 A stub of your own uses `{{ baseImport }}` and `{{ extends }}` for the base mod chose, so one file serves every case:
 

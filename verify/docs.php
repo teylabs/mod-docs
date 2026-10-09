@@ -24,7 +24,7 @@ foreach ($lines as $line) {
         continue;
     }
     if (preg_match('/^(#{1,6}) (.+)$/', $line, $match) && $heading !== '*') {
-        if ($match[2] === $heading) {
+        if (strcasecmp($match[2], $heading) === 0) {
             $active = true;
             $level = strlen($match[1]);
         } elseif ($active && strlen($match[1]) <= $level) {

@@ -40,7 +40,14 @@ Each check prints `PASS | L13 layouts | <what it proves>` or `FAIL | ...`. The f
 | `layouts` | `basics/layouts.md` | Six layouts, related-file trees, slices, aliases and DDD autoloading |
 | `generating-files` | `basics/generating-files.md` | Commands, placement, related files, notices and existing-file handling |
 | `auto-discovery` | `basics/auto-discovery.md` | Listeners, subscribers, commands, migrations, factory/policy lookup, exclusions and caching |
-| `custom-layouts` | `going-further/custom-layouts.md` | New file types, moved folders, roots, relations, renamed options and infrastructure layers |
+| `custom-generators` | `going-further/custom-generators.md` | E2/E3 creation and PHP equivalence, E8 quoted slots, extraction, DDD prefixes and package folders |
+| `scaffolds` | `going-further/scaffolds.md` | S1 CRUD, aliases, variants, inclusion, classes, S7 overrides, S14 trees, S17 growth, S19 routes, S20 overrides and S21 recursion |
+| `upgrade` | `guide/upgrade.md` | The migrated 0.1 declaration, relation arguments and group token |
+| `introduction` | `guide/introduction.md` | Model tree and listener discovery output |
+| `commands` | `reference/commands.md` | Inventory forms/JSON keys, templates, autoloading, missing-command output and bases |
+| `layout-api` | `reference/layout-api.md` | Public method/class availability, finite registry reads and namespace lookup |
+| `configuration` | `reference/configuration.md` | Published config and the renamed discovery map |
+| `custom-layouts` | `going-further/custom-layouts.md` | New file types, moved folders, roots, relations, path tokens, inheritance, moved namespaces and infrastructure layers |
 | `stubs` | `going-further/stubs.md` | App overrides, starters, generated bases and configured bases |
 | `self-contained-modules` | `going-further/self-contained-modules.md` | Two-module trees, routes, shared bases, and migration/listener/factory/policy behaviour after copying |
 | `plugins` | `going-further/plugins.md` | Command aliases and labels, plugin/app stub precedence, generated bases, installed-package variants, generator hooks and supplied discovery candidates |
@@ -54,3 +61,11 @@ To extend coverage, add a plainly worded `check` to the page's scenario. Use `fr
 For a negative check, temporarily change a displayed output line in a covered example and run its scenario: it must exit 1 and name the missing output. Remove the quotes around `commands[slot].txt` in the layouts shell check and run `layouts`: it must fail with zsh's `no matches found`. Restore both changes before committing.
 
 GitHub Actions runs PHP 8.4 with Laravel 12 and 13 for pushes and pull requests targeting main, every Monday at 06:00 UTC, and manual dispatch. It verifies against the latest teylabs/mod release tag, since the docs describe the released package; dispatch with `mod_ref` (for example `main`) to check unreleased work. It caches Composer downloads and uploads `verify.txt` with the resolved mod commit.
+
+## 0.2 evidence
+
+Run unreleased pages against `git:main`, and record the SHA in `mod-ref.txt`. Keep these pages on the docs branch until release review; public main describes the released package.
+
+New examples trace to mod's acceptance tests under `tests/Feature/Acceptance/Examples/`: E1–E16 and M1–M16 for templates and creation; S1–S12 for scaffolds; S13–S22 for questions, parts, inserts, growth and recursion. Recipe and template bodies come from those tests' fixtures. Page scenarios read the fenced examples directly, run quoted paths through zsh, compare displayed output, lint generated PHP and load the tree classes in fresh PHP processes. Interactive questions are covered by the package's acceptance tests; these scenarios use explicit non-interactive answers.
+
+The 0.1 “Before” snippet on the Upgrade page is historical input, not executable 0.2 code. Its “After” snippet is executed against main.

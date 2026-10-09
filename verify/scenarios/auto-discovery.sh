@@ -78,7 +78,7 @@ PHP
 check 'The documented handler listing command succeeds' doc_shell 'Discovering Other File Types'
 check 'The handler registration matches the page' doc_output 'Discovering Other File Types'
 fresh "docs: unknown discovery key" modules
-perl -0pi -e "s/'kinds' => \[\]/'kinds' => ['console' => 'command']/" "$APP/config/mod.php"
+perl -0pi -e "s/'file_types' => \[\]/'file_types' => ['console' => 'command']/" "$APP/config/mod.php"
 check "an unknown key stops the app and lists the file type ids" sh -c "cd '$APP' && '$PHP' artisan about --no-ansi 2>&1 | grep -q 'command'; ! '$PHP' artisan about >/dev/null 2>&1"
 fresh "docs: enabled false" modules
 art mod:model Knowledge:Document -f >/dev/null
@@ -105,3 +105,5 @@ perl -0pi -e 's/\n\n    protected static function newFactory\(\).*?\n    \}\n/\n
 doc_config 'Turning Discovery Off'
 check 'The documented factory switch disables factory lookup' fails out_has 'App\Modules\Knowledge\Database\Factories\DocumentFactory' tinker --execute 'echo get_class(App\Modules\Knowledge\Models\Document::factory());'
 check 'The documented policy switch leaves policy registration to Laravel' out_has 'not registered' tinker --execute 'echo array_key_exists(App\Modules\Knowledge\Models\Document::class, app(Illuminate\Contracts\Auth\Access\Gate::class)->policies()) ? "registered" : "not registered";'
+
+check "Verbose inventory lists discovered classes" doc_shell "See what's discovered"

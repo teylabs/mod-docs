@@ -35,7 +35,7 @@ check "The file exists and passes PHP syntax: app/Knowledge/IndexDocument/Handle
 
 # The DDD Layout + stub variants
 fresh "ddd" ddd
-autoload 'Domain\' 'src/Domain/'
+art mod:autoload
 check "mod:dto Knowledge:DocumentData creates the base" out_has "Created base class Domain\\Shared\\Data\\DataTransferObject" mod:dto Knowledge:DocumentData
 check "The file exists and passes PHP syntax: src/Domain/Knowledge/Data/DocumentData.php" has src/Domain/Knowledge/Data/DocumentData.php
 check "The generator succeeds: mod:action Knowledge:IndexDocument" art mod:action Knowledge:IndexDocument
@@ -66,12 +66,12 @@ check 'Slice files match the documented tree' doc_tree 'The Slices Layout'
 fresh 'documented type-first paths' type-first
 check 'Type-first job paths match the page' doc_shell 'The Type-First Layout'
 fresh 'documented domain classes' ddd
-autoload 'Domain\' 'src/Domain/'
+art mod:autoload
 check 'DDD commands write the documented domain paths' doc_shell 'Generating Domain Classes'
 check 'The documented DTO can be autoloaded' tinker 'new Domain\Knowledge\Data\DocumentData;'
 fresh 'documented layout extension' modules
-doc_boot 'Extending a Layout'
-check 'The documented validator extension writes the stated path' doc_shell 'Extending a Layout'
+doc_boot 'Customizing a layout'
+check 'The documented validator extension writes the stated path' doc_shell 'Customizing a layout'
 # Exercise shell globbing even before a page adds template [slot] commands.
 check 'A quoted bracket path survives zsh globbing' zsh_art "php artisan list --raw > 'commands[slot].txt'"
 check 'The bracket path contains the command listing' grep -F 'mod:model' "$APP/commands[slot].txt"

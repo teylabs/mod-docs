@@ -15,7 +15,7 @@ php artisan vendor:publish --tag=mod-config
 | [`bases`](#bases) | `null` for each | The class DTOs, view models, value objects and actions extend |
 | [`bases_path`](#bases-path) | `'app/Support'` | Where generated base classes go |
 | [`discovery.enabled`](#discovery) | `true` | Turn discovery on or off |
-| [`discovery.kinds`](#discovery-kinds) | `[]` | Discover more file types, or stop discovering one |
+| [`discovery.file_types`](#discovery-file-types) | `[]` | Discover more file types, or stop discovering one |
 | [`discovery.cache`](#discovery-cache) | `'bootstrap/cache/mod-discovery.php'` | Where the discovery cache is written |
 | [`discovery.on_stale_cache`](#discovery-on-stale-cache) | `'scan'` | What happens when the cache is out of date |
 | [`discovery.factories`](#discovery-factories-and-discovery-policies) | `true` | Find factories for models the layout places |
@@ -79,20 +79,22 @@ The folders bases go in are left out of placement and discovery, so a base is ne
 
 `enabled` set to `false` turns all of discovery off: providers, commands, listeners, subscribers, migration folders, factories and policies.
 
-### discovery.kinds
+<a id="discovery-kinds"></a>
+
+### discovery.file_types
 
 Maps a file type id to the type it is discovered as: `provider`, `command`, `listener`, `subscriber`, `directory`, or `false` to stop discovering it. Merged over the defaults:
 
 ```php memo="config/mod.php"
 'discovery' => [
-    'kinds' => [
+    'file_types' => [
         'handler' => 'listener',
         'migration' => false,
     ],
 ],
 ```
 
-By default, the `provider`, `command`, `listener` and `subscriber` file types are discovered as themselves, and timestamped file types such as `migration` as directories. Keys are file type ids, and each must be a file type of the active layout: an unknown key stops the app with an error listing the layout's file types. `handler` above is a file type the app declares with `kind()`. File types that hold classes map to a class type, and file types that hold plain files, such as migrations, only to `directory`.
+By default, the `provider`, `command`, `listener` and `subscriber` file types are discovered as themselves, and timestamped file types such as `migration` as directories. Keys are file type ids, and each must be a file type of the active layout: an unknown key stops the app with an error listing the layout's file types. `handler` above is a file type the app declares with `generates()`. File types that hold classes map to a class type, and file types that hold plain files, such as migrations, only to `directory`.
 
 ### discovery.cache
 
