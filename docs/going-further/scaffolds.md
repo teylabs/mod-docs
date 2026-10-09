@@ -162,6 +162,7 @@ class DocumentScaffold
 ```php memo="app/Providers/AppServiceProvider.php" at="boot()"
 use App\Scaffolds\DocumentScaffold;
 use Tey\Mod\Facades\Mod;
+use Tey\Mod\Scaffolds\Scaffold;
 
 Mod::scaffolds([DocumentScaffold::class]);
 ```
@@ -356,6 +357,7 @@ Replace one node for creation and growth:
 ```php memo="app/Providers/AppServiceProvider.php" at="boot()"
 use Tey\Mod\Facades\Mod;
 use Tey\Mod\Scaffolds\Part;
+use Tey\Mod\Scaffolds\Scaffold;
 
 Mod::scaffold('resource-tabs.tab', fn (Part $p) => $p
     ->uses('tab-page', with: ['base' => '{{ base.fqcn }}'])
