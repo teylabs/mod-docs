@@ -61,7 +61,12 @@ doc_boot() {
         preg_match_all("/^use .+;$/m", $code, $uses);
         $code=preg_replace("/^use .+;\\n?/m", "", $code);
         foreach ($uses[0] as $use) { if (!str_contains($s,$use)) $s=str_replace("namespace App\\Providers;", "namespace App\\Providers;\n".$use, $s); }
-        $s=preg_replace_callback("/public function boot\\(\\): void\\s*\\{/", fn($m) => $m[0]."\n".$code."\n", $s);
+        $marker = "// docs-harness-end";
+        if (str_contains($s, $marker)) {
+            $s = str_replace($marker, $code."\n".$marker, $s);
+        } else {
+            $s=preg_replace_callback("/public function boot\\(\\): void\\s*\\{/", fn($m) => $m[0]."\n".$code."\n".$marker."\n", $s);
+        }
         file_put_contents($f,$s);
     ' "$APP/app/Providers/AppServiceProvider.php"
 }
@@ -89,4 +94,17 @@ doc_config() {
         $fragment=eval("return [".getenv("CODE")."]; ");
         file_put_contents($f,"<?php\n\nreturn ".var_export(array_replace_recursive($config,$fragment),true).";\n");
     ' "$APP/config/mod.php"
+}
+
+# Load generated classes in a fresh PHP process, without Artisan swallowing errors.
+classes_load() {
+    (cd "$APP" && "$PHP" -r '
+        require "vendor/autoload.php";
+        foreach (array_slice($argv, 1) as $class) {
+            if (!class_exists($class)) {
+                fwrite(STDERR, "Class did not load: ".$class."\n");
+                exit(1);
+            }
+        }
+    ' "$@")
 }
