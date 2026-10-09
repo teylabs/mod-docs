@@ -1,0 +1,71 @@
+name: Verify docs
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  schedule:
+    - cron: '0 6 * * 1'
+  workflow_dispatch:
+    inputs:
+      mod_ref:
+        description: 'teylabs/mod branch, tag, or commit to verify (empty = the latest release)'
+        required: false
+        default: ''
+        type: string
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        laravel: [12, 13]
+    name: Laravel ${{ matrix.laravel }}
+    steps:
+      - uses: actions/checkout@v7
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.4'
+          extensions: mbstring, sqlite, pdo_sqlite
+          tools: composer:v2
+          coverage: none
+      - name: Install zsh
+        run: sudo apt-get update && sudo apt-get install -y zsh
+      - name: Locate Composer cache
+        id: composer-cache
+        run: echo "dir=$(composer config cache-files-dir)" >> "$GITHUB_OUTPUT"
+      - uses: actions/cache@v4
+        with:
+          path: ${{ steps.composer-cache.outputs.dir }}
+          key: docs-composer-${{ runner.os }}-L${{ matrix.laravel }}-${{ github.run_id }}
+          restore-keys: docs-composer-${{ runner.os }}-L${{ matrix.laravel }}-
+      # The docs describe the released package, so they're verified against the latest
+      # release tag. Dispatch with mod_ref (e.g. main) to check unreleased work.
+      - name: Choose the mod ref
+        env:
+          INPUT_REF: ${{ inputs.mod_ref }}
+        run: |
+          ref="$INPUT_REF"
+          if [ -z "$ref" ]; then
+            ref=$(git ls-remote --tags --refs --sort=-v:refname https://github.com/teylabs/mod 'v*' | head -1 | sed 's#.*refs/tags/##')
+          fi
+          echo "Verifying against teylabs/mod $ref"
+          echo "MOD_REF=$ref" >> "$GITHUB_ENV"
+      - name: Create the fresh app from the mod ref
+        run: verify/setup.sh "$RUNNER_TEMP/docs-verify" "git:$MOD_REF" "${{ matrix.laravel }}"
+      - name: Verify documented examples
+        run: verify/run.sh "$RUNNER_TEMP/docs-verify" "${{ matrix.laravel }}"
+      - name: Upload verification results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: docs-verify-laravel-${{ matrix.laravel }}
+          path: |
+            ${{ runner.temp }}/docs-verify/verify.txt
+            ${{ runner.temp }}/docs-verify/mod-ref.txt
+          if-no-files-found: warn
