@@ -130,8 +130,8 @@ def build(name,t):
         if k and HEADERS[k]==HEADERS[k-1]: continue
         b=START[k+1]+(3 if k>0 else 0)
         nxt=[j for j in range(k+1,NS) if HEADERS[j]!=HEADERS[k]]
-        e=(START[nxt[0]+1]+3) if nxt else 101
-        if k==0: kf=f"0%,{e-0.01:.2f}%{{opacity:1}}{e:.2f}%,100%{{opacity:0}}" if e<=100 else "0%,100%{opacity:1}"
+        e=(START[nxt[0]+1]+3) if nxt else END
+        if k==0: kf=f"0%,{e-0.01:.2f}%{{opacity:1}}{e:.2f}%,{END-0.01:.2f}%{{opacity:0}}{END}%,100%{{opacity:1}}" if e<END else "0%,100%{opacity:1}"
         else: kf=f"0%,{b-0.01:.2f}%{{opacity:0}}{b:.2f}%,{min(e,100)-0.01:.2f}%{{opacity:1}}{min(e,100):.2f}%,100%{{opacity:{1 if e>100 else 0}}}"
         css.append(f".hd{k}{{animation:hd{k} {CYCLE}s infinite step-end}}@keyframes hd{k}{{{kf}}}")
         hdr+=f'<text class="m hd{k}" x="{PADX}" y="{HEAD+28}">Every 2.0s: {HEADERS[k]}</text>'
