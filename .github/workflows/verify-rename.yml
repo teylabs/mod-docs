@@ -1,0 +1,66 @@
+name: Verify renamed applications
+
+on:
+  push:
+    branches: ['0.4/docs']
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+    inputs:
+      mod_ref:
+        description: 'Exact mod commit (empty uses verify/mod-ref.txt)'
+        type: string
+        default: ''
+
+permissions:
+  contents: read
+
+jobs:
+  applications:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    strategy:
+      fail-fast: false
+      matrix:
+        laravel: [12, 13]
+    name: Vue and React / Laravel ${{ matrix.laravel }}
+    steps:
+      - uses: actions/checkout@v7
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.4'
+          extensions: mbstring, sqlite, pdo_sqlite
+          tools: composer:v2
+          coverage: none
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+      - name: Install the harness shell
+        run: sudo apt-get update && sudo apt-get install -y zsh
+      - name: Select the exact package input
+        env:
+          INPUT_REF: ${{ inputs.mod_ref }}
+        run: |
+          ref="$INPUT_REF"
+          if [ -z "$ref" ]; then ref=$(cat verify/mod-ref.txt); fi
+          echo "MOD_REF=$ref" >> "$GITHUB_ENV"
+      - name: Build docs and Markdown index
+        run: npm ci && npm run build
+      - name: Install the integrated package into disposable applications
+        run: verify/setup.sh "$RUNNER_TEMP/rename-verify" "git:$MOD_REF" "${{ matrix.laravel }}"
+      - name: Verify real parsers, renames, builds, type checks, HTTP and read-only tools
+        run: verify/run.sh "$RUNNER_TEMP/rename-verify" "${{ matrix.laravel }}" -- frontend rename agents building-on-mod
+      - name: Preserve exact inputs and application evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: renamed-applications-laravel-${{ matrix.laravel }}
+          path: |
+            ${{ runner.temp }}/rename-verify/verify.txt
+            ${{ runner.temp }}/rename-verify/mod-ref.txt
+            ${{ runner.temp }}/rename-verify/kit-refs.txt
+            ${{ runner.temp }}/rename-verify/rename-*.json
+            ${{ runner.temp }}/rename-verify/runtime-*.txt
+            ${{ runner.temp }}/rename-verify/application-*.log
+            ${{ runner.temp }}/rename-verify/scenario-output.txt
+          if-no-files-found: warn
