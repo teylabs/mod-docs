@@ -219,7 +219,7 @@ php artisan mod:list --type=model
 php artisan mod:list --json
 ```
 
-`mod:list` counts discovered factories and policies alongside providers, commands, listeners, subscribers and directories. `-v` adds aliases, stubs, bases, relations and discovered classes, including factory and policy targets. `--type=<id>` shows every detail for one file type. JSON root keys are `layout`, `extends`, `path`, `token`, `groups`, `types`, `templates`, `scaffolds`, `discovery`, `frontend`, `views`, `wiring`, `routes` and `stack`. The [inventory schema](/schemas/inventory.json) describes required fields and additive keys. Scaffold tree nodes expose children and reference metadata. Invalid config exits 1; `--json` prints an `error` object. An unknown `--type` also exits 1 with guidance.
+`mod:list` counts discovered factories and policies alongside providers, commands, listeners, subscribers and directories. `-v` adds aliases, stubs, bases, relations and discovered classes, including factory and policy targets. `--type=<id>` shows every detail for one file type. JSON root keys are `layout`, `extends`, `path`, `token`, `groups`, `types`, `templates`, `scaffolds`, `discovery`, `frontend`, `views`, `wiring`, `routes` and `stack`, plus the `rename` capability. The [inventory schema](/schemas/inventory.json) describes required fields and additive keys. Scaffold tree nodes expose children and reference metadata. Invalid config exits 1; `--json` prints an `error` object. An unknown `--type` also exits 1 with guidance.
 
 ## Registering Autoload Mappings
 
@@ -274,3 +274,21 @@ php artisan mod:install inertia --no-interaction
 ## Previewing Generator Plans
 
 Commands that write files support `--dry-run`; add `--json` for the machine plan. Required questions use flags/defaults, with missing answers reported in warnings. Read `would_write` rather than the exit code alone. Cache maintenance has no file preview. [Agents](/going-further/agents) describes the plan and inventory schemas.
+
+## Renaming and recovery
+
+`mod:rename <old> <new>` renames an explicitly selected recipe-owned cluster through its compiled layout. See [Renaming and moving](/going-further/renaming) before execution.
+
+| Option | Behaviour |
+| --- | --- |
+| `--scaffold=<recipe>` | Selects the effective recipe; mandatory for ordinary planning, or selected interactively |
+| Recipe question/part flags | Supply the complete historical answers; repeated list flags include grown parts |
+| `--answer=<qualified-key=JSON>` | Supplies nested/reserved answers using original part paths |
+| `--dry-run` | Read-only preview; no prompts, writes, staging or journal |
+| `--json` | Machine plan; requires `--dry-run` |
+| `--table-migration` | Selects complete reversible migration candidates when exact inference/planning is available; never executes them |
+| `--yes` | Accepts final confirmation after the fresh plan |
+| `--no-interaction` | Requires explicit decisions; use with `--yes` for approved execution |
+| `--recover` | Recovers the worktree journal without cluster arguments or recipe/table flags |
+
+`--recover --dry-run --json` inspects without restoring. `--recover --yes --no-interaction` restores after review and refuses conflicting outside changes. Journals live in the actual worktree Git directory under `mod-rename/`. Ordinary execution requires a clean Git tree/index and a configured target. The staged result is never committed. There is no `--force`, overwrite, automatic stash or `--apply-plan`.

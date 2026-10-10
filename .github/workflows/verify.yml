@@ -21,6 +21,7 @@ permissions:
 jobs:
   verify:
     runs-on: ubuntu-latest
+    timeout-minutes: 25
     strategy:
       fail-fast: false
       matrix:
@@ -52,8 +53,10 @@ jobs:
       - name: Choose the mod ref
         env:
           INPUT_REF: ${{ inputs.mod_ref }}
+          DOCS_BRANCH: ${{ github.head_ref || github.ref_name }}
         run: |
           ref="$INPUT_REF"
+          if [ -z "$ref" ] && [ "$DOCS_BRANCH" = "0.4/docs" ]; then ref=$(cat verify/mod-ref.txt); fi
           if [ -z "$ref" ]; then
             ref=$(git ls-remote --tags --refs --sort=-v:refname https://github.com/teylabs/mod 'v*' | head -1 | sed 's#.*refs/tags/##')
           fi
@@ -74,4 +77,7 @@ jobs:
             ${{ runner.temp }}/docs-verify/verify.txt
             ${{ runner.temp }}/docs-verify/mod-ref.txt
             ${{ runner.temp }}/docs-verify/kit-refs.txt
+            ${{ runner.temp }}/docs-verify/rename-*.json
+            ${{ runner.temp }}/docs-verify/runtime-*.txt
+            ${{ runner.temp }}/docs-verify/application-*.log
           if-no-files-found: warn

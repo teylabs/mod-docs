@@ -240,3 +240,5 @@ if (class_exists(Mod::class)) {
 ```
 
 The app can `include('document')` or replace the recipe. App registration wins; two packages using one name disable that scaffold with a warning naming both. Placement follows the app's layout. `mod:list` reports the effective source, including part overrides. [Scaffolds](/going-further/scaffolds#writing-a-reusable-recipe) covers recipe dependencies and manual work.
+
+For a package that owns layout compilation, discovery/cache lifecycle or generator dispatch, see [Building on mod](/going-further/building-on-mod). Only members marked `@api` are supported host API.
