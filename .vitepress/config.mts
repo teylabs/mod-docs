@@ -8,7 +8,7 @@ export default defineConfig({
     await publishMarkdown({ sidebar: config.site.themeConfig.sidebar, srcDir: config.srcDir, outDir: config.outDir })
   },
   title: 'Mod for Laravel',
-  description: 'Modular development toolkit for Laravel. Pick or extend a common layout like DDD or a modular monolith, or create your own.',
+  description: 'Modular development toolkit for Laravel, for you and your coding agents. Pick or extend a common layout like DDD or a modular monolith, or create your own.',
   lang: 'en-CA',
 
   // Pages live in docs/; the repository root keeps its README and CNAME.
@@ -113,7 +113,7 @@ export default defineConfig({
     ['meta', { property: 'og:type', content: 'website' }],
     ['meta', { property: 'og:url', content: 'https://mod.teylabs.com/' }],
     ['meta', { property: 'og:title', content: 'Mod for Laravel' }],
-    ['meta', { property: 'og:description', content: 'Modular development toolkit for Laravel. Pick or extend a common layout like DDD or a modular monolith, or create your own.' }],
+    ['meta', { property: 'og:description', content: 'Modular development toolkit for Laravel, for you and your coding agents. Pick or extend a common layout like DDD or a modular monolith, or create your own.' }],
     ['meta', { property: 'og:image', content: 'https://mod.teylabs.com/og-image.jpg?v=2' }],
     ['meta', { property: 'og:image:width', content: '2400' }],
     ['meta', { property: 'og:image:height', content: '1200' }],
