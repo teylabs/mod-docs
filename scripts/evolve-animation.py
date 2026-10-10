@@ -30,7 +30,7 @@ STAGES=[
 HEADERS=['tree app']*5+['tree -d -L 3 app src']*2
 NS=len(STAGES); CYCLE=36
 START={k:round(2+(k-1)*13.5,1) for k in range(1,NS+1)}; END=97
-LH=22; FS=14.5; PADX=24; HEAD=40; TOP=HEAD+28+round(LH*1.6)
+LH=22; FS=14.5; PADX=24; HEAD=40; TOP=HEAD+28+round(LH*0.4)
 PARENT={}
 def render(roots):
     rows={}; counts=[0,0]
@@ -125,16 +125,6 @@ def build(name,t):
         css.append(f".s{k}{{animation:sm{k} {CYCLE}s infinite linear}}@keyframes sm{k}{{{kf}}}")
         summ=f'{d} directories' if '-d' in HEADERS[k] else f'{d} directories, {f} files'
         body.append(f'<text class="m s{k}" x="{PADX}" y="{yy:.0f}">{summ}</text>')
-    hdr=''
-    for k in range(NS):
-        if k and HEADERS[k]==HEADERS[k-1]: continue
-        b=START[k+1]+(3 if k>0 else 0)
-        nxt=[j for j in range(k+1,NS) if HEADERS[j]!=HEADERS[k]]
-        e=(START[nxt[0]+1]+3) if nxt else END
-        if k==0: kf=f"0%,{e-0.01:.2f}%{{opacity:1}}{e:.2f}%,{END-0.01:.2f}%{{opacity:0}}{END}%,100%{{opacity:1}}" if e<END else "0%,100%{opacity:1}"
-        else: kf=f"0%,{b-0.01:.2f}%{{opacity:0}}{b:.2f}%,{min(e,100)-0.01:.2f}%{{opacity:1}}{min(e,100):.2f}%,100%{{opacity:{1 if e>100 else 0}}}"
-        css.append(f".hd{k}{{animation:hd{k} {CYCLE}s infinite step-end}}@keyframes hd{k}{{{kf}}}")
-        hdr+=f'<text class="m hd{k}" x="{PADX}" y="{HEAD+28}">Every 2.0s: {HEADERS[k]}</text>'
     dots=''.join(f'<circle cx="{22+i*18}" cy="20" r="6" fill="{c}"/>' for i,c in enumerate(t['dots']))
     svg=(f'<svg xmlns="http://www.w3.org/2000/svg" width="{W}" height="{H}" viewBox="0 0 {W} {H}" role="img" aria-label="A terminal watching a Laravel app grow from laravel new: documents in the default folders, an Actions folder, an Agents module, the knowledge code moving into its own module, then a versioned API in src beside app, where v2 arrives and v1 collapses">'
          f'<style>{"".join(css)}</style>'
@@ -142,7 +132,7 @@ def build(name,t):
          f'<path d="M0.5 {HEAD} V10.5 a10 10 0 0 1 10 -10 H{W-10.5} a10 10 0 0 1 10 10 V{HEAD} Z" fill="{t["bar"]}"/>'
          f'<line x1="0.5" y1="{HEAD}" x2="{W-0.5}" y2="{HEAD}" stroke="{t["border"]}"/>{dots}'
          f'<text class="m" x="{W/2}" y="25" text-anchor="middle" style="font-size:12.5px">~/knowledge-base</text>'
-         +hdr+''.join(body)+'</svg>')
+         +''.join(body)+'</svg>')
     open(os.path.join(OUT,f'evolve-{name}.svg'),'w').write(svg)
 for n,t in THEMES.items(): build(n,t)
 for k,(rows,c) in enumerate(R): print('stage',k+1,len(rows),'rows',c)
