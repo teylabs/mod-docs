@@ -56,6 +56,8 @@ php artisan mod:model Billing:Invoice
 
 `extends()` copies the parent at that moment; later parent changes do not flow through. A token derived from the parent's name follows the child's name (`modules` → `areas` uses `area`). A token explicitly declared by the parent is inherited: `ddd` keeps `domain`, and `slices` keeps `feature` and `slice`, until the child supplies its own `path()`.
 
+From mod 0.4.1, an explicit `mounts()` can reclaim an inherited exclusion. Equal exclusions are removed; broader exclusions keep the rest excluded. See [Exclusions](#exclusions) below.
+
 `path()` is relative to the project root; absolute paths work too. A type-first path uses a wildcard for the file type folder: `->path('app/*/{feature}')`. Custom layouts can infer a path from their file type paths. [Layout API](/reference/layout-api#group-paths) covers inference and nesting.
 
 ## Defining a Layout
@@ -109,7 +111,57 @@ Other arguments set the class name's suffix, a fixed class name, the command's n
 
 ### Exclusions
 
-`excludes(...)` marks namespaces or paths inside a root that no file type owns. Mod never places anything there, and discovery skips them.
+`excludes(...)` marks namespaces or paths inside a root that no file type owns. Reverse mapping rejects classes there, and discovery skips them.
+
+From mod 0.4.1, an explicit `mounts()` after `extends()` can reclaim an inherited exclusion. If the mounted namespace equals the exclusion, the exclusion is removed. If it is below a broader excluded namespace, only the mounted subtree is carved out; siblings stay excluded. Path exclusions follow the same rule using folder boundaries.
+
+#### Mounting an Excluded Root
+
+The `modules` layout excludes `App\UI\`. This child explicitly mounts it and places the provider file type there:
+
+```php memo="app/Providers/AppServiceProvider.php" at="boot()"
+use Tey\Mod\Facades\Mod;
+use Tey\Mod\Layout\Root;
+
+Mod::layout('areas')
+    ->extends('modules')
+    ->mounts('ui', 'App\\UI\\', 'app/UI', fn (Root $root) => $root
+        ->generates('provider', in: 'Providers', suffix: 'ServiceProvider'));
+```
+
+Choose `'layout' => 'areas'` in `config/mod.php`, then generate:
+
+```bash
+php artisan mod:provider Ui
+# -> app/UI/Providers/UiServiceProvider.php
+```
+
+The generated provider is owned by the layout: `Mod::current()->locate(App\UI\Providers\UiServiceProvider::class)` finds it, provider discovery registers it, and `mod:list` reports it. The inherited `App\Support\` exclusion still applies.
+
+#### Mounting Part of an Excluded Root
+
+The `modules` layout also excludes `App\Support\`. Mounting a root below it keeps the broader exclusion and makes only this subtree available:
+
+```php memo="app/Providers/AppServiceProvider.php" at="boot()"
+use Tey\Mod\Facades\Mod;
+use Tey\Mod\Layout\Root;
+
+Mod::layout('areas')
+    ->extends('modules')
+    ->mounts('kit', 'App\\Support\\Kit\\', 'app/Support/Kit', fn (Root $root) => $root
+        ->generates('provider', in: 'Providers', suffix: 'ServiceProvider'));
+```
+
+With `'layout' => 'areas'` selected:
+
+```bash
+php artisan mod:provider Kit
+# -> app/Support/Kit/Providers/KitServiceProvider.php
+```
+
+Generation, `locate()`, discovery and `mod:list` agree on the Kit provider. `App\Support\Other\` and `App\Support\KitExtra\` remain excluded: a mount claims a whole namespace or folder boundary, not names that merely share its prefix.
+
+Exclusions declared by the child always apply, whether they appear before or after `mounts()`. Repeating `excludes('App\\Support\\')` in this child excludes Kit again. An inherited exclusion narrower than the mounted root also stays effective; mounting Kit does not lift an exclusion of `App\Support\Kit\Private\`. A mount still needs a file type whose placement rules own the class.
 
 ## Placeholders
 
