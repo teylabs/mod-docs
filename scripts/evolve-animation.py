@@ -26,10 +26,12 @@ STAGES=[
  [final_app],
  [limit(final_app,3), limit(D('src','src',D('api','Api',D('v1','v1',D('v1c','Controllers',F('v1doc','DocumentController.php')),D('v1r','Resources',F('v1res','DocumentResource.php'))))),3)],
  [limit(final_app,3), D('src','src',D('api','Api',D('v1','v1'),D('v2','v2',D('v2c','Controllers'),D('v2r','Resources'))))],
+ [D('app','app',D('http','Http'),D('jobs','Jobs'),D('mdl','Models'),D('mods','Modules',D('agents','Agents'),D('know','Knowledge'),D('search','Search'),D('teams','Teams')),D('pol','Policies'),D('prov','Providers')),
+  D('src','src',D('api','Api',D('v1','v1'),D('v2','v2'),D('v3','v3',D('v3c','Controllers'),D('v3r','Resources'))))],
 ]
-HEADERS=['tree app']*5+['tree -d -L 3 app src']*2
-NS=len(STAGES); CYCLE=36
-START={k:round(2+(k-1)*13.5,1) for k in range(1,NS+1)}; END=97
+HEADERS=['tree app']*5+['tree -d -L 3 app src']*3
+NS=len(STAGES); CYCLE=41
+START={k:round(2+(k-1)*11.8,1) for k in range(1,NS+1)}; END=97
 LH=22; FS=14.5; PADX=24; HEAD=40; TOP=HEAD+28+round(LH*0.4)
 PARENT={}
 def render(roots):
@@ -126,7 +128,7 @@ def build(name,t):
         summ=f'{d} directories' if '-d' in HEADERS[k] else f'{d} directories, {f} files'
         body.append(f'<text class="m s{k}" x="{PADX}" y="{yy:.0f}">{summ}</text>')
     dots=''.join(f'<circle cx="{22+i*18}" cy="20" r="6" fill="{c}"/>' for i,c in enumerate(t['dots']))
-    svg=(f'<svg xmlns="http://www.w3.org/2000/svg" width="{W}" height="{H}" viewBox="0 0 {W} {H}" role="img" aria-label="A terminal watching a Laravel app grow from laravel new: documents in the default folders, an Actions folder, an Agents module, the knowledge code moving into its own module, then a versioned API in src beside app, where v2 arrives and v1 collapses">'
+    svg=(f'<svg xmlns="http://www.w3.org/2000/svg" width="{W}" height="{H}" viewBox="0 0 {W} {H}" role="img" aria-label="A terminal watching a Laravel app grow from laravel new: documents in the default folders, an Actions folder, an Agents module, the knowledge code moving into its own module, then a versioned API in src beside app, where v2 arrives and v1 collapses, then more modules, app layers and a v3 API">'
          f'<style>{"".join(css)}</style>'
          f'<rect x="0.5" y="0.5" width="{W-1}" height="{H-1}" rx="10" fill="{t["win"]}" stroke="{t["border"]}"/>'
          f'<path d="M0.5 {HEAD} V10.5 a10 10 0 0 1 10 -10 H{W-10.5} a10 10 0 0 1 10 10 V{HEAD} Z" fill="{t["bar"]}"/>'
