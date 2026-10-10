@@ -25,12 +25,12 @@ Every method of the `Mod` facade, the layout chain, stubs and generator commands
 
 | Method | Does |
 | --- | --- |
-| `mounts($name, $namespace, $path, $closure = null)` | Maps a namespace to a folder. File types declared in the closure live in this root. A `null` namespace makes a root for plain files |
+| `mounts($name, $namespace, $path, $closure = null)` | Maps a namespace to a folder. File types declared in the closure live in this root. A `null` namespace makes a root for plain files. From 0.4.1, explicit mounts reclaim equal or broader inherited exclusions; see [Exclusion Precedence](#exclusion-precedence) |
 | [`generates($id, ...)`](#generates) | Declares a file type, or changes the arguments given for an existing one |
 | [`relates($from, $to, ...)`](#relates) | Connects two file types, for options such as `--factory` and for how one class refers to another |
-| `excludes(string ...$excluded)` | Namespaces (`'App\\Support\\'`) or paths (`'app/Support'`) inside a root that no file type owns. Nothing is placed there, and discovery skips them |
+| `excludes(string ...$excluded)` | Namespaces (`'App\\Support\\'`) or paths (`'app/Support'`) inside a root that no file type owns. Reverse mapping and discovery skip them. Child-declared exclusions always apply; see [Exclusion Precedence](#exclusion-precedence) |
 | `path(string $path)` | Names and moves group folders; path tokens name placement options, anchors and placeholders |
-| `extends(string $parent)` | Copies one defined parent; must be first in the chain |
+| `extends(string $parent)` | Copies one defined parent, including its exclusions; must be first in the chain. Later explicit mounts can reclaim inherited exclusions |
 | `allowsNesting(?string $dimension = null)` | Allows nested values for a group; name the dimension when the layout has several |
 | `scaffolds(string $name, Closure $recipe)` | Defines a layout-specific scaffold override |
 | `withoutCommands()` | Registers no `mod:*` commands for this layout. File types keep their command names for a host to dispatch by, and several may share one |
@@ -40,6 +40,17 @@ Every method of the `Mod` facade, the layout chain, stubs and generator commands
 Repeating `mounts()` or `generates()` changes only supplied arguments. Repeating `relates()` for the same pair or `as:` id changes that relation. A layout can't be changed once it is in use.
 
 The closure passed to `mounts()` receives a `Tey\Mod\Layout\Root`, whose `generates()` takes the same arguments as the layout's.
+
+## Exclusion Precedence
+
+From mod 0.4.1, an explicit `mounts()` after `extends()` takes ownership back from an inherited exclusion when the mounted namespace equals or is below the excluded namespace:
+
+- An equal inherited exclusion is removed: mounting `App\UI\` at `app/UI` lifts the `modules` layout's exclusion of `App\UI\`.
+- A broader inherited exclusion stays, with only the mounted root carved out: mounting `App\Support\Kit\` leaves `App\Support\Other\` and `App\Support\KitExtra\` excluded.
+- Narrower and unrelated inherited exclusions stay effective.
+- Child-declared exclusions always apply, before or after `mounts()`. Re-declaring an inherited exclusion makes it a child exclusion again.
+
+Path exclusions follow the equivalent folder-boundary rule. Claims survive further inheritance. A mount alone does not make every class owned; a declared file type's placement rules must recognize it. Generation, `locate()`, discovery and `mod:list` use the same compiled ownership rules. [Custom Layouts](/going-further/custom-layouts#exclusions) shows both mount cases.
 
 ## Group Paths
 
