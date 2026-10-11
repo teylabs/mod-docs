@@ -283,3 +283,7 @@ app/Modules/Inventory/
 ```
 
 The lowercase `resources/` root holds plain files and is excluded from PHP class discovery. [Frontend Files](/going-further/frontend) and [Module Routes](/going-further/routes) show how to create them.
+
+## Moving Existing Code
+
+Before changing an existing application’s layout or model namespaces, follow [Moving an existing app](/going-further/moving-layouts). Record the old and new model identities, review persisted polymorphic values and drain work that serializes classes before deployment. For Inertia’s page finder and root Blade view, see [Frontend files](/going-further/frontend#inertia-page-checks).

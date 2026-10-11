@@ -85,3 +85,9 @@ fresh 'extended layout with moved groups' areas
 doc_boot 'Extending a layout'
 check 'The moved group path registers and generates' doc_shell 'Extending a layout'
 check 'The moved model class loads' classes_load 'Areas\Billing\Models\Invoice'
+
+fresh 'documented module-scoped file type' custom
+doc_boot 'Module-scoped File Types'
+check 'Module anchor places the MCP tool inside its group' art mod:mcp-tool Talk:Probe
+check 'Module anchor writes valid PHP at the documented path' has app/Modules/Talk/Mcp/Tools/Probe.php
+check 'Module anchor class loads' classes_load 'App\Modules\Talk\Mcp\Tools\Probe'

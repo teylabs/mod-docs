@@ -22,3 +22,16 @@ if (($payload['component'] ?? null) !== $argv[2]) {
 }
 $kernel->terminate($request, $response);
 echo '200 '.$payload['component'].PHP_EOL;
+
+if (($argv[3] ?? null) !== '--direct') {
+    exit(0);
+}
+// A direct full-page load must also resolve the module entry in Vite's manifest.
+$direct = Illuminate\Http\Request::create('/widgets', 'GET', server: ['HTTP_ACCEPT' => 'text/html, application/xhtml+xml']);
+$response = $kernel->handle($direct);
+if ($response->getStatusCode() !== 200 || ! str_contains($response->getContent(), 'data-page=')) {
+    fwrite(STDERR, 'Direct HTTP '.$response->getStatusCode().PHP_EOL.$response->getContent());
+    exit(1);
+}
+$kernel->terminate($direct, $response);
+echo '200 direct full-page load'.PHP_EOL;

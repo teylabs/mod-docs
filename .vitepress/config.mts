@@ -161,6 +161,7 @@ export default defineConfig({
           { text: 'Custom generators', link: '/going-further/custom-generators' },
           { text: 'Scaffolds', link: '/going-further/scaffolds' },
           { text: 'Renaming and moving', link: '/going-further/renaming' },
+          { text: 'Moving an existing app', link: '/going-further/moving-layouts' },
           { text: 'Frontend Files', link: '/going-further/frontend' },
           { text: 'Module Routes', link: '/going-further/routes' },
           { text: 'Agents', link: '/going-further/agents' },

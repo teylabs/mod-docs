@@ -56,7 +56,11 @@ jobs:
           DOCS_BRANCH: ${{ github.head_ref || github.ref_name }}
         run: |
           ref="$INPUT_REF"
-          if [ -z "$ref" ] && [ "$DOCS_BRANCH" = "0.4/docs" ]; then ref=$(cat verify/mod-ref.txt); fi
+          case "$DOCS_BRANCH" in
+            0.4/docs|docs/05-port|docs/05-ddd-guide)
+              if [ -z "$ref" ]; then ref=$(cat verify/mod-ref.txt); fi
+              ;;
+          esac
           if [ -z "$ref" ]; then
             ref=$(git ls-remote --tags --refs --sort=-v:refname https://github.com/teylabs/mod 'v*' | head -1 | sed 's#.*refs/tags/##')
           fi
