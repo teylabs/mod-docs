@@ -105,6 +105,21 @@ The layout is checked the first time it is used. Every problem is reported at on
 
 Other arguments set the class name's suffix, a fixed class name, the command's name and aliases, and where discovery looks. [Layout API](/reference/layout-api#generates) lists them all.
 
+### Module-scoped File Types
+
+For a folder inside each module, use `@<token>/...`. The token is the one in `path()`, and the anchor expands to that group folder relative to the file type's root:
+
+```php memo="app/Providers/AppServiceProvider.php" at="boot()"
+use Tey\Mod\Facades\Mod;
+
+Mod::layout('custom')->extends('modules')
+    ->path('app/Modules/{module}')
+    ->generates('mcp-tool', in: '@module/Mcp/Tools');
+// mod:mcp-tool Talk:Probe -> app/Modules/Talk/Mcp/Tools/Probe.php
+```
+
+`in: 'Mcp/Tools'` instead means `app/Mcp/Tools`, with no module. With `path('app/Areas/{area}')`, use `@area/Mcp/Tools`. An explicit root-relative path containing the placeholder also works, such as `Modules/{module}/Mcp/Tools`.
+
 ### Related Files
 
 `relates($from, $to, ...)` connects two file types. It drives options such as `--factory` and `--policy`, and how one generated class refers to another. With `relates('model', 'factory')`, `mod:model --factory` writes the factory and the model finds it. Ids follow `<from>-<to>`, as in the built-in layouts; [Layout API](/reference/layout-api#relates) lists them.

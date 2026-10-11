@@ -106,3 +106,7 @@ The helper's actual Node test suite is run from a temporary copy with its helper
 Build/type-check/HTTP transcripts and exact rename JSON are CI artifacts. Desktop 1440px and mobile 390px runtime screenshots are captured separately and must be opened for review. Application render checks prove minimal fixture wiring, not a production deployment. The docs workflow's 25-minute deadline includes setup and all scenarios; it adds no Node requirement to the package's PHP workflow.
 
 Each kit builds and type-checks the module-owned state and mirrored app-page state separately. This proves both alias arrangements through actual builds/HTTP, while avoiding a third unchanged baseline build.
+
+## 0.5 evidence
+
+The 0.5 draft stack pins `verify/mod-ref.txt` to the integrated package commit for module anchors, Inertia page registration, page entries and custom-bootstrap instructions. The new Inertia features are labelled “since 0.5 (unreleased)” in the pages; the module anchor form was already supported. The draft branches use that pin in CI; main retains the latest-release default. The persisted-identity page is deployment guidance, not an automatic database rewrite.

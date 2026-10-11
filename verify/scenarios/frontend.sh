@@ -7,6 +7,8 @@ for STACK in vue react; do
     check "$STACK: mod:crud-pages Inventory:Widget" doc_shell 'Generating Pages With Their Controller'
     check "$STACK: migrate" art migrate --force
     check "$STACK: resolver runtime boundaries" node "$VERIFY/frontend/resolver.mjs" "$APP/vendor/tey/mod/resources/js/inertia.js"
+    check "$STACK: custom-bootstrap instructions preserve the adapter" "$PHP" "$VERIFY/frontend/custom-bootstrap.php" "$APP" "$STACK"
+    check "$STACK: qualified Inertia finders and documented Blade page entry" "$PHP" "$VERIFY/frontend/pages.php" "$APP" "$STACK"
     if [ "${MOD_DOCS_RENAME:-0}" = 1 ]; then continue; fi
     check "$STACK: npm run build" bash -c 'cd "$1" && npm run build' harness "$APP"
     check "$STACK: upstream kit input corrections" "$PHP" "$VERIFY/frontend/prepare-kit.php" "$APP" "$MAJOR" "$STACK" after
@@ -17,5 +19,5 @@ for STACK in vue react; do
         check 'React: npx tsc --noEmit' bash -c 'cd "$1" && npx tsc --noEmit' harness "$APP"
         COMPONENT='Inventory::widget/index'
     fi
-    check "$STACK: GET /widgets renders $COMPONENT (200)" "$PHP" "$VERIFY/frontend/request.php" "$APP" "$COMPONENT"
+    check "$STACK: GET /widgets renders $COMPONENT (200)" "$PHP" "$VERIFY/frontend/request.php" "$APP" "$COMPONENT" --direct
 done
