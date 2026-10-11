@@ -11,12 +11,17 @@
     "templates",
     "scaffolds",
     "discovery",
+    "package_pages",
+    "frontend_owners",
+    "assets",
     "frontend",
     "views",
     "translations",
     "stack",
     "wiring",
+    "frontend_wiring",
     "routes",
+    "connections",
     "rename"
   ],
   "properties": {
@@ -337,6 +342,53 @@
               },
               "origin": {
                 "type": "string"
+              },
+              "vendor": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "id": {
+                "type": "string"
+              },
+              "package": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "overrides": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              },
+              "notices": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "required": [
+                    "code",
+                    "data",
+                    "message"
+                  ],
+                  "properties": {
+                    "code": {
+                      "type": "string",
+                      "description": "vendor_scaffold_overridden, vendor_prefix_shadowed, vendor_scaffold_conflict, vendor_required"
+                    },
+                    "data": {
+                      "type": [
+                        "object",
+                        "array"
+                      ]
+                    },
+                    "message": {
+                      "type": "string"
+                    }
+                  }
+                }
               }
             }
           }
@@ -503,6 +555,168 @@
         }
       }
     },
+    "package_pages": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "namespace",
+          "path"
+        ],
+        "properties": {
+          "namespace": {
+            "type": "string"
+          },
+          "path": {
+            "type": [
+              "string",
+              "null"
+            ]
+          }
+        }
+      }
+    },
+    "frontend_owners": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "owner",
+          "pages",
+          "components",
+          "css",
+          "views",
+          "page_name",
+          "view_namespace",
+          "alias"
+        ],
+        "properties": {
+          "owner": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "pages": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "components": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "css": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "views": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "page_name": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "view_namespace": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "alias": {
+            "type": [
+              "string",
+              "null"
+            ]
+          }
+        }
+      }
+    },
+    "assets": {
+      "type": "object",
+      "required": [
+        "owners",
+        "wiring"
+      ],
+      "properties": {
+        "owners": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": [
+              "owner",
+              "files",
+              "entries"
+            ],
+            "properties": {
+              "owner": {
+                "type": "string"
+              },
+              "files": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              },
+              "entries": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "required": [
+                    "declared",
+                    "path",
+                    "exists"
+                  ],
+                  "properties": {
+                    "declared": {
+                      "type": "string"
+                    },
+                    "path": {
+                      "type": [
+                        "string",
+                        "null"
+                      ]
+                    },
+                    "exists": {
+                      "type": "boolean"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "wiring": {
+            "type": "object",
+            "required": [
+              "static",
+              "entries",
+              "declarations"
+            ],
+            "properties": {
+              "static": {
+                "type": "boolean"
+              },
+              "entries": {
+                "type": "boolean"
+              },
+              "declarations": {
+                "type": "boolean"
+              }
+            }
+          }
+        }
+      }
+    },
     "frontend": {
       "description": "All keys remain present with null values when no frontend paths are declared, including the ddd preset.",
       "type": "object",
@@ -656,7 +870,8 @@
       "required": [
         "inertia",
         "typescript",
-        "pages"
+        "pages",
+        "livewire"
       ],
       "properties": {
         "inertia": {
@@ -670,6 +885,9 @@
         },
         "pages": {
           "type": "string"
+        },
+        "livewire": {
+          "type": "boolean"
         }
       }
     },
@@ -689,6 +907,32 @@
         },
         "tailwind": {
           "type": "boolean"
+        }
+      }
+    },
+    "frontend_wiring": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "alias",
+          "root",
+          "vite_alias",
+          "typescript"
+        ],
+        "properties": {
+          "alias": {
+            "type": "string"
+          },
+          "root": {
+            "type": "string"
+          },
+          "vite_alias": {
+            "type": "boolean"
+          },
+          "typescript": {
+            "type": "boolean"
+          }
         }
       }
     },
@@ -715,7 +959,8 @@
             "type": "string",
             "enum": [
               "file",
-              "registrar"
+              "registrar",
+              "package"
             ]
           },
           "middleware_group": {
@@ -734,6 +979,28 @@
               "string",
               "null"
             ]
+          }
+        }
+      }
+    },
+    "connections": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "group",
+          "connection",
+          "declared"
+        ],
+        "properties": {
+          "group": {
+            "type": "string"
+          },
+          "connection": {
+            "type": "string"
+          },
+          "declared": {
+            "type": "boolean"
           }
         }
       }

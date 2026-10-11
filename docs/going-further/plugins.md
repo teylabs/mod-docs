@@ -233,12 +233,12 @@ use Tey\Mod\Scaffolds\Scaffold;
 
 if (class_exists(Mod::class)) {
     Mod::stubs()->for('controller.crud', Stub::file(__DIR__.'/../stubs/controller.crud.stub'));
-    Mod::scaffold('document', fn (Scaffold $s) => $s
+    Mod::vendor('acme')->scaffold('document', fn (Scaffold $s) => $s
         ->makes('model')
         ->makes('controller', name: '{name}Controller', stub: 'crud'));
 }
 ```
 
-The app can `include('document')` or replace the recipe. App registration wins; two packages using one name disable that scaffold with a warning naming both. Placement follows the app's layout. `mod:list` reports the effective source, including part overrides. [Scaffolds](/going-further/scaffolds#writing-a-reusable-recipe) covers recipe dependencies and manual work.
+The app can `include('acme/document')` or replace the recipe. App registration wins; two packages using one id require a provider pin or an app override for non-interactive use. Run `mod:acme/document` to generate it. Placement follows the app's layout. `mod:list` reports the effective source, including part overrides. [Scaffolds](/going-further/scaffolds#writing-a-reusable-recipe) covers recipe dependencies and manual work.
 
 For a package that owns layout compilation, discovery/cache lifecycle or generator dispatch, see [Building on mod](/going-further/building-on-mod). Only members marked `@api` are supported host API.

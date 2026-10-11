@@ -232,7 +232,13 @@ php artisan mod:list --type=model
 php artisan mod:list --json
 ```
 
-`mod:list` counts discovered factories and policies alongside providers, commands, listeners, subscribers and directories. `-v` adds aliases, stubs, bases, relations and discovered classes, including factory and policy targets. `--type=<id>` shows every detail for one file type. JSON root keys are `layout`, `extends`, `path`, `token`, `groups`, `types`, `templates`, `scaffolds`, `discovery`, `views`, `translations`, `frontend`, `wiring`, `routes` and `stack`, plus the `rename` capability. The [inventory schema](/schemas/inventory.json) describes required fields and additive keys. Scaffold tree nodes expose children and reference metadata. Invalid config exits 1; `--json` prints an `error` object. An unknown `--type` also exits 1 with guidance.
+`mod:list` counts discovered factories and policies alongside providers, commands, listeners, subscribers and directories. `-v` adds aliases, stubs, bases, relations and discovered classes, including factory and policy targets. `--type=<id>` shows every detail for one file type. JSON root keys, in output order, are `layout`, `extends`, `path`, `token`, `groups`, `types`, `templates`, `scaffolds`, `discovery`, `views`, `translations`, `package_pages`, `frontend_owners`, `assets`, `frontend`, `stack`, `wiring`, `frontend_wiring`, `routes`, `connections`, `rename`. The [inventory schema](/schemas/inventory.json) describes required fields and additive keys. Scaffold tree nodes expose children and reference metadata. Invalid config exits 1; `--json` prints an `error` object. An unknown `--type` also exits 1 with guidance.
+
+### Inventory Fields Added in 0.6
+
+`package_pages` lists registered package namespaces and directories; `frontend_owners` records resolved paths, page names, view namespaces and aliases for layout and mounted-root owners. `assets` describes static patterns, expanded executable entries, their existence and wiring status. `frontend_wiring` records explicit package wiring. `connections` rows contain `group`, `connection` and `declared`. `stack` adds Svelte and Livewire detection. Package route rows use `kind: "package"` and `loaded_by: "Mod::routes"` after loading.
+
+Scaffold items expose `vendor`, `name`, `id`, `command`, provider `source`, Composer `package` when known, `overrides` and structured `notices`. `mod:list --vendor=acme` filters scaffold items and problems in text and JSON. Consumers should accept additive fields; the schema gives their complete shapes.
 
 ## Registering Autoload Mappings
 
@@ -264,7 +270,7 @@ A registered recipe gets `mod:<scaffold>`, with placement and question options, 
 | `mod:view <group>:<dotted-name>` | Generates a namespaced Blade view | `--extension`, `--test`, `--pest`, `--phpunit`, `--force`, placement, preview |
 | `mod:component <group>:<name>` | Generates a Blade class and view | `--view` for anonymous, `--inline`, `--path`, test/style flags, `--force`, placement, preview |
 
-Vue and React components use generator templates. Grouped `mod:mail --markdown` / `--view` and `mod:notification --markdown` place and qualify companion views. All planned collisions are checked before a class is written.
+Vue, React and Svelte pages follow the detected stack; components use generator templates. Grouped `mod:mail --markdown` / `--view` and `mod:notification --markdown` place and qualify companion views. All planned collisions are checked before a class is written.
 
 ## Route Commands
 
@@ -283,6 +289,15 @@ php artisan mod:install inertia --no-interaction
 ```
 
 `--dry-run` previews edits without prompting; `--json` requires `--dry-run`. `--no-interaction` applies recognized wiring. A custom resolver or configuration prints manual instructions and exits 0 without edits. Declining the preview changes nothing. A repeated installation prints `Already wired.`
+
+## Installing Assets
+
+```bash
+php artisan mod:install assets --dry-run --json
+php artisan mod:install assets --no-interaction
+```
+
+This synchronises declared static patterns and executable entries without requiring Inertia. See [Static assets and executable entries](/going-further/frontend#static-assets-and-executable-entries) for Laravel Vite plugin requirements and loading examples.
 
 ## Previewing Generator Plans
 
@@ -305,3 +320,9 @@ Commands that write files support `--dry-run`; add `--json` for the machine plan
 | `--recover` | Recovers the worktree journal without cluster arguments or recipe/table flags |
 
 `--recover --dry-run --json` inspects without restoring. `--recover --yes --no-interaction` restores after review and refuses conflicting outside changes. Journals live in the actual worktree Git directory under `mod-rename/`. Ordinary execution requires a clean Git tree/index and a configured target. The staged result is never committed. There is no `--force`, overwrite, automatic stash or `--apply-plan`.
+
+## Structured Plan Warnings
+
+Every `--dry-run --json` warning keeps `file`, `line` and `message`, and adds `code` and an object `data`. `missing_placement` provides `file_type`, `dimension`, accepted `options` and available group `choices`. `generation_refused` reports another blocking refusal; `advisory` is non-blocking; `routes_not_loaded` reminds you to wire routes. Codes and data are additive: consumers should tolerate new codes and fields, and display `message` for people. Missing placement messages name the running command's option, `--in` and the `Group:Name` short form.
+
+The [plan schema](/schemas/plan.json) defines the warning envelope. Vendor reconciliation notices use `vendor_scaffold_overridden`, `vendor_prefix_shadowed`, `vendor_scaffold_conflict` and `vendor_required`; see [Shipping scaffolds](/going-further/building-on-mod#shipping-scaffolds).

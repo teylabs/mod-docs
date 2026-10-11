@@ -14,12 +14,12 @@ while [ "$#" -gt 0 ] && [ "$1" != -- ]; do
 done
 if [ "$#" -gt 0 ]; then shift; scenarios=("$@"); fi
 if [ "${#scenarios[@]}" -eq 0 ]; then
-    scenarios=(quick-start layouts generating-files auto-discovery custom-layouts stubs self-contained-modules plugins custom-generators scaffolds upgrade introduction commands layout-api configuration frontend routes agents rename building-on-mod from-laravel-ddd mcp translations)
+    scenarios=(quick-start layouts generating-files auto-discovery custom-layouts stubs self-contained-modules plugins custom-generators scaffolds upgrade introduction commands layout-api configuration frontend routes agents rename building-on-mod from-laravel-ddd mcp translations release-06)
 fi
 [ "${#majors[@]}" -gt 0 ]
 test -f "$WORK/.mod-docs-harness"
 for scenario in "${scenarios[@]}"; do
-    case $scenario in quick-start|layouts|generating-files|auto-discovery|custom-layouts|stubs|self-contained-modules|plugins|custom-generators|scaffolds|upgrade|introduction|commands|layout-api|configuration|frontend|routes|agents|rename|building-on-mod|from-laravel-ddd|mcp|translations) ;; *) echo "Unknown scenario: $scenario" >&2; exit 1;; esac
+    case $scenario in quick-start|layouts|generating-files|auto-discovery|custom-layouts|stubs|self-contained-modules|plugins|custom-generators|scaffolds|upgrade|introduction|commands|layout-api|configuration|frontend|routes|agents|rename|building-on-mod|from-laravel-ddd|mcp|translations|release-06) ;; *) echo "Unknown scenario: $scenario" >&2; exit 1;; esac
 done
 export MOD_DOCS_RENAME=0
 for scenario in "${scenarios[@]}"; do [ "$scenario" != rename ] || export MOD_DOCS_RENAME=1; done

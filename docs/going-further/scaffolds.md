@@ -441,3 +441,7 @@ php artisan mod:admin-crud Inventory:Widget --area=Backoffice --no-interaction
 ```
 
 The member override leaves subsequent members in the scaffold’s default group. In JSON plans, `group` is the resolved group or null for ungrouped files; `exists` reports the current file and `existing` holds the policy. An ungrouped plain member can place a shared composable in the app’s `resources/js/composables` folder. [Frontend Files](/going-further/frontend) covers page members and stack variants.
+
+## Vendor Scaffolds
+
+Since 0.6, package recipes declare a vendor with `Mod::vendor('acme')->scaffold(...)`. Run them as `mod:acme/pages`; declared parts use `mod:acme/pages.form`. Use full ids in includes, overrides and `mod:rename --scaffold=acme/pages`. App recipes retain their names. [Shipping scaffolds](/going-further/building-on-mod#shipping-scaffolds) covers registration, command names, provider pins and reconciliation notices.

@@ -1,5 +1,12 @@
 # Upgrading
 
+## From 0.5 to 0.6
+
+Unprefixed package registration is refused with `vendor_required`. Replace `Mod::scaffold('pages', $recipe)` with `Mod::vendor('acme')->scaffold('pages', $recipe)`, and `Mod::scaffolds($recipes)` with `Mod::vendor('acme')->scaffolds($recipes)`. Update command calls from `mod:pages` to `mod:acme/pages`, and include, override and rename references from `pages` to `acme/pages`. App registrations keep their existing names.
+
+
+This is the one breaking change in 0.6. Connection declarations, package routes/pages, mounted-root frontends, assets and structured warning fields are opt-in or additive. Rebuild discovery caches after moving directories, rerun frontend installation after changing declarations, and tolerate new inventory and warning fields.
+
 In 0.3.1, `ddd` again matches laravel-ddd: application classes use `Controllers/`, `Requests/` and `Middleware/` directly under `app/Modules/<Domain>`. The preset declares no frontend paths, view namespaces or routes root. Extend it with `->frontend(...)` and `->mounts('routes', null, ...)` to opt in. Existing files stay where they are.
 
 0.2 renames the Layout API outright. Update layout declarations, config keys and exception imports before upgrading an app that customizes mod.

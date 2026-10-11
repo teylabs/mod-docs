@@ -34,12 +34,12 @@ Every method of the `Mod` facade, the layout chain, stubs and generator commands
 | `allowsNesting(?string $dimension = null)` | Allows nested values for a group; name the dimension when the layout has several |
 | `scaffolds(string $name, Closure $recipe)` | Defines a layout-specific scaffold override |
 | `withoutCommands()` | Registers no `mod:*` commands for this layout. File types keep their command names for a host to dispatch by, and several may share one |
-| `frontend(pages: null, components: null, css: null, views: null, pageName: null)` | Sets frontend folders and the framework page-name pattern |
+| `frontend(pages: null, components: null, css: null, views: null, pageName: null, lang: null)` | Sets frontend folders and the framework page-name pattern |
 | `compile()` | Checks the layout and returns it compiled; throws `Tey\Mod\Exceptions\InvalidLayout` listing every problem |
 
 Repeating `mounts()` or `generates()` changes only supplied arguments. Repeating `relates()` for the same pair or `as:` id changes that relation. A layout can't be changed once it is in use.
 
-The closure passed to `mounts()` receives a `Tey\Mod\Layout\Root`, whose `generates()` takes the same arguments as the layout's.
+The closure passed to `mounts()` receives a `Tey\Mod\Layout\Root`, whose `generates()` takes the same arguments as the layout's. Its `frontend(pages:, components:, css:, views:, pageName:, viewNamespace:, alias:)` paths are mount-relative; pages and views need explicit identities. Both `Layout` and `Root` accept `assets(files: [], entries: [])` to declare static globs separately from executable inputs. See [mounted-root frontends](/going-further/frontend#frontend-files-in-mounted-roots) and [assets](/going-further/frontend#static-assets-and-executable-entries).
 
 ## Exclusion Precedence
 

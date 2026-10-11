@@ -101,3 +101,45 @@ For controller store/update forwarding, place targets through the host's request
 `MigrationCommand::__construct(Illuminate\Database\Migrations\MigrationCreator $creator, Illuminate\Support\Composer $composer)` accepts the framework creator directly. Mod adapts an exact framework creator internally, preserving filesystem and custom stub path, and pins planned timestamps. Existing internal Mod creators still work. Native `--path`/`--realpath` require the supported `nativePathAllowed(): bool` opt-in.
 
 An application creator subclass keeps its actual native dispatch and bypasses Mod planning independently of `--path`. It has no Mod plan and does not run plan-specific callbacks. A host can retain its domain directory override using only the public framework creator classification; do not reflect into or construct a Mod creator. Arbitrary creator output cannot be promised to match a Mod timestamp/path plan.
+
+## Shipping scaffolds
+
+Packages declare their vendor once on a scoped registrar. It accepts lowercase letters, digits and hyphens, starting with a letter or digit. Multiple packages may share a vendor.
+
+```php
+use Tey\Mod\Facades\Mod;
+use Tey\Mod\Scaffolds\Scaffold;
+use Tey\Mod\Scaffolds\Part;
+
+Mod::vendor('acme')->scaffold('pages', fn (Scaffold $s) => $s
+    ->makes('page', name: '{name}/Index')
+    ->part('form', fn (Part $p) => $p->makes('page', name: '{name}/Form')));
+```
+
+```bash
+php artisan mod:acme/pages Inventory:Widget
+php artisan mod:acme/pages.form Inventory:Widget Edit
+php artisan mod:list --vendor=acme --json
+```
+
+Use `Mod::vendor('acme')->scaffolds([Pages::class, Filters::class])` for invokable recipe classes. Pass `command: 'kit:pages'` to `scaffold()` for a package-owned command name.
+
+
+The default command is `mod:acme/pages`; parts use `mod:acme/pages.form`. Dots mean declared parts. `command:` opts into one canonical Artisan name, with the same options, questions and messages; it adds no alias. An existing command is never replaced. Invokable classes declare `$name`, and may declare a string `$command`.
+
+Use full ids in `include('acme/pages')`, layout scaffold overrides and `mod:rename --scaffold=acme/pages`. App scaffolds may contain slashes. An app definition with the same id wins and emits `vendor_scaffold_overridden`. An app name under a registered vendor prefix that the vendor does not supply emits `vendor_prefix_shadowed`, suggests a hyphenated name and asks to continue (default Yes). Non-interactive runs emit the notice on stderr and continue. Ordinary unprefixed app names and prefixes without registered vendors have no notice.
+
+Two packages supplying the same id emit `vendor_scaffold_conflict`. An interactive invocation chooses a provider for that run; non-interactive invocation refuses (exit 1, including JSON previews) unless you pin the provider or define the scaffold in your app:
+
+```php
+// config/mod.php
+'scaffolds' => ['prefer' => ['acme/pages' => Acme\AcmeServiceProvider::class]],
+```
+
+A pin selects only a registered provider; the app still wins. Includes and rename require a deterministic definition (a pin or app override) when packages conflict. `mod:list --json` supplies `vendor`, `name` (after the vendor slash), `id`, `command`, provider `source`, Composer `package` when known, `overrides` and structured `notices`. `mod:list --vendor=acme` filters scaffolds in both formats, including notices. Unknown command names use Artisan's suggestions; an undeclared dot part is disabled with a diagnostic.
+
+
+
+## Frontend Declarations
+
+Read the app with `Mod::stack()`; register page namespaces with `Mod::pages()` and explicit aliases, Tailwind sources and CSS imports with `Mod::wiring()`. Providers only declare these values. Installation or a reviewed wiring plan applies them. See [Frontend Files](/going-further/frontend#package-pages-and-wiring) for the contracts and examples.

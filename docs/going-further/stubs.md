@@ -152,3 +152,18 @@ class {{ class }}{{ extends }}
     ) {}
 }
 ```
+
+## Stack-aware Scaffold Stubs
+
+A member's `stub: 'list'` uses a key such as `page.list`. Register extension-specific variants for each supported frontend stack:
+
+```php
+use Tey\Mod\Facades\Mod;
+use Tey\Mod\Generation\Stub;
+
+Mod::stubs()->forFileType('page.list.vue', Stub::file(__DIR__.'/../stubs/list.vue.stub'));
+Mod::stubs()->forFileType('page.list.tsx', Stub::file(__DIR__.'/../stubs/list.tsx.stub'));
+Mod::stubs()->forFileType('page.list.jsx', Stub::file(__DIR__.'/../stubs/list.jsx.stub'));
+```
+
+For a planned `.tsx` page, lookup is the app's `stubs/mod.page.list.tsx.stub`, then the registered `page.list.tsx`, then the registered `page.list` fallback. The app's stub wins. Use the extension-free key only for content that works across stacks. Another stack's key is never used: without a matching variant or fallback the plan names the stub to supply and writes nothing. The same precedence applies to flat recipes, tree members and parts, and to any file type with an extension (for example `view.card.blade.php`).

@@ -399,3 +399,136 @@ For Tailwind v4, add the printed `@source` after the Tailwind import in `resourc
 ```
 
 For Tailwind v3, add the printed project-relative glob to the `content` array in the app's Tailwind config. Apply the Vite alias and TypeScript additions printed for their own files too. Then build the app and check a direct module page load.
+
+## Read the frontend stack
+
+Packages can call `Mod::stack()` from their provider. Its `inertia()` returns
+`vue`, `react`, `svelte` or `null`; `typescript()` checks for `tsconfig.json`,
+`pagesPath()` preserves the app's `pages`/`Pages` casing, and `livewire()` detects
+`livewire/livewire` or `livewire/flux` in Composer declarations. `toArray()` is the
+same `stack` record returned by `mod:list --json`. This reads declarations without
+installing dependencies or changing files. Svelte pages use `.svelte`; an app's
+`stubs/mod.page.svelte.stub` overrides the minimal default.
+
+
+## Package pages and wiring
+
+Register package pages from a provider:
+
+```php
+use Tey\Mod\Facades\Mod;
+
+Mod::pages('billing', __DIR__.'/../resources/js/pages');
+Mod::wiring()
+    ->alias('@acme/billing', 'vendor/acme/billing/resources/js')
+    ->source('vendor/acme/billing/resources/js');
+```
+
+Render `billing::Invoices` normally. Both Inertia page finders and
+`Mod::pageEntry('billing::Invoices', 'vue')` use the declared directory.
+Namespaces must be unique and page directories must exist inside the application,
+including after resolving symlinks. External finder hints retain precedence.
+
+Run `mod:install inertia --dry-run --json` to preview literal package page globs,
+aliases, TypeScript paths/includes and Tailwind sources. Apply with
+`mod:install inertia --no-interaction`. Repeated installation says "Already
+wired." when every declaration is confirmed. Custom bootstraps receive the exact
+manual lines; keep adapters, layout assignment and plugins intact. Adding a new
+package declaration requires another installation; new files under existing
+globs do not. Providers only declare wiring; they never write application files.
+
+A package command can use `$plan = Mod::wiring()->plan()`, inspect
+`$plan->toArray()` and explicitly call `$plan->apply()`. Warnings prevent writing,
+and stale previews are refused before any file is written. `source()` scans
+Tailwind classes without loading CSS. `css()` explicitly imports the chosen
+stylesheet into `resources/css/app.css`; style order remains application-owned.
+Alias declarations reject conflicting targets and are ordered most specific
+first. The JSON inventory adds `package_pages` and `frontend_wiring` records.
+
+
+## Frontend files in mounted roots
+
+A root can own a component-only kit without becoming a module:
+
+```php
+use Tey\Mod\Facades\Mod;
+use Tey\Mod\Layout\Root;
+
+Mod::layout('custom')->extends('modules')->path('app/Modules/{module}')
+    ->mounts('ui', 'App\\UI\\', 'app/UI', fn (Root $root) => $root
+        ->frontend(components: 'resources/js', alias: '@/UI'));
+```
+
+For a root with pages and namespaced views:
+
+```php
+use Tey\Mod\Facades\Mod;
+use Tey\Mod\Layout\Root;
+
+Mod::layout('custom')->extends('modules')->path('app/Modules/{module}')
+    ->mounts('ui', 'App\\UI\\', 'app/UI', fn (Root $root) => $root
+        ->frontend(pages: 'screens', components: 'resources/js', pageName: 'UI::{path}',
+            views: 'templates', viewNamespace: 'ui', alias: '@/UI'));
+```
+
+All `Root::frontend()` paths are relative to the mount. Pages opt in with both
+`pages: 'screens'` and `pageName: 'UI::{path}'`; views opt in with both
+`views: 'templates'` and `viewNamespace: 'ui'`. Names and aliases are explicit; a literal alias requires a components path;
+conflicts are rejected before installation. Existing layout-level frontend paths
+retain their project-relative semantics. Omitted arguments preserve declarations,
+and child layouts inherit their parent's owners.
+
+Run the normal installation preview/apply step. The owner adds a specific Vite
+alias before broader aliases, TypeScript paths/includes, Tailwind sources and
+canonical page globs. Component files are dependencies, never executable inputs.
+Views use Laravel's namespace/anonymous-component registration and its reserved
+namespace protection. CSS imports, global component registration, layouts,
+framework plugins and exclusions remain application-owned. `frontend_owners` in
+`mod:list --json` exposes the resolved paths and identities.
+
+
+## Static assets and executable entries
+
+Declare narrow static patterns separately from styles or scripts that need
+compilation:
+
+```php
+use Tey\Mod\Facades\Mod;
+
+Mod::layout('modules')->assets(
+    files: ['app/Modules/{module}/images/**', 'app/Modules/{module}/fonts/**'],
+    entries: ['app/Modules/{module}/styles/editor.css'],
+);
+// Inside a mount: $root->assets(files: ['images/**'], entries: ['css/theme.css']);
+```
+
+Layout paths are project-relative; root paths are mount-relative. Static globs
+support `*` and `**` plus declared layout dimensions. Entries are literal CSS/JS/TS
+file templates expanded across existing owners; absent optional files are omitted
+from inputs and reported in the inventory. Traversal, external paths, malformed
+patterns, raw style/script file declarations and escaping symlinks are refused
+before writing. Ordinary imports and CSS `url()`/`@import` dependencies continue
+to use Vite's normal graph.
+
+Preview with `mod:install assets --dry-run --json`, then apply with
+`mod:install assets --no-interaction`. No Inertia stack is required. Automatic
+static wiring requires `laravel-vite-plugin` 3; older versions retain ordinary
+imports and receive manual instructions until an adapter is verified. Custom
+Vite options receive exact instructions. Existing central inputs, static patterns
+and plugin options are retained.
+
+The installer owns `resources/mod-assets.json` and imports it into the Vite
+configuration. Do not edit that generated file; change declarations and sync.
+Adding static files beneath existing globs needs no sync. Adding or removing
+independent entries requires another explicit installation before building.
+Repeated sync is a no-op, and removed owned entries disappear from the generated
+list. Unrelated application inputs remain intact.
+
+Reference images/fonts from JS with imports, or from Blade with
+`Vite::asset('app/Modules/Editor/images/logo.svg')`. Select independent stylesheet
+loading with `@vite('app/Modules/Editor/styles/editor.css')`. Building that entry
+does not load it globally. Use Laravel's usual build-directory/CDN configuration.
+Declaring images/fonts neither imports CSS nor adds Tailwind sources. CSS themes,
+class sources, import order and loading remain application-owned. The additive
+`assets` inventory records declarations, expanded entries, existence and confirmed
+wiring; it makes no claim that a production build exists.
