@@ -1,6 +1,11 @@
-import os, html, random
+import os, html, random, subprocess, tempfile, selectors, time
+from pathlib import Path
 # Generates docs/public/evolve-{light,dark}.svg, the README animation of a Laravel app growing
-# (a terminal running `watch tree`). Run: python3 scripts/evolve-animation.py
+# (a terminal running `watch tree`), plus static evolve-still-{light,dark}.{svg,png}.
+# Run: python3 scripts/evolve-animation.py (requires Google Chrome; override with CHROME).
+# Rasterization: Chrome --headless --hide-scrollbars --force-device-scale-factor=1
+#   --screenshot=<png> --window-size=1200,1138 <temporary HTML with a 1200 px SVG image>.
+# Each PNG is 2x the 600 px display width and must stay under 200 KiB.
 OUT=os.path.join(os.path.dirname(os.path.abspath(__file__)),'..','docs','public')
 THEMES={
  'light':dict(win='#FBF8F3',bar='#EFE9DF',border='#DDD3C4',text='#3E2D24',dir='#7A4B30',muted='#8A7A6C',accent='#B65326',dots=('#E0675C','#E4B34A','#6DBA5A')),
@@ -107,7 +112,7 @@ for rows,_ in R:
 maxrows=22   # the terminal's height in rows; the timelapse overflows it
 W=600; H=TOP+maxrows*LH+8
 esc=lambda s:html.escape(s,quote=False)
-def build(name,t):
+def build(name,t,still=False):
     css=[f"text{{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:{FS}px;fill:{t['text']};white-space:pre}}",
          f".d{{font-weight:700;fill:{t['dir']}}}.m,.p{{fill:{t['muted']}}}"]
     body=[]
@@ -118,7 +123,7 @@ def build(name,t):
             kf[pc(st)]=1
             if en<CYCLE: kf[pc(en)]=0
         return ''.join(f"{p}%{{opacity:{v}}}" for p,v in sorted(kf.items()))+('' if 100 in kf else f"100%{{opacity:{kf[max(kf)]}}}")
-    for idx,nid in enumerate(ids):
+    for idx,nid in enumerate([] if still else ids):
         state=[R[k][0].get(nid) for k in SEQ]
         y=lambda i:state[i][0]*LH
         fr=[(0.0,1 if state[0] else 0,y(0) if state[0] else 0)]
@@ -164,6 +169,14 @@ def build(name,t):
                 cls+=' '+hc
             parts.append(f'<text class="{vc}" x="{PADX}" y="{TOP}"><tspan class="p">{esc(pre)}</tspan><tspan class="{cls.strip()}">{esc(nm)}</tspan></text>')
         body.append(f'<g class="n{idx}">'+''.join(parts)+'</g>')
+    if still:
+        # Stage 6 is the last settled tree before the timelapse: the app's modules
+        # and a versioned API beside it. It stands alone without the index.php joke.
+        css=css[:2]
+        body=[]
+        for row,pre,nm,isdir in R[5][0].values():
+            cls='d' if isdir else ''
+            body.append(f'<text x="{PADX}" y="{TOP+row*LH}"><tspan class="p">{esc(pre)}</tspan><tspan class="{cls}">{esc(nm)}</tspan></text>')
     dots=''.join(f'<circle cx="{22+i*18}" cy="20" r="6" fill="{c}"/>' for i,c in enumerate(t['dots']))
     svg=(f'<svg xmlns="http://www.w3.org/2000/svg" width="{W}" height="{H}" viewBox="0 0 {W} {H}" role="img" aria-label="A terminal watching a Laravel app grow from laravel new: documents in the default folders, an Actions folder, an Agents module, the knowledge code moving into its own module, then a versioned API in src beside app, more modules and app layers as the app grows, then a timelapse of ever more modules, layers and API versions until the tree overflows the terminal, before it all collapses into a single index.php and starts again">'
          f'<style>{"".join(css)}</style>'
@@ -172,7 +185,56 @@ def build(name,t):
          f'<line x1="0.5" y1="{HEAD}" x2="{W-0.5}" y2="{HEAD}" stroke="{t["border"]}"/>{dots}'
          f'<text class="m" x="{W/2}" y="25" text-anchor="middle" style="font-size:12.5px">~/knowledge-base</text>'
          +f'<clipPath id="screen"><rect x="1" y="{HEAD+1}" width="{W-2}" height="{H-HEAD-6}"/></clipPath><g clip-path="url(#screen)">'+''.join(body)+'</g></svg>')
-    open(os.path.join(OUT,f'evolve-{name}.svg'),'w').write(svg)
-for n,t in THEMES.items(): build(n,t)
+    if still:
+        svg=svg.replace(svg.split('aria-label="',1)[1].split('"',1)[0],
+            'A Laravel app organised into Agents and Knowledge modules, with a versioned API in src beside app.')
+    path=Path(OUT)/f"evolve-{'still-' if still else ''}{name}.svg"
+    path.write_text(svg)
+    return path
+
+def rasterize(path):
+    chrome=os.environ.get('CHROME','/Applications/Google Chrome.app/Contents/MacOS/Google Chrome')
+    with tempfile.TemporaryDirectory() as tmp:
+        page=Path(tmp)/'still.html'
+        page.write_text(f'<html><body style="margin:0"><img src="{path.resolve().as_uri()}" width="{W*2}" height="{H*2}"></body></html>')
+        png=path.with_suffix('.png').resolve()
+        png.unlink(missing_ok=True)
+        command=[chrome,'--headless','--hide-scrollbars','--no-first-run',
+            '--no-default-browser-check','--disable-background-networking',
+            '--force-device-scale-factor=1',f'--user-data-dir={tmp}/profile',
+            f'--screenshot={png}',f'--window-size={W*2},{H*2}',page.as_uri()]
+        # Chrome may keep background services alive after taking the screenshot.
+        # Close this isolated process only after its screenshot-completion message.
+        with subprocess.Popen(command,stdout=subprocess.DEVNULL,stderr=subprocess.PIPE,bufsize=0) as proc:
+            try:
+                with selectors.DefaultSelector() as ready:
+                    ready.register(proc.stderr,selectors.EVENT_READ)
+                    deadline=time.monotonic()+30
+                    while True:
+                        remaining=deadline-time.monotonic()
+                        if remaining<=0 or not ready.select(remaining):
+                            raise RuntimeError('Chrome did not finish the screenshot within 30 seconds')
+                        line=proc.stderr.readline()
+                        if not line:
+                            raise RuntimeError('Chrome exited without completing the screenshot')
+                        if b'bytes written to file' in line and str(png).encode() in line:
+                            break
+                data=png.read_bytes()
+                if not data.startswith(b'\x89PNG\r\n\x1a\n') or not data.endswith(b'IEND\xaeB`\x82'):
+                    raise RuntimeError('Chrome produced an incomplete PNG')
+            finally:
+                proc.terminate()
+                try:
+                    proc.wait(timeout=5)
+                except subprocess.TimeoutExpired:
+                    proc.kill()
+                    proc.wait()
+    size=path.with_suffix('.png').stat().st_size
+    if size>200*1024:
+        raise RuntimeError(f'{path.name}: PNG exceeds 200 KiB ({size} bytes)')
+    print(path.with_suffix('.png').name,size,'bytes')
+for n,t in THEMES.items():
+    build(n,t)
+    rasterize(build(n,t,still=True))
 for k,(rows,c) in enumerate(R): print('stage',k+1,len(rows),'rows',c)
 print('ok',W,H)
