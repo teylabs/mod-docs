@@ -426,11 +426,23 @@ Mod::wiring()
 
 Render `billing::Invoices` normally. Both Inertia page finders and
 `Mod::pageEntry('billing::Invoices', 'vue')` use the declared directory.
-Namespaces must be unique and page directories must exist inside the application,
-including after resolving symlinks. External finder hints retain precedence.
+Namespaces must be unique. Since 0.6.1, a package installed through a Composer
+path repository works too: its `vendor/` directory is a symlink, and mod keeps
+the lexical `vendor/...` paths in page entries, globs and planned edits.
+External finder hints retain precedence.
+
+A declaration mod can't use never stops the application from booting. Paths
+outside the application, traversal, symlink escapes, missing page directories,
+invalid names and conflicting declarations are skipped and reported as
+`frontend_notices` in `mod:list --json`, each with `code`, `path` and `message`.
+The codes are `frontend_path_invalid`, `frontend_path_escape`,
+`frontend_path_unavailable`, `frontend_alias_invalid`, `frontend_alias_conflict`,
+`page_namespace_invalid` and `page_namespace_conflict`. `mod:install` prints them,
+and its JSON previews include them in `warnings`. Valid declarations are still
+installed.
 
 Run `mod:install inertia --dry-run --json` to preview literal package page globs,
-aliases, TypeScript paths/includes and Tailwind sources. Apply with
+aliases, TypeScript paths (both `@acme/billing` and `@acme/billing/*`) and includes, and Tailwind sources. Apply with
 `mod:install inertia --no-interaction`. Repeated installation says "Already
 wired." when every declaration is confirmed. Custom bootstraps receive the exact
 manual lines; keep adapters, layout assignment and plugins intact. Adding a new
@@ -443,7 +455,7 @@ and stale previews are refused before any file is written. `source()` scans
 Tailwind classes without loading CSS. `css()` explicitly imports the chosen
 stylesheet into `resources/css/app.css`; style order remains application-owned.
 Alias declarations reject conflicting targets and are ordered most specific
-first. The JSON inventory adds `package_pages` and `frontend_wiring` records.
+first. The JSON inventory adds `package_pages`, `frontend_wiring` and `frontend_notices` records.
 
 
 ## Frontend files in mounted roots
