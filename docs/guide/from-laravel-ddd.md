@@ -2,7 +2,7 @@
 
 You can replace `tey/laravel-ddd` while keeping its default folders, or use the change to bring each feature into one module. Choose the destination first, then separate the package change, PHP moves, shared UI and frontend moves into reviewable steps. Keep routes and behaviour stable while moving files.
 
-Mod requires PHP 8.3+ and Laravel 12 or 13. Check those requirements and your application's dependencies before replacing the package. The Inertia page checks, `Mod::pageEntry()` and custom-bootstrap instructions linked below are **since 0.5 (unreleased)**; verify against a package version that includes them before using them.
+Mod requires PHP 8.3+ and Laravel 12 or 13. Check those requirements and your application's dependencies before replacing the package. The Inertia page checks, `Mod::pageEntry()` and custom-bootstrap instructions linked below need mod 0.5.0 or later.
 
 ## Record the Existing App
 
@@ -96,7 +96,35 @@ Put `App\Providers\ModLayoutServiceProvider::class` first in `bootstrap/provider
 
 The `ui-*` declarations place custom classes; they do not automatically inherit Laravel’s provider or your UI data/view-model bases. Move the existing kit classes with their working inheritance, and supply [custom stubs](/going-further/stubs) before generating new ones.
 
-Preserving explicit listeners is one migration choice. If you choose automatic discovery instead, review and remove duplicate registration deliberately. Check subscribers and provider boot order too.
+Preserving explicit listeners is one migration choice. If you choose automatic discovery instead, review and remove duplicate registration deliberately. Check subscribers too.
+
+Mod registers discovered providers after the providers in `bootstrap/providers.php` have booted. If their order matters, for example when a Filament panel provider must come first, keep them listed there and turn provider discovery off:
+
+```php memo="config/mod.php"
+'discovery' => [
+    'file_types' => [
+        'provider' => false,
+        'listener' => false,
+    ],
+],
+```
+
+New module providers then need adding to `bootstrap/providers.php` by hand. Commands and migrations are still discovered.
+
+### When Domain and Application Share a Folder
+
+Some apps set Laravel-DDD's `domain_path` and `application_path` to the same folder, such as `app/Modules`. Don't remount `ddd`'s domain root there: two roots can't share a namespace or a path, and the layout fails to compile. Extend `modules` instead, and point its placements at the folders the app already uses:
+
+```php
+Mod::layout('website')
+    ->extends('modules')
+    ->path('app/Modules/{module}')
+    ->generates('controller', in: '@module/Controllers')
+    ->generates('request', in: '@module/Requests')
+    ->generates('command', in: '@module/Commands');
+```
+
+Nothing moves, and new files land beside the existing ones.
 
 In this layout, move `src/Domain/Inventory` to `app/Modules/Inventory`, and change `Domain\Inventory\` references to `App\Modules\Inventory\`. Controllers, requests and middleware belonging to Inventory go into its `Http` folders. App-wide middleware, the base controller and shared account entrypoints can stay in Laravel's app folders. Module providers use the native `*ServiceProvider` suffix; rename existing providers and update references where needed.
 
@@ -136,6 +164,14 @@ Keep `config/ddd.php` as a reference during the work, then remove it with the pa
 | `ddd:clear` / `ddd:optimize:clear` | `mod:clear`, also included in `optimize:clear` |
 
 `mod:value-object` also has `mod:value`; DDD's DTO aliases include `mod:data` and `mod:data-transfer-object`. Inspect [Commands](/reference/commands) for exact names, options and destinations. `--domain` belongs to `ddd`; the custom layout above uses `--module`, `--in` or `Inventory:Document`. Laravel's native `make:*` commands retain their usual destinations.
+
+Laravel-DDD's own traits and base classes stop loading when the package is removed. Search for them before removing it:
+
+```bash
+rg -n 'Tey\\LaravelDDD' app src tests database
+```
+
+Replace `Tey\LaravelDDD\Factories\HasDomainFactory` with Laravel's `Illuminate\Database\Eloquent\Factories\HasFactory`; Mod resolves the module factory. Review any other hit the same way: a model that still uses one of them stops the app from booting as soon as Mod scans it.
 
 Recreate custom generator stubs using [Mod's stub names and placeholders](/going-further/stubs). Do not assume an old `ddd` stub name, custom hook or command option transfers unchanged. Preview representative model/factory/policy, DTO, view-model, provider and custom-layer commands before generating real files. Changing a configured base affects new generation; it does not rewrite existing subclasses.
 
