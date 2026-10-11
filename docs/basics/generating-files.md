@@ -46,6 +46,32 @@ Every hyphenated command also works without the dash: `mod:viewmodel`, `mod:valu
 
 [Commands](/reference/commands) lists every command, its options and the layouts that have it.
 
+## MCP File Types
+
+**Since 0.5 (unreleased).** With `laravel/mcp` installed, the `modules` and `ddd` layouts add `mcp-server`, `mcp-tool`, `mcp-resource` and `mcp-prompt`. Their `mod:*` commands use Laravel MCP’s own generators, retaining their options, generated contents and published `stubs/mcp-*.stub` overrides. `make:mcp-*` keeps its native placement.
+
+In the `modules` layout:
+
+```bash
+php artisan mod:mcp-server Knowledge:DocumentServer
+# -> app/Modules/Knowledge/Mcp/Servers/DocumentServer.php
+php artisan mod:mcp-tool Knowledge:SearchDocuments
+# -> app/Modules/Knowledge/Mcp/Tools/SearchDocuments.php
+php artisan mod:mcp-resource Knowledge:DocumentResource
+# -> app/Modules/Knowledge/Mcp/Resources/DocumentResource.php
+php artisan mod:mcp-prompt Knowledge:SummarizeDocument
+# -> app/Modules/Knowledge/Mcp/Prompts/SummarizeDocument.php
+```
+
+The placements use `@module/Mcp/{Servers,Tools,Resources,Prompts}`, so they follow a [custom module path](/going-further/custom-layouts#module-scoped-file-types). In `ddd`, they belong to the application root at `app/Modules/{domain}/Mcp/...`, including nested domains:
+
+```bash
+php artisan mod:mcp-tool Knowledge.Search:SearchDocuments
+# -> app/Modules/Knowledge/Search/Mcp/Tools/SearchDocuments.php
+```
+
+Other layouts can declare these file types explicitly with `generates()`. Existing generator overrides remain in effect. `mcp-app-resource` is excluded from this integration because its native generator writes a companion view as well as a class. This support covers the four MCP generators; general delegation to arbitrary package generators remains planned in [mod#87](https://github.com/teylabs/mod/issues/87).
+
 ## Generating Related Files
 
 `make:model`'s options for related files create them in the same module:
