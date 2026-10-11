@@ -232,7 +232,7 @@ php artisan mod:list --type=model
 php artisan mod:list --json
 ```
 
-`mod:list` counts discovered factories and policies alongside providers, commands, listeners, subscribers and directories. `-v` adds aliases, stubs, bases, relations and discovered classes, including factory and policy targets. `--type=<id>` shows every detail for one file type. JSON root keys are `layout`, `extends`, `path`, `token`, `groups`, `types`, `templates`, `scaffolds`, `discovery`, `frontend`, `views`, `wiring`, `routes` and `stack`, plus the `rename` capability. The [inventory schema](/schemas/inventory.json) describes required fields and additive keys. Scaffold tree nodes expose children and reference metadata. Invalid config exits 1; `--json` prints an `error` object. An unknown `--type` also exits 1 with guidance.
+`mod:list` counts discovered factories and policies alongside providers, commands, listeners, subscribers and directories. `-v` adds aliases, stubs, bases, relations and discovered classes, including factory and policy targets. `--type=<id>` shows every detail for one file type. JSON root keys are `layout`, `extends`, `path`, `token`, `groups`, `types`, `templates`, `scaffolds`, `discovery`, `views`, `translations`, `frontend`, `wiring`, `routes` and `stack`, plus the `rename` capability. The [inventory schema](/schemas/inventory.json) describes required fields and additive keys. Scaffold tree nodes expose children and reference metadata. Invalid config exits 1; `--json` prints an `error` object. An unknown `--type` also exits 1 with guidance.
 
 ## Registering Autoload Mappings
 
