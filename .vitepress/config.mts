@@ -164,6 +164,7 @@ export default defineConfig({
           { text: 'Renaming and moving', link: '/going-further/renaming' },
           { text: 'Moving an existing app', link: '/going-further/moving-layouts' },
           { text: 'Frontend Files', link: '/going-further/frontend' },
+          { text: 'Database connections', link: '/going-further/database-connections' },
           { text: 'Module Routes', link: '/going-further/routes' },
           { text: 'Module Translations', link: '/going-further/translations' },
           { text: 'Agents', link: '/going-further/agents' },
