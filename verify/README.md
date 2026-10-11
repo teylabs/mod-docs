@@ -42,6 +42,7 @@ Each check prints `PASS | L13 layouts | <what it proves>` or `FAIL | ...`. The f
 | `auto-discovery` | `basics/auto-discovery.md` | Listeners, subscribers, commands, migrations, factory/policy lookup, exclusions and caching |
 | `custom-generators` | `going-further/custom-generators.md` | E2/E3 creation and PHP equivalence, E8 quoted slots, extraction, DDD prefixes and package folders |
 | `scaffolds` | `going-further/scaffolds.md` | S1 CRUD, aliases, variants, inclusion, classes, S7 overrides, S14 trees, S17 growth, S19 routes, S20 overrides and S21 recursion |
+| `from-laravel-ddd` | `guide/from-laravel-ddd.md` | Existing Domain classes with DDD, custom modules and shared UI roots, provider discovery and cached boot |
 | `upgrade` | `guide/upgrade.md` | The migrated 0.1 declaration, relation arguments and group token |
 | `introduction` | `guide/introduction.md` | Model tree and listener discovery output |
 | `commands` | `reference/commands.md` | Inventory forms/JSON keys, templates, autoloading, missing-command output and bases |
@@ -110,3 +111,5 @@ Each kit builds and type-checks the module-owned state and mirrored app-page sta
 ## 0.5 evidence
 
 The 0.5 draft stack pins `verify/mod-ref.txt` to the integrated package commit for module anchors, Inertia page registration, page entries and custom-bootstrap instructions. The new Inertia features are labelled “since 0.5 (unreleased)” in the pages; the module anchor form was already supported. The draft branches use that pin in CI; main retains the latest-release default. The persisted-identity page is deployment guidance, not an automatic database rewrite.
+
+The `from-laravel-ddd` scenario executes both destination declarations in fresh apps, including an existing Domain class. It does not replace end-to-end adoption of the published guide in a real application, or verify that application’s persisted identities and queue cutover.
