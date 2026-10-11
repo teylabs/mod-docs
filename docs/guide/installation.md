@@ -34,3 +34,5 @@ The published file starts on the `laravel` layout, which places files exactly li
 Mod doesn't move or change existing files, and `make:*` keeps working. Classes already in Laravel's default folders keep working as before. Start on the `laravel` layout and switch when you're ready: files generated from then on go to the new layout's folders.
 
 A layout that writes outside `app/`, such as `ddd`'s `src/Domain`, needs a PSR-4 entry in your `composer.json`. [The DDD Layout](/basics/layouts#the-ddd-layout) shows the entry.
+
+For an existing `tey/laravel-ddd` app, follow [Moving from Laravel-DDD to Mod](/guide/from-laravel-ddd) to choose a like-for-like or custom layout and review stored model identities.

@@ -143,6 +143,7 @@ export default defineConfig({
           { text: 'Installation', link: '/guide/installation' },
           { text: 'Quick start', link: '/guide/quick-start' },
           { text: 'Upgrading', link: '/guide/upgrade' },
+          { text: 'From Laravel-DDD', link: '/guide/from-laravel-ddd' },
         ],
       },
       {
