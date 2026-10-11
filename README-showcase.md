@@ -9,6 +9,8 @@ The static frame shows the organised app with Agents and Knowledge modules, and 
   <img src="https://raw.githubusercontent.com/teylabs/mod-docs/f85580b899118ac84384705a109283356e476c2c/docs/public/evolve-light.svg" width="600" alt="A terminal watching a Laravel app grow from laravel new: an Actions folder, then modules, a versioned API in src, and a timelapse of ever more folders until it all collapses into a single index.php">
 </picture>
 
+GitHub currently rewrites the combined dark/reduced-motion query into a theme-only source. In its dark theme, the first source therefore selects the dark still even when reduced motion is off. This preview records the proposed ordering; resolve that behaviour before adopting it in the package README.
+
 The animation is unchanged: a 19.4-second loop, with the API stage settling before the accelerating timelapse and the final collapse to `index.php`.
 
 ## Light still
