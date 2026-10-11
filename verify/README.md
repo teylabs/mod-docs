@@ -38,6 +38,7 @@ Each check prints `PASS | L13 layouts | <what it proves>` or `FAIL | ...`. The f
 | --- | --- | --- |
 | `quick-start` | `guide/quick-start.md` | The five steps, model/factory/migration, output and listener registration |
 | `layouts` | `basics/layouts.md` | Six layouts, related-file trees, slices, aliases and DDD autoloading |
+| `mcp` | `basics/generating-files.md`, `reference/commands.md` | Optional Laravel MCP generators, module/nested DDD placement, native byte parity and excluded companion views |
 | `generating-files` | `basics/generating-files.md` | Commands, placement, related files, notices and existing-file handling |
 | `auto-discovery` | `basics/auto-discovery.md` | Listeners, subscribers, commands, migrations, factory/policy lookup, exclusions and caching |
 | `custom-generators` | `going-further/custom-generators.md` | E2/E3 creation and PHP equivalence, E8 quoted slots, extraction, DDD prefixes and package folders |
@@ -113,3 +114,5 @@ Each kit builds and type-checks the module-owned state and mirrored app-page sta
 The 0.5 draft stack pins `verify/mod-ref.txt` to the integrated package commit for module anchors, Inertia page registration, page entries and custom-bootstrap instructions. The new Inertia features are labelled “since 0.5 (unreleased)” in the pages; the module anchor form was already supported. The draft branches use that pin in CI; main retains the latest-release default. The persisted-identity page is deployment guidance, not an automatic database rewrite.
 
 The `from-laravel-ddd` scenario executes both destination declarations in fresh apps, including an existing Domain class. It does not replace end-to-end adoption of the published guide in a real application, or verify that application’s persisted identities and queue cutover.
+
+The third 0.5 draft layer advances the pin to `f64f5c18f2e2a0388e8fc41f5cc4eb4dd19c8669` for native Laravel MCP generators. The `mcp` scenario installs `laravel/mcp` explicitly in disposable fixtures and compares all four generated classes with native output, allowing only the namespace placement change. Run it after scenarios that use the package-free baseline.

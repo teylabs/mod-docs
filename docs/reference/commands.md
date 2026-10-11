@@ -18,6 +18,19 @@ A value that differs from an existing group only by case, such as `knowledge` fo
 
 Before writing, a generator checks every file it is about to write, related files included. When one exists, it prints an error and writes nothing. `--force` overwrites, on the commands that list it below.
 
+## MCP Generator Commands
+
+**Since 0.5 (unreleased).** These file types are added to `modules` and `ddd` when `laravel/mcp` is installed. Each command runs the corresponding Laravel MCP generator and inherits that installed package version’s arguments and options, plus mod’s placement and preview options. See [MCP File Types](/basics/generating-files#mcp-file-types) for executable examples and custom placement.
+
+| Command | Runs | `modules` folder | `ddd` application folder |
+| --- | --- | --- | --- |
+| `mod:mcp-server` | `make:mcp-server` | `@module/Mcp/Servers` | `app/Modules/{domain}/Mcp/Servers` |
+| `mod:mcp-tool` | `make:mcp-tool` | `@module/Mcp/Tools` | `app/Modules/{domain}/Mcp/Tools` |
+| `mod:mcp-resource` | `make:mcp-resource` | `@module/Mcp/Resources` | `app/Modules/{domain}/Mcp/Resources` |
+| `mod:mcp-prompt` | `make:mcp-prompt` | `@module/Mcp/Prompts` | `app/Modules/{domain}/Mcp/Prompts` |
+
+The native `make:mcp-*` commands keep writing to their usual folders. `mod:mcp-app-resource` is not added: its native generator also writes a companion view. General delegation to arbitrary package generators is tracked separately in [mod#87](https://github.com/teylabs/mod/issues/87).
+
 ## Generator Commands
 
 Each command runs the Laravel command in the second column and takes that command's options, listed in the last column. The options come from Laravel, so they follow your Laravel version; these are Laravel 13's. Commands marked "none" have no Laravel generator: they write an empty class, or the file type's [stub](/going-further/stubs).
