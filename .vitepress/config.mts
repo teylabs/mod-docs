@@ -165,6 +165,7 @@ export default defineConfig({
           { text: 'Moving an existing app', link: '/going-further/moving-layouts' },
           { text: 'Frontend Files', link: '/going-further/frontend' },
           { text: 'Module Routes', link: '/going-further/routes' },
+          { text: 'Module Translations', link: '/going-further/translations' },
           { text: 'Agents', link: '/going-further/agents' },
           { text: 'Self-contained modules', link: '/going-further/self-contained-modules' },
           { text: 'Stubs', link: '/going-further/stubs' },
