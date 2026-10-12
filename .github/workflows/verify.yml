@@ -82,6 +82,7 @@ jobs:
             ${{ runner.temp }}/docs-verify/mod-ref.txt
             ${{ runner.temp }}/docs-verify/kit-refs.txt
             ${{ runner.temp }}/docs-verify/rename-*.json
+            ${{ runner.temp }}/docs-verify/page-shape-*-preview.json
             ${{ runner.temp }}/docs-verify/runtime-*.txt
             ${{ runner.temp }}/docs-verify/application-*.log
           if-no-files-found: warn

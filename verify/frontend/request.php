@@ -3,8 +3,18 @@
 require $argv[1].'/vendor/autoload.php';
 $app = require $argv[1].'/bootstrap/app.php';
 $kernel = $app->make(Illuminate\Contracts\Http\Kernel::class);
-$request = Illuminate\Http\Request::create('/widgets', 'GET', server: ['HTTP_X_INERTIA' => 'true', 'HTTP_ACCEPT' => 'text/html, application/xhtml+xml']);
-$kernel->bootstrap();
+$uri = $argv[4] ?? '/widgets';
+$request = Illuminate\Http\Request::create($uri, 'GET', server: ['HTTP_X_INERTIA' => 'true', 'HTTP_ACCEPT' => 'text/html, application/xhtml+xml']);
+try {
+    $kernel->bootstrap();
+} catch (Throwable $error) {
+    fwrite(STDERR, $error->getMessage().PHP_EOL);
+    exit(1);
+}
+set_exception_handler(function (Throwable $error): never {
+    fwrite(STDERR, $error->getMessage().PHP_EOL);
+    exit(1);
+});
 $middleware = $app->make(App\Http\Middleware\HandleInertiaRequests::class);
 $version = $middleware->version($request);
 if ($version !== null) {
@@ -12,7 +22,7 @@ if ($version !== null) {
 }
 $response = $kernel->handle($request);
 if ($response->getStatusCode() !== 200) {
-    fwrite(STDERR, 'HTTP '.$response->getStatusCode().PHP_EOL.$response->getContent());
+    fwrite(STDERR, 'HTTP '.$response->getStatusCode().PHP_EOL.substr($response->getContent(), 0, 1000));
     exit(1);
 }
 $payload = json_decode($response->getContent(), true, flags: JSON_THROW_ON_ERROR);
@@ -27,11 +37,20 @@ if (($argv[3] ?? null) !== '--direct') {
     exit(0);
 }
 // A direct full-page load must also resolve the module entry in Vite's manifest.
-$direct = Illuminate\Http\Request::create('/widgets', 'GET', server: ['HTTP_ACCEPT' => 'text/html, application/xhtml+xml']);
+$direct = Illuminate\Http\Request::create($uri, 'GET', server: ['HTTP_ACCEPT' => 'text/html, application/xhtml+xml']);
 $response = $kernel->handle($direct);
 if ($response->getStatusCode() !== 200 || ! str_contains($response->getContent(), 'data-page=')) {
-    fwrite(STDERR, 'Direct HTTP '.$response->getStatusCode().PHP_EOL.$response->getContent());
+    fwrite(STDERR, 'Direct HTTP '.$response->getStatusCode().PHP_EOL.substr($response->getContent(), 0, 1000));
+    exit(1);
+}
+// Inertia 2 uses an attribute; Inertia 3 uses a JSON script with data-page="app".
+$html = new DOMDocument;
+$html->loadHTML($response->getContent(), LIBXML_NOERROR | LIBXML_NOWARNING);
+$element = (new DOMXPath($html))->query('//*[@data-page]')->item(0);
+$payload = json_decode($element->tagName === 'script' ? $element->textContent : $element->getAttribute('data-page'), true, flags: JSON_THROW_ON_ERROR);
+if (($payload['component'] ?? null) !== $argv[2]) {
+    fwrite(STDERR, 'Direct component: '.json_encode($payload));
     exit(1);
 }
 $kernel->terminate($direct, $response);
-echo '200 direct full-page load'.PHP_EOL;
+echo '200 direct '.$payload['component'].PHP_EOL;
