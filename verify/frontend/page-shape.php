@@ -37,8 +37,7 @@ if ($mode === 'prepare') {
     write($base.'/stubs/mod.controller.shape.stub', block('Supply the Shape Controller Templates', 'php'));
     write($base.'/stubs/mod.insert.shape-action.stub', block('Supply the Shape Controller Templates', 'php', 2));
     foreach (['page', 'tab', 'layout'] as $index => $variant) {
-        $type = $variant === 'layout' ? 'page-layout' : 'page';
-        write($base.'/stubs/mod.'.$type.'.shape-'.$variant.'.'.$extension.'.stub', block($vue ? 'Supply the Shape Vue Templates' : 'Shape React Variant', $vue ? 'vue' : 'tsx', $index + 1));
+        write($base.'/stubs/mod.page.shape-'.$variant.'.'.$extension.'.stub', block($vue ? 'Supply the Shape Vue Templates' : 'Shape React Variant', $vue ? 'vue' : 'tsx', $index + 1));
     }
     $routes = block('Check Shape Entries and Routes', 'php', 2);
     if ($hasModal) $routes .= "\nRoute::get('/widgets/create-modal', [WidgetController::class, 'createModal']);\n";
@@ -127,6 +126,9 @@ if ($mode === 'generated' || $mode === 'grown') {
         demand(str_contains($controller, "Inertia::render('Inventory::Widget/".$path."')"), 'Controller has the wrong render identity');
     }
     if ($mode === 'generated') {
+        $output = file_get_contents($work.'/page-shape-'.$major.'-'.$stack.'-'.$modal.'-generate.txt');
+        demand(str_contains($output, 'Page ['.$root.'Widget/Edit/Layout.'.$extension.'] created successfully. Not a page entry; import it from a page.'), 'Layout was not generated as a non-entry page');
+        demand(! str_contains($output, "Inertia::render('Inventory::Widget/Edit/Layout')"), 'Layout was advertised as a render entry');
         $snapshot = [];
         foreach ($actual as $path) $snapshot[$path] = file_get_contents($base.'/'.$root.'Widget/'.$path.'.'.$extension);
         write($work.'/shape-before-growth-'.$major.'-'.$stack.'-'.$modal.'.json', json_encode($snapshot, JSON_THROW_ON_ERROR));

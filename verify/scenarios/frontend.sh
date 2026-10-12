@@ -25,7 +25,8 @@ page_shape() {
         commands=${commands/--modal/--$modal}
         generate=${commands%%$'\n'*}; grow=${commands#*$'\n'}
         check "$STACK/$modal: generate pages" zsh_art "$generate"
-        check "$STACK/$modal: exact generated tree and optional template block" "$PHP" "$VERIFY/frontend/page-shape.php" generated "$APP" "$STACK" "$MAJOR" "$modal" "$WORK"
+        cp "$WORK/check-output.txt" "$WORK/page-shape-$MAJOR-$STACK-$modal-generate.txt"
+        check "$STACK/$modal: exact generated tree, non-entry Layout notice and optional template block" "$PHP" "$VERIFY/frontend/page-shape.php" generated "$APP" "$STACK" "$MAJOR" "$modal" "$WORK"
         check "$STACK/$modal: grow History tab" zsh_art "$grow"
         check "$STACK/$modal: growth preserves pages and pageEntry refuses helpers" "$PHP" "$VERIFY/frontend/page-shape.php" grown "$APP" "$STACK" "$MAJOR" "$modal" "$WORK"
         check "$STACK/$modal: manual nearest-folder layout wiring" "$PHP" "$VERIFY/frontend/page-shape.php" wire "$APP" "$STACK" "$MAJOR" "$modal" "$WORK"
