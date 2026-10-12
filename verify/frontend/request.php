@@ -43,8 +43,11 @@ if ($response->getStatusCode() !== 200 || ! str_contains($response->getContent()
     fwrite(STDERR, 'Direct HTTP '.$response->getStatusCode().PHP_EOL.substr($response->getContent(), 0, 1000));
     exit(1);
 }
-preg_match('/data-page=([\x22\x27])(.*?)\1/s', $response->getContent(), $matches);
-$payload = json_decode(html_entity_decode($matches[2], ENT_QUOTES | ENT_HTML5, 'UTF-8'), true, flags: JSON_THROW_ON_ERROR);
+// Inertia 2 uses an attribute; Inertia 3 uses a JSON script with data-page="app".
+$html = new DOMDocument;
+$html->loadHTML($response->getContent(), LIBXML_NOERROR | LIBXML_NOWARNING);
+$element = (new DOMXPath($html))->query('//*[@data-page]')->item(0);
+$payload = json_decode($element->tagName === 'script' ? $element->textContent : $element->getAttribute('data-page'), true, flags: JSON_THROW_ON_ERROR);
 if (($payload['component'] ?? null) !== $argv[2]) {
     fwrite(STDERR, 'Direct component: '.json_encode($payload));
     exit(1);
