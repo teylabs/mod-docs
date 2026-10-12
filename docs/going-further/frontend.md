@@ -176,6 +176,304 @@ Route::get('/widgets', [WidgetController::class, 'index']);
 
 `GET /widgets` returns the generated index page with its paginated resource data. To keep routes beside the module, use [module routes](/going-further/routes).
 
+## Defining Your Own Page Shape
+
+Since 0.7 (unreleased). This example gives the Inventory module a Widget page
+tree using only public layout, scaffold and resolver APIs. `Page` and `Modal`
+are this app's entry stems, not a convention shipped by mod. A modal is an
+ordinary page component here: no modal package, navigation component, styling
+or database model is required.
+
+### Declare the Shape
+
+Set `'layout' => 'modules'` in `config/mod.php`. Put these imports at file scope
+and the declaration in `AppServiceProvider::boot()`:
+
+```php memo="app/Providers/AppServiceProvider.php" at="boot()"
+use Tey\Mod\Commands\PlainFileCommand;
+use Tey\Mod\Facades\Mod;
+use Tey\Mod\Layout\FileType;
+use Tey\Mod\Scaffolds\Part;
+use Tey\Mod\Scaffolds\Scaffold;
+
+Mod::layout('modules')
+    ->frontend(pageEntries: ['Page', 'Modal'])
+    ->generates('page', in: '@module/resources/js/pages', nested: true, case: 'studly',
+        using: fn (FileType $type) => $type->extension('.vue'))
+    ->generates('page-layout', in: '@module/resources/js/pages', fixed: 'Layout', nested: true, case: 'studly',
+        using: fn (FileType $type) => $type->extension(Mod::stack()->inertia() === 'react' ? '.tsx' : '.vue'));
+
+Mod::generators()->useFileType('page-layout', PlainFileCommand::class);
+
+Mod::scaffold('resource-pages', fn (Scaffold $s) => $s
+    ->asks('modal', type: 'confirm', default: false)
+    ->asks('tabs', type: 'list', default: ['Overview', 'Details'])
+    ->folder('pages', '{name}', as: 'pageFolder')
+    ->makes('page', name: '{name}/Index/Page', as: 'indexPage', stub: 'shape-page')
+    ->makes('page', name: '{name}/Create/Page', as: 'createPage', stub: 'shape-page')
+    ->makes('page', name: '{name}/Create/Modal', as: 'createModal', stub: 'shape-page', when: 'modal')
+    ->makes('page-layout', name: '{name}/Edit/Layout', as: 'editLayout', stub: 'shape-layout')
+    ->makes('controller', name: '{name}Controller', as: 'controller', stub: 'shape')
+    ->part('tab', configure: fn (Part $p) => $p
+        ->asks('tab', type: 'text')
+        ->makes('page', name: '{name}/Edit/{tab}/Page', as: 'view', stub: 'shape-tab')
+        ->inserts(into: 'controller', at: 'actions', stub: 'shape-action'))
+    ->each('tabs', part: 'tab'));
+```
+
+`case: 'studly'` also keeps React's stems as `Page` and `Modal`; its default
+kebab-case would not match this case-sensitive entry list. Declaring `page`
+explicitly requires its path and plain-file extension; the detected stack
+selects `.tsx` for React from the `.vue` seed. This layout applies
+the list to app pages too. Adopt those stems there, or keep an existing app page
+lookup when wiring manually. Mounted roots and packages declare their own entry
+lists (`pageEntries:` and `Mod::pages(..., entries: [...])`).
+
+The folder member owns the subtree for rename; it does not generate a directory
+or change file placement. `Layout` keeps its component import and path but has
+no render name. The app's `page-layout` file type generates the helper separately
+from renderable `page` members; its fixed basename distinguishes it from the
+general page type, and `PlainFileCommand` supplies its generator. The optional
+member and controller block share the `modal` answer.
+
+### Supply the Shape Controller Templates
+
+```php memo="stubs/mod.controller.shape.stub"
+<?php
+
+namespace {{ namespace }};
+
+use Inertia\Inertia;
+
+class {{ class }}
+{
+    public function index()
+    {
+        return Inertia::render('{{ indexPage.name }}');
+    }
+
+    public function create()
+    {
+        return Inertia::render('{{ createPage.name }}');
+    }
+
+    {{ #modal }}
+    public function createModal()
+    {
+        return Inertia::render('{{ createModal.name }}');
+    }
+    {{ /modal }}
+
+    // mod:actions
+}
+```
+
+The part's `view` alias supplies the actual render name:
+
+```php memo="stubs/mod.insert.shape-action.stub"
+    public function {{ tab.camel }}()
+    {
+        return Inertia::render('{{ tab.view.name }}');
+    }
+
+```
+
+### Supply the Shape Vue Templates
+
+Save these three variants:
+
+```vue memo="stubs/mod.page.shape-page.vue.stub"
+<template><p>{{ name.studly }}</p></template>
+```
+
+```vue memo="stubs/mod.page.shape-tab.vue.stub"
+<template><p>{{ tab }}</p></template>
+```
+
+```vue memo="stubs/mod.page-layout.shape-layout.vue.stub"
+<template>
+    <section>
+        <h1>Edit {{ name.studly }}</h1>
+        <slot />
+    </section>
+</template>
+```
+
+### Generate and Grow the Shape
+
+```bash
+php artisan mod:resource-pages Inventory:Widget --modal --no-interaction
+php artisan mod:resource-pages.tab Inventory:Widget History --no-interaction
+```
+
+Use `--no-modal` instead of `--modal` to omit `Create/Modal` and the controller's
+`createModal()` method. The second command grows only the History page and its
+action; it leaves the existing layout and pages alone. The Vue tree now contains:
+
+```text
+app/Modules/Inventory/resources/js/pages/Widget/
+├── Index/Page.vue
+├── Create/Page.vue
+├── Create/Modal.vue       (only with --modal)
+└── Edit/
+    ├── Layout.vue
+    ├── Overview/Page.vue
+    ├── Details/Page.vue
+    └── History/Page.vue
+```
+
+### Choose the Shape Folder Layout
+
+Run `php artisan mod:install inertia --dry-run`, then apply with
+`--no-interaction` when the preview can wire the bootstrap. If it reports manual
+instructions, apply its exact aliases, includes and page globs. Keep the adapter,
+plugins and setup callback. In an Inertia 3 Vue app, use this app-owned `layout`
+callback for these pages; preserve any existing callback for other pages:
+
+```ts memo="resources/js/app.ts"
+import { nearestPageFile } from '../../vendor/tey/mod/resources/js/inertia';
+import type { DefineComponent } from 'vue';
+
+const folderLayouts = import.meta.glob<DefineComponent>([
+    './pages/**/Layout.vue',
+    '../../app/Modules/*/resources/js/pages/**/Layout.vue',
+], { eager: true, import: 'default' });
+
+// Inside createInertiaApp options:
+layout: (name) => {
+    const folder = nearestPageFile(name, folderLayouts);
+    return folder ? [folder] : [];
+},
+```
+
+`Inventory::Widget/Edit/History/Page` finds `Widget/Edit/Layout.vue`; Index and
+Create find no folder layout. The lookup stops at Inventory's pages root. Mod
+does not choose a default layout or add this callback during installation.
+
+Inertia 2 has no global `layout` option. In its existing `resolve` callback,
+await `resolveModulePage()` with the installer's maps, then assign the nearest
+layout to the resolved component before returning it:
+
+```ts memo="resources/js/app.ts" at="resolve()"
+const page = await resolveModulePage(name, appPages, modulePages);
+const folder = nearestPageFile(name, folderLayouts);
+page.default.layout = folder ? [folder] : [];
+return page.default;
+```
+
+Type the Vue module maps as `{ default: DefineComponent & { layout?: DefineComponent[] } }`.
+Here `appPages` and `modulePages` stand for the literal glob maps printed by the
+installer. Use the [full-page Blade entry](#full-page-inertia-loads) with
+`Mod::pageEntry()` too, then build the frontend.
+
+### Check Shape Entries and Routes
+
+From application PHP, the entry helper accepts the page and refuses the layout:
+
+```php
+Mod::pageEntry('Inventory::Widget/Edit/History/Page', 'vue');
+// app/Modules/Inventory/resources/js/pages/Widget/Edit/History/Page.vue
+Mod::pageEntry('Inventory::Widget/Edit/Layout', 'vue');
+// throws InvalidArgumentException naming .../Widget/Edit/Layout.vue
+```
+
+Add routes:
+
+```php memo="routes/web.php"
+<?php
+
+use App\Modules\Inventory\Http\Controllers\WidgetController;
+use Illuminate\Support\Facades\Route;
+
+Route::get('/widgets', [WidgetController::class, 'index']);
+Route::get('/widgets/create', [WidgetController::class, 'create']);
+Route::get('/widgets/history', [WidgetController::class, 'history']);
+Route::get('/widgets/overview', fn () => inertia('Inventory::Widget/Edit/Overview/Page'));
+```
+
+With `--modal`, also route `/widgets/create-modal` to `createModal`. This proves
+the component is renderable, not modal presentation. Requests return the exact
+identities `Inventory::Widget/Index/Page`, `Inventory::Widget/Create/Page` and
+`Inventory::Widget/Edit/History/Page`.
+
+### Rename the Shape Tree
+
+Add a hand-written file under the same pages root:
+
+```vue memo="app/Modules/Inventory/resources/js/pages/Widget/Partials/Card.vue"
+<template><p>Hand-written card</p></template>
+```
+
+Commit the application, then preview with every historical answer, including the
+grown tab. After reviewing the preview, apply:
+
+```bash
+php artisan mod:rename Inventory:Widget Inventory:Gadget --scaffold=resource-pages --tabs=Overview --tabs=Details --tabs=History --modal --dry-run --json
+php artisan mod:rename Inventory:Widget Inventory:Gadget --scaffold=resource-pages --tabs=Overview --tabs=Details --tabs=History --modal --yes --no-interaction
+git diff --cached
+```
+
+Use `--no-modal` for a tree generated without the modal. The folder moves once,
+including the hand-written Partials file and layout. The controller moves to
+`GadgetController`; supported render literals in it and the hand-written route
+change to `Inventory::Gadget/...`. Partials bytes and existing page copy stay
+unchanged: rename does not regenerate templates. Route URLs remain `/widgets`;
+review them separately. Build and type-check again, then request the renamed
+pages before committing the staged diff. See [rename safety](/going-further/renaming).
+
+### Shape React Variant
+
+Keep the recipe and controller templates. The explicit StudlyCase page policy
+keeps the same folders and render identities. Replace the three Vue variants:
+
+```tsx memo="stubs/mod.page.shape-page.tsx.stub"
+export default function Page() { return <p>{{ name.studly }}</p>; }
+```
+
+```tsx memo="stubs/mod.page.shape-tab.tsx.stub"
+export default function Page() { return <p>{{ tab }}</p>; }
+```
+
+```tsx memo="stubs/mod.page-layout.shape-layout.tsx.stub"
+import type { PropsWithChildren } from 'react';
+
+export default function Layout({ children }: PropsWithChildren) {
+    return <section><h1>Edit {{ name.studly }}</h1>{children}</section>;
+}
+```
+
+Use `.tsx` globs, `tsx` in `pageEntry()`, and `Partials/Card.tsx` with a plain
+React component. In Inertia 3, the folder callback has the same behaviour:
+
+```tsx memo="resources/js/app.tsx"
+import { nearestPageFile } from '../../vendor/tey/mod/resources/js/inertia';
+import type { ComponentType, PropsWithChildren } from 'react';
+
+const folderLayouts = import.meta.glob<ComponentType<PropsWithChildren>>([
+    './pages/**/Layout.tsx',
+    '../../app/Modules/*/resources/js/pages/**/Layout.tsx',
+], { eager: true, import: 'default' });
+
+// Inside createInertiaApp options:
+layout: (name) => {
+    const folder = nearestPageFile(name, folderLayouts);
+    return folder ? [folder] : [];
+},
+```
+
+For Inertia 2, type each resolved default as `ComponentType & { layout?: (page: ReactNode) => ReactNode }`.
+Import `createElement` and the `ReactNode` type from React. In `resolve`, use:
+
+```tsx memo="resources/js/app.tsx" at="resolve()"
+const page = await resolveModulePage(name, appPages, modulePages);
+const folder = nearestPageFile(name, folderLayouts);
+page.default.layout = folder ? (page) => createElement(folder, null, page) : undefined;
+return page;
+```
+
+Keep the existing setup callback. Build with `npm run build` and check `npx vue-tsc --noEmit` (Vue)
+or `npx tsc --noEmit` (React).
+
 ## Pages in Scaffold Trees
 
 A page member can accompany each repeated tab. The same aliases supply framework identities, imports and anchored inserts.

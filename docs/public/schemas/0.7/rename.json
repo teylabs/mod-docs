@@ -1,0 +1,415 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "required": [
+    "command",
+    "group",
+    "name",
+    "files",
+    "inserts",
+    "warnings",
+    "would_write",
+    "selection",
+    "target",
+    "moves",
+    "rewrites",
+    "retained",
+    "checklist",
+    "scan_roots"
+  ],
+  "properties": {
+    "command": {
+      "const": "mod:rename"
+    },
+    "group": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "name": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "folders": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["alias", "type", "path"],
+        "properties": {
+          "alias": {"type": "string"},
+          "type": {"enum": ["pages", "components", "views"]},
+          "path": {"type": "string"}
+        }
+      }
+    },
+    "folder_contents": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["alias", "type", "from", "to", "old_class", "new_class"],
+        "properties": {
+          "alias": {"type": "string"},
+          "type": {"type": "string"},
+          "from": {"type": "string"},
+          "to": {"type": "string"},
+          "old_class": {"type": ["string", "null"]},
+          "new_class": {"type": ["string", "null"]}
+        }
+      }
+    },
+    "files": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "alias",
+          "type",
+          "path",
+          "group",
+          "existing",
+          "exists"
+        ],
+        "anyOf": [
+          {
+            "required": [
+              "class"
+            ]
+          },
+          {
+            "required": [
+              "identity"
+            ]
+          }
+        ],
+        "properties": {
+          "alias": {
+            "type": "string"
+          },
+          "type": {
+            "type": "string"
+          },
+          "path": {
+            "type": "string"
+          },
+          "class": {
+            "type": "string"
+          },
+          "identity": {
+            "type": "object"
+          },
+          "group": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "existing": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "const": "keep"
+              }
+            ]
+          },
+          "exists": {
+            "type": "boolean"
+          }
+        }
+      }
+    },
+    "inserts": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "into",
+          "at",
+          "stub"
+        ],
+        "properties": {
+          "into": {
+            "type": "string"
+          },
+          "at": {
+            "type": "string"
+          },
+          "stub": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "warnings": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "file",
+          "line",
+          "message"
+        ],
+        "properties": {
+          "file": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "line": {
+            "type": [
+              "integer",
+              "null"
+            ]
+          },
+          "message": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "mentions": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "name",
+          "line"
+        ],
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "line": {
+            "type": "integer"
+          }
+        }
+      }
+    },
+    "would_write": {
+      "type": "boolean"
+    },
+    "selection": {
+      "type": "object",
+      "required": [
+        "scaffold",
+        "source",
+        "answers"
+      ],
+      "properties": {
+        "scaffold": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "source": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "answers": {
+          "type": "object"
+        }
+      }
+    },
+    "target": {
+      "type": "object",
+      "required": [
+        "group",
+        "name"
+      ],
+      "properties": {
+        "group": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "name": {
+          "type": [
+            "string",
+            "null"
+          ]
+        }
+      }
+    },
+    "moves": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "alias",
+          "type",
+          "from",
+          "to",
+          "old_class",
+          "new_class"
+        ],
+        "properties": {
+          "alias": {
+            "type": "string"
+          },
+          "type": {
+            "type": "string"
+          },
+          "from": {
+            "type": "string"
+          },
+          "to": {
+            "type": "string"
+          },
+          "old_class": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "new_class": {
+            "type": [
+              "string",
+              "null"
+            ]
+          }
+        }
+      }
+    },
+    "rewrites": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "file",
+          "after_file",
+          "line",
+          "category",
+          "before",
+          "after"
+        ],
+        "properties": {
+          "file": {
+            "type": "string"
+          },
+          "after_file": {
+            "type": "string"
+          },
+          "line": {
+            "type": "integer"
+          },
+          "category": {
+            "type": "string"
+          },
+          "before": {
+            "type": "string"
+          },
+          "after": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "retained": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "alias",
+          "path",
+          "reason"
+        ],
+        "properties": {
+          "alias": {
+            "type": "string"
+          },
+          "path": {
+            "type": "string"
+          },
+          "reason": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "checklist": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "file",
+          "after_file",
+          "line",
+          "category",
+          "message",
+          "suggestion"
+        ],
+        "properties": {
+          "file": {
+            "type": "string"
+          },
+          "after_file": {
+            "type": "string"
+          },
+          "line": {
+            "type": "integer"
+          },
+          "category": {
+            "type": "string"
+          },
+          "message": {
+            "type": "string"
+          },
+          "suggestion": {
+            "type": [
+              "string",
+              "null"
+            ]
+          }
+        }
+      }
+    },
+    "scan_roots": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "recovery": {
+      "type": "object",
+      "required": [
+        "journal",
+        "phase",
+        "operations",
+        "checkpoint"
+      ],
+      "properties": {
+        "journal": {
+          "type": "string"
+        },
+        "phase": {
+          "enum": [
+            "prepared",
+            "applying",
+            "rolling-back",
+            "committed",
+            "restored"
+          ]
+        },
+        "operations": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "checkpoint": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false
+    }
+  }
+}

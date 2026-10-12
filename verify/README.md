@@ -84,6 +84,23 @@ Unreleased 0.3 docs must be verified against the matching package branch or SHA,
 
 `npm test` checks Markdown publication and sidebar coverage contracts. `npm run build` checks links and emits `llms.txt` plus unchanged Markdown sources at sidebar page paths. The JSON schemas served under `/schemas/` are byte-compared with the package fixtures by the agents scenario.
 
+## Page shape acceptance (0.7)
+
+The Frontend Files walkthrough is unreleased. Verify it with Node 24 against mod main:
+
+```bash
+verify/setup.sh /tmp/mod-docs-page-shape git:main 12 13
+verify/run.sh /tmp/mod-docs-page-shape 12 13 -- frontend
+```
+
+The frontend scenario adds eight cases: Vue and React, Laravel 12 and 13, each with and without the optional modal. It copies each real starter app into a separate disposable page-shape app, extracts the page's recipe, templates and commands, and verifies the exact generated tree and conditional controller block. It grows History without rewriting existing pages, checks `pageEntry()` accepts an entry and refuses Layout and Partials, then commits the fixture and runs the documented rename preview and apply commands. The assertions require one owned folder move, unchanged hand-written Partials bytes, rewritten controller and route render literals, and Vite manifest entries that exclude helpers.
+
+Each case builds with `npm run build`, type-checks the full app with `vue-tsc` or `tsc`, and makes direct and Inertia HTTP kernel requests for the exact renamed components. Vite compiles the real components and glob maps for a Vue or React server render of History in the Edit layout. Index/Create and a different owner are negative controls for the nearest-folder lookup. No browser or modal presentation package is used. These apps explicitly install the same supported Babel parser fixture as the rename scenario; the existing guarded upstream kit corrections remain unchanged.
+
+The normal workflow still verifies the latest release. Before 0.7, its frontend log explicitly skips this new walkthrough because `Scaffold::folder()` is unavailable; a dispatch against `main` fails rather than skipping if that API is missing. Dispatch `verify.yml` on `docs/07` with `mod_ref=main` for acceptance evidence, and keep the PR a draft until 0.7 ships. Record `mod-ref.txt` and the PASS/FAIL tail in the PR. CI preserves each `page-shape-*-preview.json` alongside the verification results.
+
+The additive 0.7 plan, inventory and rename schemas live under `/schemas/0.7/`; the released `/schemas/` files stay intact. The agents scenario selects the 0.7 schemas when folder members are available and still byte-compares every contract with the installed package's fixtures.
+
 ## Rename and host API verification
 
 The default run adds `rename` and `building-on-mod`. Run 0.4 examples against the integrated package SHA, not the latest 0.3 release:

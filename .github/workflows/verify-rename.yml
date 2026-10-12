@@ -60,6 +60,7 @@ jobs:
             ${{ runner.temp }}/rename-verify/mod-ref.txt
             ${{ runner.temp }}/rename-verify/kit-refs.txt
             ${{ runner.temp }}/rename-verify/rename-*.json
+            ${{ runner.temp }}/rename-verify/page-shape-*-preview.json
             ${{ runner.temp }}/rename-verify/runtime-*.txt
             ${{ runner.temp }}/rename-verify/application-*.log
             ${{ runner.temp }}/rename-verify/scenario-output.txt
