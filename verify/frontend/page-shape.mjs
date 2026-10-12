@@ -24,7 +24,14 @@ export const resolve = (name) => resolveModulePage(name,
 `);
 let server;
 try {
-    server = await createServer({ root: base, server: { middlewareMode: true, watch: null }, appType: 'custom' });
+    // Compile for SSR without a listener or HMR; production builds stay separate.
+    process.env.LARAVEL_BYPASS_ENV_CHECK = '1';
+    server = await createServer({
+        root: base,
+        server: { middlewareMode: true, watch: null, hmr: false },
+        optimizeDeps: { noDiscovery: true, include: [] },
+        appType: 'custom',
+    });
     const { lookup, resolve } = await server.ssrLoadModule('/resources/js/page-shape-check.ts');
     const folder = lookup('Inventory::Gadget/Edit/History/Page');
     assert.ok(folder, 'History must find the moved Edit layout');
