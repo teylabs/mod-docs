@@ -31,7 +31,7 @@ page_shape() {
         check "$STACK/$modal: manual nearest-folder layout wiring" "$PHP" "$VERIFY/frontend/page-shape.php" wire "$APP" "$STACK" "$MAJOR" "$modal" "$WORK"
         git -C "$APP" init -q
         git -C "$APP" add -A
-        git -C "$APP" commit -qm 'Generate the documented page shape'
+        git -C "$APP" -c user.name='Docs harness' -c user.email='harness@localhost' commit -qm 'Generate the documented page shape'
         commands=$(doc_block 'Rename the Shape Tree' bash)
         commands=${commands//--modal/--$modal}
         preview=${commands%%$'\n'*}
