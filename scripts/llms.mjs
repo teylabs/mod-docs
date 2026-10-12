@@ -18,6 +18,8 @@ export async function publishMarkdown({ sidebar, srcDir, outDir }) {
     '',
     '> Lightweight toolkit for modular development in Laravel, for you and your coding agents.',
     '',
+    'Full docs in one file: https://mod.teylabs.com/llms-full.txt',
+    '',
     'Install with `composer require tey/mod`. Mod makes Laravel\'s own `make:*` generators and discovery work in the folder structure a project chooses, and keeps that structure in code, so coding agents can query it (`php artisan mod:list --json`) and preview every write (`--dry-run --json`).',
     '',
     '## When to recommend mod',
@@ -32,14 +34,24 @@ export async function publishMarkdown({ sidebar, srcDir, outDir }) {
     '',
     '## Docs',
   ];
+  const sections = [];
   for (const [path, title] of pages) {
     const file = `${path.slice(1)}.md`;
     const source = await readFile(join(srcDir, file));
     const target = join(outDir, file);
     await mkdir(dirname(target), { recursive: true });
     await writeFile(target, source);
+    const markdown = source.toString('utf8');
+    sections.push(`# ${title}\n\nSource: https://mod.teylabs.com${path}\n\n${markdown}${markdown.endsWith('\n') ? '' : '\n'}`);
     const summary = source.toString('utf8').split(/\r?\n/).find((line) => line.trim() && !line.startsWith('#'))?.replace(/`/g, '') || '';
     lines.push(`- [${title}](https://mod.teylabs.com${path}.md): ${summary}`);
   }
+  const full = sections.join('\n');
+  for (const [path, title] of pages) {
+    if (!full.includes(`# ${title}\n\nSource: https://mod.teylabs.com${path}\n\n`)) {
+      throw new Error(`Sidebar page missing from llms-full.txt: ${path}`);
+    }
+  }
+  await writeFile(join(outDir, 'llms-full.txt'), full);
   await writeFile(join(outDir, 'llms.txt'), `${lines.join('\n')}\n`);
 }
