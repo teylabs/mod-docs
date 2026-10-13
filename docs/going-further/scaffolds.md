@@ -180,6 +180,16 @@ php artisan mod:crud Knowledge:Document --force --no-interaction
 
 `--skip-existing` keeps existing files and writes the rest. `--force` overwrites members, but generated bases are never overwritten. A generation-time failure rolls the subtree back.
 
+Scaffold trees and their parts follow the same rules, and kept members (`existing: 'keep'`) stay as they are even with `--force`.
+
+Since mod 0.7.2, a dry run shows whether each existing file still matches what the recipe would write now:
+
+```bash
+php artisan mod:crud Knowledge:Document --dry-run
+```
+
+Each existing member reads `(exists, unchanged)` or `(exists, edited)`, and in `--dry-run --json` it carries `"state": "unchanged"` or `"state": "edited"`. *Edited* means the file differs from the recipe's output today, so a changed stub or answer also shows as edited. Files that don't exist yet, and files that only receive inserts, have no state.
+
 ## Asking Questions
 
 `asks()` adds a question and its command option. The types are `text`, `list`, `choice`, `confirm`, `model` and `class`. A default can use `{name}`. A model or class answer supplies its short name and `.fqcn`.
