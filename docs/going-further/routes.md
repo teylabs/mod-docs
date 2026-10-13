@@ -23,7 +23,7 @@ php artisan mod:routes Inventory --api --console
 # -> app/Modules/Inventory/routes/console.php
 ```
 
-Web files use `web` middleware. API files use `api` middleware and the `/api` prefix. Console files load only in the console. Add routes at the generated `// mod:routes` anchor.
+Web files use `web` middleware. API files use `api` middleware and default to the `/api` prefix. Console files load only in the console. Add routes at the generated `// mod:routes` anchor.
 
 ## Using Laravel Route Groups
 
@@ -41,6 +41,34 @@ Mod::routes(except: ['Inventory', 'Knowledge']);
 ```
 
 Use `only` and `except` to select modules. Loading the same module twice exits with an error naming both call locations. Put the call before an app fallback route.
+
+## Choosing the API Prefix
+
+Since mod 0.7.1, pass `apiPrefix:` to serve the selected groups' API files and registrar methods under `/v1` instead of `/api`:
+
+```php memo="bootstrap/app.php"
+Mod::routes(only: ['Inventory'], apiPrefix: 'v1');
+```
+
+Package registrations can choose their own prefix:
+
+```php memo="app/Providers/AppServiceProvider.php"
+use App\Routing\ReportsRoutes;
+use Tey\Mod\Facades\Mod;
+
+Mod::routeFiles('api-v1', base_path('packages/api-v1/routes'), apiPrefix: 'v1');
+Mod::routeRegistrar('reports-v1', ReportsRoutes::class, apiPrefix: 'v1');
+```
+
+The registration prefix wins over the loading call's prefix, including an explicit `'api'` or `''`. Omit the registration argument, or pass `null`, to inherit the call prefix. The effective default stays `'api'`, preserving existing behaviour.
+
+Pass an empty string to add no API prefix:
+
+```php memo="bootstrap/app.php"
+Mod::routes(only: ['Inventory'], apiPrefix: '');
+```
+
+Web and console entries are unaffected. Any surrounding Laravel group's middleware, URI prefix and name prefix still apply. Rebuild the route cache after changing API prefixes.
 
 ## Setting the Order
 
@@ -118,6 +146,8 @@ php artisan mod:list --json
 
 Both generators check all collisions before writing. Pass `--force` to replace existing output. Inventory route entries contain `group`, `entrypoint`, `kind`, `middleware_group`, `order`, and `loaded_by`. The last field records the loading call or provider.
 
+API entries also contain `api_prefix`: the registration value, the selected loading call's value, or `'api'` before a call selects the group. This excludes any surrounding Laravel group's prefix. Human `mod:list` shows the same effective value, with `(none)` for an empty prefix. Web and console entries do not gain this field.
+
 ## Package Routes
 
 Register package route files from a service provider's `boot()`:
@@ -138,7 +168,7 @@ be unique across packages and layout groups. Register each group before any
 `Mod::routes()` call that selects it.
 
 A directory contributes `web.php`, `api.php` and `console.php`. HTTP files get
-Laravel's `web` or `api` middleware; API routes get the `api` prefix. Console
+Laravel's `web` or `api` middleware; API routes default to the `api` prefix. Console
 files load only in console processes. Registrar classes contribute `web()` and
 `api()`. Both forms inherit any surrounding route group:
 
