@@ -57,7 +57,7 @@ jobs:
         run: |
           ref="$INPUT_REF"
           case "$DOCS_BRANCH" in
-            docs/06|0.4/docs|docs/05-port|docs/05-ddd-guide|docs/05-mcp)
+            docs/071|docs/06|0.4/docs|docs/05-port|docs/05-ddd-guide|docs/05-mcp)
               if [ -z "$ref" ]; then ref=$(cat verify/mod-ref.txt); fi
               ;;
           esac
