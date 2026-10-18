@@ -8,7 +8,7 @@ on:
   workflow_dispatch:
     inputs:
       mod_ref:
-        description: 'Exact mod commit (empty uses verify/mod-ref.txt)'
+        description: 'Full 40-character mod commit SHA (empty uses verify/mod-ref.txt)'
         type: string
         default: ''
 

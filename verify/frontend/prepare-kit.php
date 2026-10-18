@@ -15,9 +15,16 @@ if ($major === '13' && $phase === 'after') {
     // Laravel now includes QUERY in RedirectController's any-route methods.
     $file = $app.'/resources/js/wayfinder/index.ts';
     $source = file_get_contents($file);
-    $old = '"patch" | "head" | "options";';
-    if (substr_count($source, $old) !== 1) {
+    $old = '"get"|"post"|"put"|"delete"|"patch"|"head"|"options"';
+    $fixed = $old.'|"query"';
+    if (preg_match_all('/\btype Method\s*=\s*([^;]+);/', $source, $matches) !== 1) {
         throw new RuntimeException('Pinned Wayfinder Method definition changed.');
     }
-    file_put_contents($file, str_replace($old, '"patch" | "head" | "options" | "query";', $source));
+    $definition = preg_replace('/\s+/', '', $matches[1][0]);
+    if ($definition === $old) {
+        $replacement = substr($matches[0][0], 0, -1).' | "query";';
+        file_put_contents($file, str_replace($matches[0][0], $replacement, $source));
+    } elseif ($definition !== $fixed) {
+        throw new RuntimeException('Pinned Wayfinder Method definition changed.');
+    }
 }

@@ -13,6 +13,20 @@ composer() { "$PHP" "$COMPOSER_BIN" "$@"; }
 for major in "$@"; do
     case $major in 12|13) ;; *) echo "Unsupported Laravel version: $major" >&2; exit 1;; esac
 done
+case $SRC in
+    git:*)
+        ref=${SRC#git:}
+        if [[ -z "$ref" || "$ref" == -* ]] || ! git check-ref-format "refs/heads/$ref"; then
+            echo "Invalid Git ref: '$ref'. Use a branch, tag, or full 40-character commit SHA." >&2
+            exit 1
+        fi
+        # A shallow fetch cannot prove that an abbreviated object ID is unique.
+        if [[ "$ref" =~ ^[0-9a-fA-F]+$ && ${#ref} -ne 40 ]]; then
+            echo "Abbreviated Git object IDs are unsupported; use the full 40-character commit SHA. For a hexadecimal branch or tag name, use refs/heads/<name> or refs/tags/<name>." >&2
+            exit 1
+        fi
+        ;;
+esac
 mkdir -p "$WORK"
 WORK=$(cd "$WORK" && pwd)
 # Only replace directories created by this harness.
@@ -25,13 +39,14 @@ for target in mod-src "$@"; do
 done
 case $SRC in
     git:*)
-        ref=${SRC#git:}
-        test -n "$ref"
         checkout=$(mktemp -d)
         trap 'rm -rf "$checkout"' EXIT
         git -C "$checkout" init -q
         git -C "$checkout" remote add origin https://github.com/teylabs/mod.git
-        git -C "$checkout" fetch --depth=1 origin "$ref"
+        if ! git -C "$checkout" fetch --depth=1 origin "$ref"; then
+            echo "Unable to fetch Git ref '$ref' from teylabs/mod. Check the branch, tag, or full commit SHA and remote access." >&2
+            exit 1
+        fi
         git -C "$checkout" checkout -q --detach FETCH_HEAD
         SRC=$checkout
         ;;
@@ -43,7 +58,7 @@ touch "$WORK/.mod-docs-harness"
 rm -rf "$WORK/mod-src"
 mkdir -p "$WORK/mod-src"
 rsync -a --exclude vendor --exclude composer.lock --exclude build --exclude .phpunit.cache --exclude .git "$SRC/" "$WORK/mod-src/"
-git -C "$SRC" rev-parse HEAD > "$WORK/mod-ref.txt"
+git -C "$SRC" rev-parse --verify 'HEAD^{commit}' > "$WORK/mod-ref.txt"
 for major in "$@"; do
     base=$WORK/base-$major
     rm -rf "$base"

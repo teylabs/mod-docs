@@ -10,7 +10,7 @@ on:
   workflow_dispatch:
     inputs:
       mod_ref:
-        description: 'teylabs/mod branch, tag, or commit to verify (empty = the latest release)'
+        description: 'teylabs/mod branch, tag, or full 40-character commit SHA (empty = latest release)'
         required: false
         default: ''
         type: string
@@ -38,6 +38,10 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 24
+      - name: Verify setup ref validation without installing applications
+        run: |
+          python3 verify/test-setup.py
+          python3 verify/frontend/test-prepare-kit.py
       - name: Install zsh
         run: sudo apt-get update && sudo apt-get install -y zsh
       - name: Locate Composer cache
