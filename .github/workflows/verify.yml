@@ -39,7 +39,9 @@ jobs:
         with:
           node-version: 24
       - name: Verify setup ref validation without installing applications
-        run: python3 verify/test-setup.py
+        run: |
+          python3 verify/test-setup.py
+          python3 verify/frontend/test-prepare-kit.py
       - name: Install zsh
         run: sudo apt-get update && sudo apt-get install -y zsh
       - name: Locate Composer cache
