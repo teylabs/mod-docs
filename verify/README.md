@@ -24,6 +24,14 @@ verify/run.sh /tmp/mod-docs-verify 12 13
 
 A Git source is fetched from `teylabs/mod` and installed through a Composer path repository with copying enabled. `mod-ref.txt` records the resolved commit. A local source is copied too; changes made after setup require setup again. Neither mode edits the source checkout.
 
+Use a branch, tag, or full 40-character commit SHA after `git:`. Abbreviated hexadecimal IDs are rejected with full-SHA guidance, even when they are unique in your local checkout: a shallow remote fetch cannot establish their uniqueness. Obtain the full SHA with `git rev-parse --verify '<ref>^{commit}'` in your Mod checkout. For a branch or tag whose name is entirely hexadecimal, use `git:refs/heads/<name>` or `git:refs/tags/<name>` explicitly. Empty refs, options and revision expressions are not accepted.
+
+The focused setup regression uses Python 3, Git, PHP and rsync. It creates a disposable local Git fixture and stops at the Composer installation boundary; it makes no network requests or application installations:
+
+```bash
+python3 verify/test-setup.py
+```
+
 Setup replaces its own `mod-src` and selected `base-<version>` directories. Scenarios reset these disposable apps and can replace `copy-<version>` directories. Use a dedicated work directory. The harness refuses to reset apps in an unmarked work directory.
 
 Run selected pages with `--`:
