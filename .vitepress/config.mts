@@ -170,6 +170,7 @@ export default defineConfig({
           { text: 'Agents', link: '/going-further/agents' },
           { text: 'Self-contained modules', link: '/going-further/self-contained-modules' },
           { text: 'Stubs', link: '/going-further/stubs' },
+          { text: 'Keeping generated files up to date', link: '/going-further/maintenance' },
           { text: 'Plugins', link: '/going-further/plugins' },
           { text: 'Building on mod', link: '/going-further/building-on-mod' },
         ],
