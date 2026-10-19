@@ -2,7 +2,7 @@
 
 A package or recipe that generates files into an app will ship a newer version one day. `Tey\Mod\Maintenance` updates the app's copies without overwriting the edits you made to them.
 
-> **Experimental.** This API arrives in Mod 0.8 and may change before 1.0. It works on POSIX checkouts (macOS and Linux). Windows roots are refused, although Mod's generators still work on Windows.
+> **Experimental.** This API arrived in Mod 0.8, with lineages and claims added in Mod 0.9, and may change before 1.0. It works on POSIX checkouts (macOS and Linux). Windows roots are refused, although Mod's generators still work on Windows.
 
 It is for people building a package, recipe or installer on Mod. If you only use generators, you don't need it.
 
@@ -132,6 +132,7 @@ Each file in a plan has a state:
 | create | A new target file, and nothing is there yet |
 | conflict | Current differs from original, even if it equals the target |
 | unowned | A new target path collides with a file that isn't Mod's |
+| claim | A new target path you listed already holds the target's exact bytes (see [Claiming Files That Already Exist](#claiming-files-that-already-exist)) |
 
 Files the artifacts don't name are never touched and never become owned. The inspector refuses symlinked roots and parents, case aliases, and directories where files are expected.
 
@@ -168,7 +169,7 @@ The edited file is a conflict even if it already equals the target, because Mod 
 use Tey\Mod\Maintenance\Maintenance;
 
 $report = Maintenance::diagnose($plan, $inputs);
-// ['plan' => ..., 'current' => true, 'executable' => true, 'orphans' => []]
+// ['plan' => ..., 'current' => true, 'executable' => true, 'orphans' => [], 'claimable' => []]
 ```
 
 If a check fails, the status is `verification_failed` and the installed version stays where it was. Fix the cause, then finish the same intent with `resume()`, passing the same trusted artifacts:
@@ -194,6 +195,189 @@ Mod records the new installed version last, after every check has passed. If a p
 
 Temporary files left by an interrupted run are reported as `orphaned` and left in place for you to inspect. Mod never cleans them up or adopts them, and an update does not complete while any remain.
 
+## Several Lineages in One Checkout
+
+An app can take more than one generated unit, such as a base feature and an add-on built on it. Each one is a **lineage**: one generated unit, installed and updated on its own. The artifact's name is the lineage's name, so `acme/greeting:farewell` and `acme/greeting` are two lineages in one checkout. Mod keeps a separate record for each.
+
+An artifact can say what it builds on with `requires`: the lineages that must already be installed, each at an exact version or `'*'` for any version. This script adds a base lineage and an add-on that needs it. It uses the checks and policy files from earlier, and it asks for the add-on first to show the refusal:
+
+```php memo="lineages.php"
+<?php
+
+use Tey\Mod\Maintenance\Artifact;
+use Tey\Mod\Maintenance\Checkout;
+use Tey\Mod\Maintenance\Maintenance;
+
+require __DIR__.'/vendor/autoload.php';
+
+$root = realpath(__DIR__);
+$checks = require $root.'/maintenance/checks.php';
+$inputs = [
+    'verification-policy' => 'maintenance/policy.json',
+    'verification-code' => 'maintenance/checks.php',
+    'lock' => 'composer.lock',
+];
+$none = fn (Artifact $a) => new Artifact($a->name, '0.0.0', [], $a->groups, $a->bindings, $a->checks);
+
+$greeting = new Artifact('acme/greeting', '1.0.0', [
+    'app/Acme/Greeting.php' => "<?php\n\nnamespace App\Acme;\n\nclass Greeting {}\n",
+], ['core'], ['namespace' => 'App\Acme'], ['boots']);
+$farewell = new Artifact('acme/greeting:farewell', '1.0.0', [
+    'app/Acme/Farewell.php' => "<?php\n\nnamespace App\Acme;\n\nclass Farewell {}\n",
+], ['core'], ['namespace' => 'App\Acme'], ['boots'], requires: ['acme/greeting' => '1.0.0']);
+
+try {
+    Checkout::inspect($root, 'my-app', $none($farewell), $farewell, $inputs, ['php' => 'passed']);
+} catch (RuntimeException $e) {
+    echo 'farewell first: refused ('.$e->getMessage().")\n";
+}
+
+foreach ([$greeting, $farewell] as $artifact) {
+    $plan = Checkout::inspect($root, 'my-app', $none($artifact), $artifact, $inputs, ['php' => 'passed']);
+    $result = Maintenance::apply($plan, $inputs, 'install-'.$artifact->name, $checks, exclusiveCheckout: true);
+    echo "{$artifact->name}: {$result['status']}\n";
+}
+
+echo 'installed: '.implode(', ', array_keys(Checkout::installed($root, 'my-app')))."\n";
+```
+
+```bash
+php lineages.php
+# -> farewell first: refused (Required lineage acme/greeting is not installed at version 1.0.0.)
+# -> acme/greeting: completed
+# -> acme/greeting:farewell: completed
+# -> installed: acme/greeting, acme/greeting:farewell
+```
+
+`Checkout::installed()` lists what the checkout holds, one entry per lineage. It reads only.
+
+Lineages never share files. When a lineage's target path belongs to another installed lineage, the plan entry is a `conflict` with the reason `owned_by:<name>`, and ownership never moves between them.
+
+### Updating a Lineage Another One Requires
+
+A requirement on an exact version holds that lineage in place. Updating `acme/greeting` while `acme/greeting:farewell` needs version 1.0.0 is refused, with the reason `required_by:acme/greeting:farewell`. Update the add-on first, so that its requirement names the new version:
+
+```php
+$greeting2 = new Artifact('acme/greeting', '2.0.0', $greeting->files, ['core'], ['namespace' => 'App\Acme'], ['boots']);
+
+try {
+    Checkout::inspect($root, 'my-app', $greeting, $greeting2, $inputs, ['php' => 'passed']);
+} catch (RuntimeException $e) {
+    echo $e->getMessage()."\n";
+}
+```
+
+```text
+Lineage acme/greeting must stay at version 1.0.0 (required_by:acme/greeting:farewell).
+```
+
+A requirement of `'*'` accepts any version and never blocks an update. Mod doesn't read version ranges. If you need `^1.2`, check it yourself and pass the outcome in as the compatibility result of `Checkout::inspect()`.
+
+### Paths That Belong to the App
+
+An artifact can list `hostOwned` path prefixes, the places it leaves to the developer:
+
+```php
+$billing = new Artifact(
+    name: 'acme/greeting:billing',
+    version: '1.0.0',
+    files: ['app/Acme/Billing.php' => $bytes],
+    groups: [],
+    bindings: [],
+    checks: ['boots'],
+    hostOwned: ['config/branding.php', 'app/Domain'],
+);
+```
+
+`app/Domain` covers that folder and everything under it. No lineage may own, write or claim a path there. A target file that lands in one is a `conflict` with the reason `host_owned:<name>`. Several lineages may name the same prefix, and Mod only compares the paths and never reads them. It also refuses to install a lineage whose prefixes cover a file another lineage already owns.
+
+### When One Lineage Is Unfinished
+
+One unfinished update blocks the others. If a lineage's checks failed and you haven't resumed it, Mod refuses to inspect, apply, resume or claim for any other lineage, with the reason `pending:<name>`. The unfinished lineage can still resume. Finish it with `Maintenance::resume()` and then carry on with the rest.
+
+A checkout written by Mod 0.8 keeps working. Mod reads its record as the record for its own lineage and moves it to the new layout the next time that lineage updates.
+
+## Claiming Files That Already Exist
+
+Sometimes an app already holds files a recipe would generate, for example when it adopts a recipe it once copied by hand. Normally those paths are `unowned`, and the update won't run. To bring such a file under Mod, list the paths you have reviewed as `claim`.
+
+`Maintenance::diagnose()` helps you find them. Its `claimable` entry lists the unowned paths whose bytes already equal the target. This script sets up a hand-copied checkout and walks through it:
+
+```php memo="claim.php"
+<?php
+
+use Tey\Mod\Maintenance\Artifact;
+use Tey\Mod\Maintenance\Checkout;
+use Tey\Mod\Maintenance\Maintenance;
+
+require __DIR__.'/vendor/autoload.php';
+
+$root = realpath(__DIR__);
+$checks = require $root.'/maintenance/checks.php';
+$inputs = [
+    'verification-policy' => 'maintenance/policy.json',
+    'verification-code' => 'maintenance/checks.php',
+    'lock' => 'composer.lock',
+];
+
+$greeting = "<?php\n\nnamespace App\Acme;\n\nclass Greeting {}\n";
+$target = new Artifact('acme/greeting', '1.0.0', [
+    'app/Acme/Greeting.php' => $greeting,
+    'app/Acme/Formal.php' => "<?php\n\nnamespace App\Acme;\n\nclass Formal {}\n",
+    'app/Acme/Wave.php' => "<?php\n\nnamespace App\Acme;\n\nclass Wave {}\n",
+], ['core'], ['namespace' => 'App\Acme'], ['boots']);
+$none = new Artifact('acme/greeting', '0.0.0', [], ['core'], ['namespace' => 'App\Acme'], ['boots']);
+
+// Two files copied by hand earlier: one identical, one edited since.
+mkdir($root.'/app/Acme', 0777, true);
+file_put_contents($root.'/app/Acme/Greeting.php', $greeting);
+file_put_contents($root.'/app/Acme/Formal.php', "<?php\n\n// My own formal greeting\n");
+
+$show = function ($plan) {
+    foreach ($plan->files as $path => $file) {
+        echo "{$file['state']} {$path}\n";
+    }
+    echo $plan->executable() ? "can run\n" : "cannot run\n";
+};
+
+$plan = Checkout::inspect($root, 'my-app', $none, $target, $inputs, ['php' => 'passed']);
+$show($plan);
+echo 'claimable: '.implode(', ', Maintenance::diagnose($plan, $inputs)['claimable'])."\n";
+
+$claim = ['app/Acme/Greeting.php', 'app/Acme/Formal.php'];
+$show(Checkout::inspect($root, 'my-app', $none, $target, $inputs, ['php' => 'passed'], claim: $claim));
+
+rename($root.'/app/Acme/Formal.php', $root.'/app/Acme/Formal.php.mine');
+$plan = Checkout::inspect($root, 'my-app', $none, $target, $inputs, ['php' => 'passed'], claim: ['app/Acme/Greeting.php']);
+$show($plan);
+
+$result = Maintenance::apply($plan, $inputs, 'adopt-1.0.0', $checks, exclusiveCheckout: true);
+echo "install: {$result['status']} (wrote ".implode(', ', $result['written']).'; kept '.implode(', ', $result['reconciled']).")\n";
+```
+
+```bash
+php claim.php
+# -> unowned app/Acme/Greeting.php
+# -> unowned app/Acme/Formal.php
+# -> create app/Acme/Wave.php
+# -> cannot run
+# -> claimable: app/Acme/Greeting.php
+# -> claim app/Acme/Greeting.php
+# -> conflict app/Acme/Formal.php
+# -> claim app/Acme/Greeting.php
+# -> create app/Acme/Formal.php
+# -> can run
+# -> install: completed (wrote app/Acme/Formal.php, app/Acme/Wave.php; kept app/Acme/Greeting.php)
+```
+
+A claim never overwrites anything:
+
+- A claimed path whose bytes equal the target is a `claim`. Mod doesn't touch the file. After the update it is owned like any generated file.
+- A claimed path whose bytes differ is a `conflict`. Here, `Formal.php` stays as you wrote it, and the plan can't run until you move your version aside or drop it from the claim.
+- A path that exists but isn't in your list stays `unowned`.
+
+To resume an interrupted update, pass the same `claim` list to `Maintenance::resume()`.
+
 ## Limits
 
 - Experimental, and POSIX checkouts only.
@@ -201,3 +385,5 @@ Temporary files left by an interrupted run are reported as `orphaned` and left i
 - One Mod writer per checkout. Other editors aren't kept out.
 - It covers a process being interrupted, not a power loss.
 - Mod never cleans up or adopts orphaned files.
+- One unfinished update blocks every other lineage until you resume it.
+- There is no way to remove an installed lineage yet, and no atomic update across several lineages: each is applied on its own.

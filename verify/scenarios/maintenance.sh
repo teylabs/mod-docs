@@ -37,9 +37,29 @@ setup_maintenance
 mv "$APP/bootstrap/app.php" "$APP/bootstrap/app.php.away"
 { maintenance_prelude; echo '$plan = Checkout::inspect($root, "my-app", $empty, $v1, $inputs, ["php" => "passed"]);'; echo '$r = Maintenance::apply($plan, $inputs, "install-1.0.0", $checks, exclusiveCheckout: true); echo "install: {$r["status"]}\n";'; } > "$APP/fail.php"
 check 'A failing check ends in verification_failed' sh -c "cd '$APP' && '$PHP' fail.php | grep -Fx 'install: verification_failed'"
-check 'The installed version is not recorded' fails test -e "$APP/.mod-maintenance/installed.json"
+check 'The installed version is not recorded' fails test -d "$APP/.mod-maintenance/installed"
 mv "$APP/bootstrap/app.php.away" "$APP/bootstrap/app.php"
 { maintenance_prelude; maintenance_example 'When an Update Stops Part-way' 2; } > "$APP/resume.php"
 check 'resume finishes the same intent' sh -c "cd '$APP' && '$PHP' resume.php > '$WORK/doc-output.txt'"
 check 'The resume output matches the page' doc_output 'When an Update Stops Part-way' 1
-check 'The installed version is recorded after the checks pass' test -e "$APP/.mod-maintenance/installed.json"
+check 'The installed version is recorded after the checks pass' test -d "$APP/.mod-maintenance/installed"
+
+fresh 'maintenance: several lineages' modules
+setup_maintenance
+check 'The lineages script is valid PHP' doc_file 'Several Lineages in One Checkout' lineages.php
+check 'A lineage that requires another is refused until it is installed, then both install' doc_shell 'Several Lineages in One Checkout'
+check 'Each lineage has its own installed record' test -d "$APP/.mod-maintenance/installed"
+fresh 'maintenance: updating a required lineage' modules
+setup_maintenance
+doc_file 'Several Lineages in One Checkout' lineages.php
+{ cat "$APP/lineages.php"; echo; maintenance_example 'Updating a Lineage Another One Requires'; } > "$APP/required-by.php"
+check 'Updating a required lineage is refused' sh -c "cd '$APP' && '$PHP' required-by.php > '$WORK/doc-output.txt'"
+check 'The required_by refusal matches the page' doc_output 'Updating a Lineage Another One Requires' 1
+check 'The refused update leaves version 1.0.0 installed' sh -c "cd '$APP' && '$PHP' -r 'require \"vendor/autoload.php\"; echo Tey\\Mod\\Maintenance\\Checkout::installed(getcwd(), \"my-app\")[\"acme/greeting\"][\"version\"];' | grep -Fx 1.0.0"
+
+fresh 'maintenance: claiming existing files' modules
+setup_maintenance
+check 'The claim script is valid PHP' doc_file 'Claiming Files That Already Exist' claim.php
+check 'An identical file is claimed, a differing one is a conflict, and the claim installs' doc_shell 'Claiming Files That Already Exist'
+check 'The claimed file is left as it was' grep -Fx 'class Greeting {}' "$APP/app/Acme/Greeting.php"
+check 'The developer file was moved aside, not overwritten' grep -F 'My own formal greeting' "$APP/app/Acme/Formal.php.mine"
