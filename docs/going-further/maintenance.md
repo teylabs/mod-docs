@@ -2,7 +2,7 @@
 
 A package or recipe that generates files into an app will ship a newer version one day. `Tey\Mod\Maintenance` updates the app's copies without overwriting the edits you made to them.
 
-> **Experimental.** This API arrives in Mod 0.8, with lineages and claims following in Mod 0.9, and may change before 1.0. It works on POSIX checkouts (macOS and Linux). Windows roots are refused, although Mod's generators still work on Windows.
+> **Experimental.** This API arrived in Mod 0.8, with lineages and claims added in Mod 0.9, and may change before 1.0. It works on POSIX checkouts (macOS and Linux). Windows roots are refused, although Mod's generators still work on Windows.
 
 It is for people building a package, recipe or installer on Mod. If you only use generators, you don't need it.
 
