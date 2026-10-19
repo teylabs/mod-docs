@@ -7,7 +7,7 @@
  * Each half is its own span so a narrow screen can break the line at the
  * middle dot and hide the dot (see .credit-line in theme/custom.css).
  */
-export const CREDIT_COPY = '© 2026 Mod'
+export const CREDIT_COPY = '© 2026 Tey Labs Inc.'
 export const CREDIT_BUILT = 'Built by <a href="https://teylabs.com" target="_blank" rel="noopener">Tey Labs</a>, for fellow Laravel developers and their agents.'
 
 export const creditLine = '<span class="credit-line">'
