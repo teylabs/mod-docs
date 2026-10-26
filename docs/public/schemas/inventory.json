@@ -7,6 +7,8 @@
     "path",
     "token",
     "groups",
+    "disabled",
+    "unknown_disabled",
     "types",
     "templates",
     "scaffolds",
@@ -48,6 +50,18 @@
       ]
     },
     "groups": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "disabled": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "unknown_disabled": {
       "type": "array",
       "items": {
         "type": "string"
@@ -307,6 +321,13 @@
                     },
                     "folder": {
                       "type": "string"
+                    },
+                    "path_key": {
+                      "enum": [
+                        "pages",
+                        "components",
+                        "views"
+                      ]
                     },
                     "ungrouped": {
                       "type": "boolean"
@@ -568,6 +589,12 @@
           "namespace": {
             "type": "string"
           },
+          "page_entries": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
           "path": {
             "type": [
               "string",
@@ -627,6 +654,12 @@
               "string",
               "null"
             ]
+          },
+          "page_entries": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
           },
           "view_namespace": {
             "type": [
@@ -761,6 +794,12 @@
             "string",
             "null"
           ]
+        },
+        "page_entries": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
         },
         "view_namespace": {
           "type": [
@@ -1002,6 +1041,9 @@
               "string",
               "null"
             ]
+          },
+          "api_prefix": {
+            "type": "string"
           }
         }
       }
