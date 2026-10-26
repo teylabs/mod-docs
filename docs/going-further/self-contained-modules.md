@@ -172,3 +172,31 @@ final class StockReport
 ```
 
 The module’s `stubs/mod/@module/Tools/tool.stub` defines its `tool` file type. The class registers `mod:stock-report` on the next boot; copying the module carries this recipe and its template together.
+
+## Switching modules off
+
+List a module in `disabled` to switch it off without deleting it:
+
+```php
+// config/mod.php
+'disabled' => ['Billing'],
+```
+
+Name each module as `mod:list` prints it: `Billing`, or `Shop/Billing` for a nested one. A name also covers the modules nested below it. When a deploy needs to set the list, read an environment variable; a comma-separated string works:
+
+```php
+'disabled' => env('MOD_DISABLED', ''), // MOD_DISABLED=Billing,Shipping
+```
+
+A disabled module leaves no runtime trace. Its providers, Artisan commands, listeners, subscribers, policies, routes, views, Blade components, Inertia page namespace, translations and scaffolds don't load. Its `routes/console.php` doesn't load either, so the scheduled tasks it defines don't run.
+
+Two things stay:
+
+- **Migrations still run.** The module's migration folders stay on the migrator, so its tables stay and switching it back on is safe.
+- **Its models still find their factories.** `Model::factory()` resolves only when code calls it, so tests and seeders that build a disabled module's models keep working.
+
+`mod:list` marks each disabled module with `(disabled)`. `mod:list --json` adds `disabled`, the existing modules that are switched off, and `unknown_disabled`, the names that match no module.
+
+A name that matches no module doesn't stop the app. `mod:list` and `mod:cache` warn about it, so a typo shows up when you look and on every deploy that runs `php artisan optimize`. The app doesn't check at boot, so the list costs no folder scan per request.
+
+The discovery cache (`mod:cache`) holds every module, disabled or not, and the list is applied when the app boots. Changing the list doesn't need `mod:cache` again. If you cache your configuration (`php artisan config:cache`), rebuild that cache, as for any other config change.
